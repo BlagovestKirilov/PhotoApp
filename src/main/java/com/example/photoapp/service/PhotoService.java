@@ -7,7 +7,6 @@ import com.amazonaws.util.IOUtils;
 import com.example.photoapp.entities.Photo;
 import com.example.photoapp.entities.PhotoDto;
 import com.example.photoapp.repositories.PhotoRepository;
-import com.example.photoapp.security.model.User;
 import com.example.photoapp.security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
