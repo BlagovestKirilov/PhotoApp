@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Photo Uploader</title>
+</head>
+<body>
+<h1>Photo Uploader</h1>
+<div style="margin-bottom: 20px;">
+    <form th:action="@{/logout}" method="post">
+        <td>
+            <span style="margin-right: 10px;" th:text="'Hello ' + ${currentUser} + '!'"></span>
+            <button type="submit" class="btn btn-primary ms-3">Logout</button>
+        </td>
+    </form>
+</div>
+
+<hr/>
+
+<div style="margin-bottom: 20px;">
+    <form th:action="@{/add-friend}" method="get" style="display: inline-block;">
+        <button type="submit" class="btn btn-primary ms-3">Add friend</button>
+    </form>
+    <form th:action="@{/remove-friend}" method="get" style="display: inline-block;">
+        <button type="submit" class="btn btn-primary ms-3">Remove friend</button>
+    </form>
+</div>
+
+<hr/>
+
+<div style="margin-bottom: 20px;">
+    <div style="display: inline-block; margin-right: 10px;">
+        <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" id="file">
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+    <div style="display: inline-block; margin-left: 10px;">
+        <form th:action="@{/remove-photo}" method="get">
+            <button type="submit" class="btn btn-primary ms-3">Remove photo</button>
+        </form>
+    </div>
+</div>
+
+
+<hr/>
+
+
+<h2>Uploaded Photos</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>User</th>
+        <th>Photo</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="photo : ${photos}">
+        <td th:text="${photo.userName}" style="padding-right: 200px;"/>
+        <td>
+            <div style="display:flex; align-items:center">
+                <img th:src="'data:image/png;base64,' + ${photo.data}" style="width:200px;height:200px;"/>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

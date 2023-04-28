@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Remove photo</title>
+</head>
+<body>
+<h1>Remove photo</h1>
+<form th:action="@{/remove-photo}" method="post">
+    <label for="photoName">Photo name:</label>
+    <input type="text" id="photoName" name="photoName" required>
+    <button type="submit">Remove</button>
+</form>
+</body>
+</html>
