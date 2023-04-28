@@ -29,8 +29,8 @@ public class PhotoService {
 
     @Autowired
     private PhotoRepository photoRepository;
-    @Autowired CustomUserDetailsService customUserDetailsService;
-
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
     @Autowired
     private AmazonS3 s3Client;
 
@@ -41,17 +41,17 @@ public class PhotoService {
         s3Client.putObject(putObjectRequest);
     }
 
-    public void deleteFromS3(String filename){
+    public void deleteFromS3(String filename) {
         Photo photo = photoRepository.findByFileName(filename);
-        if(Objects.nonNull(photo)){
-            if(Objects.equals(photo.getUser().getId(), customUserDetailsService.currentUser.getId())){
-                s3Client.deleteObject(BUCKET_NAME,filename);
+        if (Objects.nonNull(photo)) {
+            if (Objects.equals(photo.getUser().getId(), customUserDetailsService.currentUser.getId())) {
+                s3Client.deleteObject(BUCKET_NAME, filename);
                 photoRepository.delete(photo);
             }
         }
     }
 
-    public List<PhotoDto> getFromS3(){
+    public List<PhotoDto> getFromS3() {
 
         List<Photo> photosInDatabase = photoRepository.findAll().stream()
                 .filter(photo -> {
@@ -70,7 +70,8 @@ public class PhotoService {
             return photoDto;
         }).collect(Collectors.toList());
     }
-    public ResponseEntity<byte[]> getImage( String key) {
+
+    public ResponseEntity<byte[]> getImage(String key) {
         try {
             S3Object s3Object = s3Client.getObject(BUCKET_NAME, key);
             InputStream inputStream = s3Object.getObjectContent();
@@ -82,9 +83,8 @@ public class PhotoService {
         }
     }
 
-
     public void save(File file) {
-        Photo photo= new Photo();
+        Photo photo = new Photo();
         photo.setFileName(file.getName());
         photo.setUser(customUserDetailsService.currentUser);
         photoRepository.save(photo);

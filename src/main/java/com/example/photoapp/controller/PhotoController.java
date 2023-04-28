@@ -30,7 +30,7 @@ public class PhotoController {
     @GetMapping("/")
     public String showUploadForm(Model model) {
         model.addAttribute("photos", photoService.getFromS3());
-        model.addAttribute("currentUser",customUserDetailsService.currentUser.getName());
+        model.addAttribute("currentUser", customUserDetailsService.currentUser.getName());
         return "uploadForm";
     }
 
@@ -39,10 +39,9 @@ public class PhotoController {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         File tempFile = File.createTempFile("temp", fileName);
         file.transferTo(tempFile);
+
         photoService.uploadToS3(tempFile);
-
         photoService.save(tempFile);
-
         return "redirect:/";
     }
 
@@ -51,15 +50,18 @@ public class PhotoController {
         userService.addFriend(friendName);
         return "redirect:/";
     }
+
     @GetMapping("/add-friend")
     public String addFriend() {
         return "addFriend";
     }
+
     @PostMapping("/remove-friend")
     public String removeFriendConfirm(@RequestParam String friendName) {
         userService.removeFriend(friendName);
         return "redirect:/";
     }
+
     @GetMapping("/remove-friend")
     public String removeFriend() {
         return "removeFriend";
@@ -70,6 +72,7 @@ public class PhotoController {
         photoService.deleteFromS3(photoName);
         return "redirect:/";
     }
+
     @GetMapping("/remove-photo")
     public String removePhoto() {
         return "removePhoto";
