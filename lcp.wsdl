@@ -1,0 +1,507 @@
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://soap.endpoint.lcp.nevexis.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="CampaignResponseSrv" targetNamespace="http://soap.endpoint.lcp.nevexis.com/">
+<wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://soap.endpoint.lcp.nevexis.com/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://soap.endpoint.lcp.nevexis.com/">
+<xs:element name="addCampaignResponse" type="tns:addCampaignResponse"/>
+<xs:element name="addCampaignResponseResponse" type="tns:addCampaignResponseResponse"/>
+<xs:element name="addCampaignResponses" type="tns:addCampaignResponses"/>
+<xs:element name="addCampaignResponsesResponse" type="tns:addCampaignResponsesResponse"/>
+<xs:element name="addTriggerEvent" type="tns:addTriggerEvent"/>
+<xs:element name="addTriggerEventResponse" type="tns:addTriggerEventResponse"/>
+<xs:element name="getCampaign" type="tns:getCampaign"/>
+<xs:element name="getCampaignByChannel" type="tns:getCampaignByChannel"/>
+<xs:element name="getCampaignByChannelResponse" type="tns:getCampaignByChannelResponse"/>
+<xs:element name="getCampaignResponse" type="tns:getCampaignResponse"/>
+<xs:element name="getCampaignSample" type="tns:getCampaignSample"/>
+<xs:element name="getCampaignSampleResponse" type="tns:getCampaignSampleResponse"/>
+<xs:element name="getCampaignsByCustomer" type="tns:getCampaignsByCustomer"/>
+<xs:element name="getCampaignsByCustomerResponse" type="tns:getCampaignsByCustomerResponse"/>
+<xs:element name="getCampaignsByToken" type="tns:getCampaignsByToken"/>
+<xs:element name="getCampaignsByTokenResponse" type="tns:getCampaignsByTokenResponse"/>
+<xs:complexType name="getCampaignsByCustomer">
+<xs:sequence>
+<xs:element minOccurs="0" name="customerRk" type="xs:string"/>
+<xs:element minOccurs="0" name="channel" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCampaignsByCustomerResponse">
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:communicationContact"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="communicationContact">
+<xs:sequence>
+<xs:element minOccurs="0" name="commChannel" type="xs:string"/>
+<xs:element minOccurs="0" name="commSubChannel" type="xs:string"/>
+<xs:element minOccurs="0" name="communicationResponse" type="tns:communicationResponse"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="communications" nillable="true" type="tns:communication"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="contactAddChar" nillable="true" type="tns:contactAddChar"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="contactAddDate" nillable="true" type="tns:contactAddDate"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="contactAddNum" nillable="true" type="tns:contactAddNum"/>
+<xs:element name="customerPriority" type="xs:int"/>
+<xs:element minOccurs="0" name="customerRk" type="xs:string"/>
+<xs:element minOccurs="0" name="customerSegment" type="xs:string"/>
+<xs:element minOccurs="0" name="customerType" type="xs:string"/>
+<xs:element minOccurs="0" name="processedDttm" type="xs:string"/>
+<xs:element minOccurs="0" name="productId" type="xs:string"/>
+<xs:element minOccurs="0" name="responseTrackCd" type="xs:string"/>
+<xs:element minOccurs="0" name="treatmentCd" type="xs:string"/>
+<xs:element minOccurs="0" name="treatmentDesc" type="xs:string"/>
+<xs:element minOccurs="0" name="treatmentLink" type="xs:string"/>
+<xs:element minOccurs="0" name="treatmentNm" type="xs:string"/>
+<xs:element minOccurs="0" name="treatmentTrackCd" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="communicationResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="customerRk" type="xs:string"/>
+<xs:element minOccurs="0" name="externalResponseInfoId1" type="xs:string"/>
+<xs:element minOccurs="0" name="externalResponseInfoId1Desc" type="xs:string"/>
+<xs:element minOccurs="0" name="externalResponseInfoId2" type="xs:string"/>
+<xs:element minOccurs="0" name="externalResponseInfoId2Desc" type="xs:string"/>
+<xs:element minOccurs="0" name="externalResponseInfoId3" type="xs:string"/>
+<xs:element minOccurs="0" name="externalResponseInfoId3Desc" type="xs:string"/>
+<xs:element minOccurs="0" name="externalResponseInfoId4" type="xs:string"/>
+<xs:element minOccurs="0" name="externalResponseInfoId4Desc" type="xs:string"/>
+<xs:element minOccurs="0" name="processedDttm" type="xs:string"/>
+<xs:element minOccurs="0" name="responseCd" type="xs:string"/>
+<xs:element minOccurs="0" name="responseChannel" type="xs:string"/>
+<xs:element minOccurs="0" name="responseChannelDetailsCd" type="xs:string"/>
+<xs:element minOccurs="0" name="responseChannelDetailsCdDesc" type="xs:string"/>
+<xs:element minOccurs="0" name="responseDttm" type="xs:string"/>
+<xs:element minOccurs="0" name="responseSubChannel" type="xs:string"/>
+<xs:element minOccurs="0" name="responseTrackCd" type="xs:string"/>
+<xs:element minOccurs="0" name="treatmentTrackCd" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="communication">
+<xs:sequence>
+<xs:element minOccurs="0" name="campaignCd" type="xs:string"/>
+<xs:element minOccurs="0" name="campaignDesc" type="xs:string"/>
+<xs:element minOccurs="0" name="campaignEndDate" type="xs:string"/>
+<xs:element minOccurs="0" name="campaignGoal" type="xs:string"/>
+<xs:element minOccurs="0" name="campaignLink" type="xs:string"/>
+<xs:element minOccurs="0" name="campaignNm" type="xs:string"/>
+<xs:element minOccurs="0" name="campaignOrigin" type="xs:string"/>
+<xs:element name="campaignPriority" type="xs:int"/>
+<xs:element minOccurs="0" name="campaignStartDate" type="xs:string"/>
+<xs:element minOccurs="0" name="campaignStatus" type="xs:string"/>
+<xs:element minOccurs="0" name="campaignTop10" type="xs:string"/>
+<xs:element minOccurs="0" name="cellCd" type="xs:string"/>
+<xs:element minOccurs="0" name="cellDesc" type="xs:string"/>
+<xs:element minOccurs="0" name="cellNm" type="xs:string"/>
+<xs:element minOccurs="0" name="commCd" type="xs:string"/>
+<xs:element minOccurs="0" name="commChannel" type="xs:string"/>
+<xs:element minOccurs="0" name="commEndDttm" type="xs:string"/>
+<xs:element minOccurs="0" name="commLink" type="xs:string"/>
+<xs:element minOccurs="0" name="commNm" type="xs:string"/>
+<xs:element minOccurs="0" name="commOccurrenceSeq" type="xs:string"/>
+<xs:element minOccurs="0" name="commRecurrence" type="xs:string"/>
+<xs:element minOccurs="0" name="commStartDttm" type="xs:string"/>
+<xs:element minOccurs="0" name="commStatus" type="xs:string"/>
+<xs:element minOccurs="0" name="commSubChannel" type="xs:string"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="communicationContacts" nillable="true" type="tns:communicationContact"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="communicationResponseCd" nillable="true" type="tns:communicationResponseCd"/>
+<xs:element minOccurs="0" name="customerSegment" type="xs:string"/>
+<xs:element minOccurs="0" name="customerType" type="xs:string"/>
+<xs:element minOccurs="0" name="numberOfChunks" type="xs:long"/>
+<xs:element minOccurs="0" name="numberOfContacts" type="xs:long"/>
+<xs:element minOccurs="0" name="precessedDttm" type="xs:string"/>
+<xs:element minOccurs="0" name="responseTrackCd" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="communicationResponseCd">
+<xs:sequence>
+<xs:element minOccurs="0" name="responseCd" type="xs:string"/>
+<xs:element minOccurs="0" name="responseChannel" type="xs:string"/>
+<xs:element minOccurs="0" name="responseNm" type="xs:string"/>
+<xs:element minOccurs="0" name="responseSubChannel" type="xs:string"/>
+<xs:element minOccurs="0" name="responseTrackCd" type="xs:string"/>
+<xs:element minOccurs="0" name="responseType" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="contactAddChar">
+<xs:sequence>
+<xs:element minOccurs="0" name="name1" type="xs:string"/>
+<xs:element minOccurs="0" name="name10" type="xs:string"/>
+<xs:element minOccurs="0" name="name2" type="xs:string"/>
+<xs:element minOccurs="0" name="name3" type="xs:string"/>
+<xs:element minOccurs="0" name="name4" type="xs:string"/>
+<xs:element minOccurs="0" name="name5" type="xs:string"/>
+<xs:element minOccurs="0" name="name6" type="xs:string"/>
+<xs:element minOccurs="0" name="name7" type="xs:string"/>
+<xs:element minOccurs="0" name="name8" type="xs:string"/>
+<xs:element minOccurs="0" name="name9" type="xs:string"/>
+<xs:element minOccurs="0" name="value1" type="xs:string"/>
+<xs:element minOccurs="0" name="value10" type="xs:string"/>
+<xs:element minOccurs="0" name="value2" type="xs:string"/>
+<xs:element minOccurs="0" name="value3" type="xs:string"/>
+<xs:element minOccurs="0" name="value4" type="xs:string"/>
+<xs:element minOccurs="0" name="value5" type="xs:string"/>
+<xs:element minOccurs="0" name="value6" type="xs:string"/>
+<xs:element minOccurs="0" name="value7" type="xs:string"/>
+<xs:element minOccurs="0" name="value8" type="xs:string"/>
+<xs:element minOccurs="0" name="value9" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="contactAddDate">
+<xs:sequence>
+<xs:element minOccurs="0" name="name1" type="xs:string"/>
+<xs:element minOccurs="0" name="name10" type="xs:string"/>
+<xs:element minOccurs="0" name="name2" type="xs:string"/>
+<xs:element minOccurs="0" name="name3" type="xs:string"/>
+<xs:element minOccurs="0" name="name4" type="xs:string"/>
+<xs:element minOccurs="0" name="name5" type="xs:string"/>
+<xs:element minOccurs="0" name="name6" type="xs:string"/>
+<xs:element minOccurs="0" name="name7" type="xs:string"/>
+<xs:element minOccurs="0" name="name8" type="xs:string"/>
+<xs:element minOccurs="0" name="name9" type="xs:string"/>
+<xs:element minOccurs="0" name="value1" type="xs:string"/>
+<xs:element minOccurs="0" name="value10" type="xs:string"/>
+<xs:element minOccurs="0" name="value2" type="xs:string"/>
+<xs:element minOccurs="0" name="value3" type="xs:string"/>
+<xs:element minOccurs="0" name="value4" type="xs:string"/>
+<xs:element minOccurs="0" name="value5" type="xs:string"/>
+<xs:element minOccurs="0" name="value6" type="xs:string"/>
+<xs:element minOccurs="0" name="value7" type="xs:string"/>
+<xs:element minOccurs="0" name="value8" type="xs:string"/>
+<xs:element minOccurs="0" name="value9" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="contactAddNum">
+<xs:sequence>
+<xs:element minOccurs="0" name="name1" type="xs:string"/>
+<xs:element minOccurs="0" name="name10" type="xs:string"/>
+<xs:element minOccurs="0" name="name2" type="xs:string"/>
+<xs:element minOccurs="0" name="name3" type="xs:string"/>
+<xs:element minOccurs="0" name="name4" type="xs:string"/>
+<xs:element minOccurs="0" name="name5" type="xs:string"/>
+<xs:element minOccurs="0" name="name6" type="xs:string"/>
+<xs:element minOccurs="0" name="name7" type="xs:string"/>
+<xs:element minOccurs="0" name="name8" type="xs:string"/>
+<xs:element minOccurs="0" name="name9" type="xs:string"/>
+<xs:element minOccurs="0" name="value1" type="xs:decimal"/>
+<xs:element minOccurs="0" name="value10" type="xs:decimal"/>
+<xs:element minOccurs="0" name="value2" type="xs:decimal"/>
+<xs:element minOccurs="0" name="value3" type="xs:decimal"/>
+<xs:element minOccurs="0" name="value4" type="xs:decimal"/>
+<xs:element minOccurs="0" name="value5" type="xs:decimal"/>
+<xs:element minOccurs="0" name="value6" type="xs:decimal"/>
+<xs:element minOccurs="0" name="value7" type="xs:decimal"/>
+<xs:element minOccurs="0" name="value8" type="xs:decimal"/>
+<xs:element minOccurs="0" name="value9" type="xs:decimal"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCampaign">
+<xs:sequence>
+<xs:element minOccurs="0" name="respTrackCd" type="xs:string"/>
+<xs:element minOccurs="0" name="chunk" type="xs:int"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCampaignResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="return" type="tns:communication"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCampaignsByToken">
+<xs:sequence>
+<xs:element minOccurs="0" name="token" type="xs:string"/>
+<xs:element minOccurs="0" name="channel" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCampaignsByTokenResponse">
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:communicationContact"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="addCampaignResponses">
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="campaignResponse" type="tns:communicationResponse"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="addCampaignResponsesResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="return" type="tns:batchReponses"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="batchReponses">
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="invalidResponses" nillable="true" type="tns:responseValidationError"/>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="validResponses" nillable="true" type="tns:communicationResponse"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="responseValidationError">
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="errors" nillable="true" type="tns:validationError"/>
+<xs:element minOccurs="0" name="reponse" type="tns:communicationResponse"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="validationError">
+<xs:sequence>
+<xs:element minOccurs="0" name="errorCode" type="xs:string"/>
+<xs:element minOccurs="0" name="errorDesc" type="xs:string"/>
+<xs:element minOccurs="0" name="field" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCampaignByChannel">
+<xs:sequence>
+<xs:element minOccurs="0" name="channel" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCampaignByChannelResponse">
+<xs:sequence>
+<xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:communication"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCampaignSample">
+<xs:sequence>
+<xs:element minOccurs="0" name="respTrackCd" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="getCampaignSampleResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="return" type="tns:communication"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="addTriggerEvent">
+<xs:sequence>
+<xs:element minOccurs="0" name="triggerEvent" type="tns:triggerEvent"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="triggerEvent">
+<xs:sequence>
+<xs:element minOccurs="0" name="contactCd" type="xs:string"/>
+<xs:element minOccurs="0" name="contactChannel" type="xs:string"/>
+<xs:element minOccurs="0" name="contactDttm" type="xs:string"/>
+<xs:element minOccurs="0" name="contactSubChannel" type="xs:string"/>
+<xs:element minOccurs="0" name="contactSubChannelDetailsCd" type="xs:string"/>
+<xs:element minOccurs="0" name="contactSubChannelDetailsCdDesc" type="xs:string"/>
+<xs:element minOccurs="0" name="customerRk" type="xs:string"/>
+<xs:element minOccurs="0" name="externalContactInfoId1" type="xs:string"/>
+<xs:element minOccurs="0" name="externalContactInfoId1Desc" type="xs:string"/>
+<xs:element minOccurs="0" name="externalContactInfoId2" type="xs:string"/>
+<xs:element minOccurs="0" name="externalContactInfoId2Desc" type="xs:string"/>
+<xs:element minOccurs="0" name="externalContactInfoId3" type="xs:string"/>
+<xs:element minOccurs="0" name="externalContactInfoId3Desc" type="xs:string"/>
+<xs:element minOccurs="0" name="externalContactInfoId4" type="xs:string"/>
+<xs:element minOccurs="0" name="externalContactInfoId4Desc" type="xs:string"/>
+<xs:element minOccurs="0" name="otherCustomerId" type="xs:string"/>
+<xs:element minOccurs="0" name="otherCustomerIdCd" type="xs:string"/>
+<xs:element minOccurs="0" name="otherCustomerIdDesc" type="xs:string"/>
+<xs:element minOccurs="0" name="processedDttm" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="addTriggerEventResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="return" type="tns:triggerEvent"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="addCampaignResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="campaignResponse" type="tns:communicationResponse"/>
+</xs:sequence>
+</xs:complexType>
+<xs:complexType name="addCampaignResponseResponse">
+<xs:sequence>
+<xs:element minOccurs="0" name="return" type="tns:communicationResponse"/>
+</xs:sequence>
+</xs:complexType>
+<xs:element name="SoapValidationException" type="tns:SoapValidationException"/>
+<xs:complexType name="SoapValidationException">
+<xs:sequence>
+<xs:element minOccurs="0" name="errors" type="xs:string"/>
+<xs:element minOccurs="0" name="message" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+<xs:element name="DataSetTooBigException" type="tns:DataSetTooBigException"/>
+<xs:complexType name="DataSetTooBigException">
+<xs:sequence>
+<xs:element minOccurs="0" name="message" type="xs:string"/>
+</xs:sequence>
+</xs:complexType>
+</xs:schema>
+</wsdl:types>
+<wsdl:message name="addCampaignResponseResponse">
+<wsdl:part element="tns:addCampaignResponseResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaignSampleResponse">
+<wsdl:part element="tns:getCampaignSampleResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaignsByToken">
+<wsdl:part element="tns:getCampaignsByToken" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="addCampaignResponses">
+<wsdl:part element="tns:addCampaignResponses" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaignSample">
+<wsdl:part element="tns:getCampaignSample" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaignsByTokenResponse">
+<wsdl:part element="tns:getCampaignsByTokenResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="addTriggerEvent">
+<wsdl:part element="tns:addTriggerEvent" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaignsByCustomer">
+<wsdl:part element="tns:getCampaignsByCustomer" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaign">
+<wsdl:part element="tns:getCampaign" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="SoapValidationException">
+<wsdl:part element="tns:SoapValidationException" name="SoapValidationException"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="DataSetTooBigException">
+<wsdl:part element="tns:DataSetTooBigException" name="DataSetTooBigException"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="addTriggerEventResponse">
+<wsdl:part element="tns:addTriggerEventResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaignByChannelResponse">
+<wsdl:part element="tns:getCampaignByChannelResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaignResponse">
+<wsdl:part element="tns:getCampaignResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaignByChannel">
+<wsdl:part element="tns:getCampaignByChannel" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="getCampaignsByCustomerResponse">
+<wsdl:part element="tns:getCampaignsByCustomerResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="addCampaignResponsesResponse">
+<wsdl:part element="tns:addCampaignResponsesResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:message name="addCampaignResponse">
+<wsdl:part element="tns:addCampaignResponse" name="parameters"> </wsdl:part>
+</wsdl:message>
+<wsdl:portType name="CampaignResponseWs">
+<wsdl:operation name="getCampaignsByCustomer">
+<wsdl:input message="tns:getCampaignsByCustomer" name="getCampaignsByCustomer"> </wsdl:input>
+<wsdl:output message="tns:getCampaignsByCustomerResponse" name="getCampaignsByCustomerResponse"> </wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="getCampaign">
+<wsdl:input message="tns:getCampaign" name="getCampaign"> </wsdl:input>
+<wsdl:output message="tns:getCampaignResponse" name="getCampaignResponse"> </wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="getCampaignsByToken">
+<wsdl:input message="tns:getCampaignsByToken" name="getCampaignsByToken"> </wsdl:input>
+<wsdl:output message="tns:getCampaignsByTokenResponse" name="getCampaignsByTokenResponse"> </wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="addCampaignResponses">
+<wsdl:input message="tns:addCampaignResponses" name="addCampaignResponses"> </wsdl:input>
+<wsdl:output message="tns:addCampaignResponsesResponse" name="addCampaignResponsesResponse"> </wsdl:output>
+<wsdl:fault message="tns:SoapValidationException" name="SoapValidationException"> </wsdl:fault>
+<wsdl:fault message="tns:DataSetTooBigException" name="DataSetTooBigException"> </wsdl:fault>
+</wsdl:operation>
+<wsdl:operation name="getCampaignByChannel">
+<wsdl:input message="tns:getCampaignByChannel" name="getCampaignByChannel"> </wsdl:input>
+<wsdl:output message="tns:getCampaignByChannelResponse" name="getCampaignByChannelResponse"> </wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="getCampaignSample">
+<wsdl:input message="tns:getCampaignSample" name="getCampaignSample"> </wsdl:input>
+<wsdl:output message="tns:getCampaignSampleResponse" name="getCampaignSampleResponse"> </wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="addTriggerEvent">
+<wsdl:input message="tns:addTriggerEvent" name="addTriggerEvent"> </wsdl:input>
+<wsdl:output message="tns:addTriggerEventResponse" name="addTriggerEventResponse"> </wsdl:output>
+<wsdl:fault message="tns:SoapValidationException" name="SoapValidationException"> </wsdl:fault>
+</wsdl:operation>
+<wsdl:operation name="addCampaignResponse">
+<wsdl:input message="tns:addCampaignResponse" name="addCampaignResponse"> </wsdl:input>
+<wsdl:output message="tns:addCampaignResponseResponse" name="addCampaignResponseResponse"> </wsdl:output>
+<wsdl:fault message="tns:SoapValidationException" name="SoapValidationException"> </wsdl:fault>
+</wsdl:operation>
+</wsdl:portType>
+<wsdl:binding name="CampaignResponseSrvSoapBinding" type="tns:CampaignResponseWs">
+<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+<wsdl:operation name="getCampaignsByCustomer">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="getCampaignsByCustomer">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="getCampaignsByCustomerResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="getCampaign">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="getCampaign">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="getCampaignResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="getCampaignsByToken">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="getCampaignsByToken">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="getCampaignsByTokenResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="addCampaignResponses">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="addCampaignResponses">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="addCampaignResponsesResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+<wsdl:fault name="SoapValidationException">
+<soap:fault name="SoapValidationException" use="literal"/>
+</wsdl:fault>
+<wsdl:fault name="DataSetTooBigException">
+<soap:fault name="DataSetTooBigException" use="literal"/>
+</wsdl:fault>
+</wsdl:operation>
+<wsdl:operation name="getCampaignByChannel">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="getCampaignByChannel">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="getCampaignByChannelResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="getCampaignSample">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="getCampaignSample">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="getCampaignSampleResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+</wsdl:operation>
+<wsdl:operation name="addTriggerEvent">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="addTriggerEvent">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="addTriggerEventResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+<wsdl:fault name="SoapValidationException">
+<soap:fault name="SoapValidationException" use="literal"/>
+</wsdl:fault>
+</wsdl:operation>
+<wsdl:operation name="addCampaignResponse">
+<soap:operation soapAction="" style="document"/>
+<wsdl:input name="addCampaignResponse">
+<soap:body use="literal"/>
+</wsdl:input>
+<wsdl:output name="addCampaignResponseResponse">
+<soap:body use="literal"/>
+</wsdl:output>
+<wsdl:fault name="SoapValidationException">
+<soap:fault name="SoapValidationException" use="literal"/>
+</wsdl:fault>
+</wsdl:operation>
+</wsdl:binding>
+<wsdl:service name="CampaignResponseSrv">
+<wsdl:port binding="tns:CampaignResponseSrvSoapBinding" name="CampaignResponseWsImplPort">
+<soap:address location="http://localhost:8080/ucb-lcp/ws/campaignresponse"/>
+</wsdl:port>
+</wsdl:service>
+</wsdl:definitions>
