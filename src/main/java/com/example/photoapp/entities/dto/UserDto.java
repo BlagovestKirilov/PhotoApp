@@ -1,4 +1,4 @@
-package com.example.photoapp.security.dto;
+package com.example.photoapp.entities.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;

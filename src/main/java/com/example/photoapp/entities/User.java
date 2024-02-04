@@ -1,6 +1,5 @@
-package com.example.photoapp.security.model;
+package com.example.photoapp.entities;
 
-import com.example.photoapp.entities.Photo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

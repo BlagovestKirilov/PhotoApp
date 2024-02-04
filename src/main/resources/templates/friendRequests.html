@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Photo Uploader</title>
+</head>
+<body>
+<h1>Photo Uploader</h1>
+<hr/>
+
+
+<h2>Friend Requests</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>User</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="request : ${requests}">
+        <td th:text="${request.getSenderName()}" style="padding-right: 200px;"/>
+        <td th:text="${request.getFriendRequestId()}" style="padding-right: 200px;"/>
+        <td>
+            <div style="margin-bottom: 20px;">
+            <form th:action="@{/user/confirm-friend}" method="post" style="display: inline-block;">
+                <input type="hidden" name="friendRequestId" th:value="${request.getFriendRequestId()}" />
+                <button type="submit" class="btn btn-primary ms-3">Confirm</button>
+            </form>
+            <form th:action="@{/user/reject-friend}" method="post" style="display: inline-block;">
+                <input type="hidden" name="friendRequestId" th:value="${request.getFriendRequestId()}" />
+                <button type="submit" class="btn btn-primary ms-3">Reject</button>
+            </form>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

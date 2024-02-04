@@ -1,8 +1,9 @@
 package com.example.photoapp.controller;
 
-import com.example.photoapp.security.service.CustomUserDetailsService;
-import com.example.photoapp.security.service.UserServiceImpl;
-import com.example.photoapp.service.PhotoService;
+import com.example.photoapp.entities.dto.FriendRequestDto;
+import com.example.photoapp.service.impl.CustomUserDetailsService;
+import com.example.photoapp.service.impl.UserServiceImpl;
+import com.example.photoapp.service.impl.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,17 +15,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 @Controller
 public class PhotoController {
 
-    @Autowired
-    PhotoService photoService;
-    @Autowired
-    CustomUserDetailsService customUserDetailsService;
-    @Autowired
-    UserServiceImpl userService;
+    @Autowired PhotoService photoService;
+
+    @Autowired CustomUserDetailsService customUserDetailsService;
+
+    @Autowired UserServiceImpl userService;
 
 
     @GetMapping("/")
@@ -45,28 +46,6 @@ public class PhotoController {
         return "redirect:/";
     }
 
-    @PostMapping("/add-friend")
-    public String addFriendConfirm(@RequestParam String friendName) {
-        userService.addFriend(friendName);
-        return "redirect:/";
-    }
-
-    @GetMapping("/add-friend")
-    public String addFriend() {
-        return "addFriend";
-    }
-
-    @PostMapping("/remove-friend")
-    public String removeFriendConfirm(@RequestParam String friendName) {
-        userService.removeFriend(friendName);
-        return "redirect:/";
-    }
-
-    @GetMapping("/remove-friend")
-    public String removeFriend() {
-        return "removeFriend";
-    }
-
     @PostMapping("/remove-photo")
     public String removePhotoConfirm(@RequestParam String photoName) {
         photoService.deleteFromS3(photoName);
@@ -77,4 +56,5 @@ public class PhotoController {
     public String removePhoto() {
         return "removePhoto";
     }
+
 }

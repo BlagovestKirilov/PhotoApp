@@ -1,4 +1,4 @@
-package com.example.photoapp.security.conf;
+package com.example.photoapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

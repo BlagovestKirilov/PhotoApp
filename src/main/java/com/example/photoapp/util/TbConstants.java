@@ -1,4 +1,4 @@
-package com.example.photoapp.security.util;
+package com.example.photoapp.util;
 
 public class TbConstants {
     public interface Roles {

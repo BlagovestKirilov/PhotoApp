@@ -1,13 +1,12 @@
-package com.example.photoapp.service;
+package com.example.photoapp.service.impl;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
 import com.example.photoapp.entities.Photo;
-import com.example.photoapp.entities.PhotoDto;
+import com.example.photoapp.entities.dto.PhotoDto;
 import com.example.photoapp.repositories.PhotoRepository;
-import com.example.photoapp.security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;

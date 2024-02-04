@@ -18,11 +18,14 @@
 <hr/>
 
 <div style="margin-bottom: 20px;">
-    <form th:action="@{/add-friend}" method="get" style="display: inline-block;">
+    <form th:action="@{/user/add-friend}" method="get" style="display: inline-block;">
         <button type="submit" class="btn btn-primary ms-3">Add friend</button>
     </form>
-    <form th:action="@{/remove-friend}" method="get" style="display: inline-block;">
+    <form th:action="@{/user/remove-friend}" method="get" style="display: inline-block;">
         <button type="submit" class="btn btn-primary ms-3">Remove friend</button>
+    </form>
+    <form th:action="@{/user/friend-requests}" method="get" style="display: inline-block;">
+        <button type="submit" class="btn btn-primary ms-3">Friend Requests</button>
     </form>
 </div>
 

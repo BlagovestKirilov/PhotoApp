@@ -1,7 +1,7 @@
-package com.example.photoapp.security.repository;
+package com.example.photoapp.repositories;
 
 
-import com.example.photoapp.security.model.Role;
+import com.example.photoapp.entities.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

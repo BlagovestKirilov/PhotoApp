@@ -1,8 +1,8 @@
-package com.example.photoapp.security.controller;
+package com.example.photoapp.controller;
 
-import com.example.photoapp.security.dto.UserDto;
-import com.example.photoapp.security.model.User;
-import com.example.photoapp.security.service.UserService;
+import com.example.photoapp.entities.dto.UserDto;
+import com.example.photoapp.entities.User;
+import com.example.photoapp.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class LoginController {
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
     @RequestMapping("/login")
     public String loginForm() {

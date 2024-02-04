@@ -1,4 +1,4 @@
-package com.example.photoapp.entities;
+package com.example.photoapp.entities.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhotoDto {
-    private String data;
-    private String userName;
+public class FriendRequestDto {
+    private Long friendRequestId;
+
+    private String senderName;
 }

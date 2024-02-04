@@ -1,8 +1,8 @@
-package com.example.photoapp.security.service;
+package com.example.photoapp.service.impl;
 
 
-import com.example.photoapp.security.model.User;
-import com.example.photoapp.security.repository.UserRepository;
+import com.example.photoapp.entities.User;
+import com.example.photoapp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
