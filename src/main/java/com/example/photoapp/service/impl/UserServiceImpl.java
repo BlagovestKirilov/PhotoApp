@@ -93,17 +93,25 @@ public class UserServiceImpl implements UserService {
         }
         return resultList;
     }
-    public void removeFriend(String name){
-        User foundUser = userRepository.findByName(name);
+
+    public void removeFriend(String userNameForRemoval) {
         User currentUser = customUserDetailsService.currentUser;
 
         List<User> friendsList = currentUser.getFriends();
         friendsList.stream()
-                .filter(friend -> friend.getName().equals(foundUser.getName()))
+                .filter(friend -> friend.getName().equals(userNameForRemoval))
                 .findFirst()
                 .ifPresent(friendsList::remove);
-        userRepository.save(currentUser);
 
+        User userForRemoval = userRepository.findByName(userNameForRemoval);
+        List<User> userForRemovalFriendList = userForRemoval.getFriends();
+        userForRemovalFriendList.stream()
+                .filter(friend -> friend.getName().equals(currentUser.getName()))
+                .findFirst()
+                .ifPresent(userForRemovalFriendList::remove);
+
+        userRepository.save(currentUser);
+        userRepository.save(userForRemoval);
     }
     @Override
     public User findUserByEmail(String email) {
