@@ -1,7 +1,6 @@
 package com.example.photoapp.controller;
 
 import com.example.photoapp.entities.dto.FriendRequestDto;
-import com.example.photoapp.service.impl.CustomUserDetailsService;
 import com.example.photoapp.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,9 +15,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/user")
 public class UserController {
-    @Autowired UserServiceImpl userService;
-
-    @Autowired CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    UserServiceImpl userService;
 
     @GetMapping("/")
     public String registrationForm() {
@@ -27,8 +25,7 @@ public class UserController {
 
     @GetMapping("/friend-requests")
     public String showFriendRequests(Model model) {
-        List<FriendRequestDto> dtos = userService.getFriendRequests(customUserDetailsService.currentUser.getId());
-        model.addAttribute("requests", userService.getFriendRequests(customUserDetailsService.currentUser.getId()));
+        model.addAttribute("requests", userService.getFriendRequests(userService.currentUser.getId()));
         return "friendRequests";
     }
 

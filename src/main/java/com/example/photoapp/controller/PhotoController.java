@@ -1,7 +1,5 @@
 package com.example.photoapp.controller;
 
-import com.example.photoapp.entities.dto.FriendRequestDto;
-import com.example.photoapp.service.impl.CustomUserDetailsService;
 import com.example.photoapp.service.impl.UserServiceImpl;
 import com.example.photoapp.service.impl.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 
 @Controller
@@ -23,15 +20,16 @@ public class PhotoController {
 
     @Autowired PhotoService photoService;
 
-    @Autowired CustomUserDetailsService customUserDetailsService;
-
     @Autowired UserServiceImpl userService;
 
-
     @GetMapping("/")
+    public String firstPage() {
+        return "redirect:/login";
+    }
+    @GetMapping("/uploadForm")
     public String showUploadForm(Model model) {
         model.addAttribute("photos", photoService.getFromS3());
-        model.addAttribute("currentUser", customUserDetailsService.currentUser.getName());
+        model.addAttribute("currentUser", userService.currentUser.getName());
         return "uploadForm";
     }
 

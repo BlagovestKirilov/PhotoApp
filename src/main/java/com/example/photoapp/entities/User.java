@@ -1,5 +1,6 @@
 package com.example.photoapp.entities;
 
+import com.example.photoapp.enums.RegistrationStatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -45,13 +46,17 @@ public class User {
     )
     private List<User> friends;
 
-    public User(String name, String email, String password, List<Role> roles, List<Photo> photos, List<User> friends) {
+    @Enumerated(EnumType.STRING)
+    private RegistrationStatusEnum registrationStatus;
+
+    public User(String name, String email, String password, List<Role> roles, List<Photo> photos, List<User> friends, RegistrationStatusEnum registrationStatus) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.roles = roles;
         this.photos = photos;
         this.friends = friends;
+        this.registrationStatus = registrationStatus;
     }
 
     //    public User(String name, String email, String password, List<Role> roles) {

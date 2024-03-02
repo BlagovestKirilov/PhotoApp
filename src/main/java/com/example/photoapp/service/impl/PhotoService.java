@@ -29,7 +29,7 @@ public class PhotoService {
     @Autowired
     private PhotoRepository photoRepository;
     @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private UserServiceImpl userService;
     @Autowired
     private AmazonS3 s3Client;
 
@@ -43,7 +43,7 @@ public class PhotoService {
     public void deleteFromS3(String filename) {
         Photo photo = photoRepository.findByFileName(filename);
         if (Objects.nonNull(photo)) {
-            if (Objects.equals(photo.getUser().getId(), customUserDetailsService.currentUser.getId())) {
+            if (Objects.equals(photo.getUser().getId(), userService.currentUser.getId())) {
                 s3Client.deleteObject(BUCKET_NAME, filename);
                 photoRepository.delete(photo);
             }
@@ -55,9 +55,9 @@ public class PhotoService {
         List<Photo> photosInDatabase = photoRepository.findAll().stream()
                 .filter(photo -> {
                     long photoUploaderId = photo.getUser().getId();
-                    return customUserDetailsService.currentUser.getFriends().stream()
+                    return userService.currentUser.getFriends().stream()
                             .anyMatch(friend -> friend.getId() == photoUploaderId)
-                            || customUserDetailsService.currentUser.getId() == photoUploaderId;
+                            || userService.currentUser.getId() == photoUploaderId;
                 })
                 .toList();
 
@@ -85,7 +85,7 @@ public class PhotoService {
     public void save(File file) {
         Photo photo = new Photo();
         photo.setFileName(file.getName());
-        photo.setUser(customUserDetailsService.currentUser);
+        photo.setUser(userService.currentUser);
         photoRepository.save(photo);
     }
 }
