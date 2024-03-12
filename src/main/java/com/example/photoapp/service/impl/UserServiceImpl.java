@@ -39,6 +39,10 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private EmailServiceImpl emailService;
+
+    @Autowired
+    private Random random;
+
     public User currentUser;
 
     @Override
@@ -68,11 +72,10 @@ public class UserServiceImpl implements UserService {
 
         User user = new User(userDto.getName(), userDto.getEmail(), passwordEncoder.encode(userDto.getPassword()),
                 List.of(role), photos, friends, RegistrationStatusEnum.PENDING);
-        Random random = new Random();
-        String randomNumber = String.valueOf(100000 + random.nextInt(900000));
+        String randomNumber = getRandomNumber();
         UserConfirmation userConfirmation = new UserConfirmation();
         userConfirmation.setEmail(userDto.getEmail());
-        userConfirmation.setConfirmationCode(randomNumber);
+        userConfirmation.setConfirmationCode(passwordEncoder.encode(randomNumber));
         userConfirmationRepository.save(userConfirmation);
         userRepository.save(user);
 
@@ -154,7 +157,7 @@ public class UserServiceImpl implements UserService {
     public Boolean confirmUser(String email, String confirmCode){
         UserConfirmation userConfirmation = userConfirmationRepository.findByEmail(email);
         if(userConfirmation != null){
-            return userConfirmation.getConfirmationCode().equals(confirmCode);
+            return passwordEncoder.matches(confirmCode,userConfirmation.getConfirmationCode());
         }
         return false;
     }
@@ -166,4 +169,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    private String getRandomNumber(){
+        return String.valueOf(100000 + random.nextInt(900000));
+    }
 }

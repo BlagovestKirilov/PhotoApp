@@ -54,7 +54,7 @@
   <form th:action="@{/confirm}" method="post" th:object="${confirmationDto}" role="form">
     <div class="form-group">
       <input type="hidden" th:field="*{email}" th:value="${confirmationDto.email}"/>
-      <label for="confirmationDto">Password:</label>
+      <label for="confirmationDto">Confirmation code:</label>
       <input type="text" id="confirmationDto" name="confirmationCode" required="required"/>
       <p class="text-danger" th:errors="*{confirmationCode}" th:if="${#fields.hasErrors('confirmationCode')}"></p>
     </div>

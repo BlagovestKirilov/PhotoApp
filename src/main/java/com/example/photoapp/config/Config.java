@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Properties;
+import java.util.Random;
 
 @Configuration
 public class Config {
@@ -39,5 +40,8 @@ public class Config {
     public static PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public static Random random(){return  new Random();}
 
 }
