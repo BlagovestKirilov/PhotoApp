@@ -5,7 +5,9 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
 import com.example.photoapp.entities.Photo;
+import com.example.photoapp.entities.PhotoComment;
 import com.example.photoapp.entities.dto.PhotoDto;
+import com.example.photoapp.repositories.PhotoCommentRepository;
 import com.example.photoapp.repositories.PhotoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +33,8 @@ public class PhotoService {
     @Autowired
     private UserServiceImpl userService;
     @Autowired
+    private PhotoCommentRepository photoCommentRepository;
+    @Autowired
     private AmazonS3 s3Client;
 
     public void uploadToS3(File file) {
@@ -40,11 +44,11 @@ public class PhotoService {
         s3Client.putObject(putObjectRequest);
     }
 
-    public void deleteFromS3(String filename) {
-        Photo photo = photoRepository.findByFileName(filename);
+    public void deleteFromS3(String fileName) {
+        Photo photo = photoRepository.findByFileName(fileName);
         if (Objects.nonNull(photo)) {
             if (Objects.equals(photo.getUser().getId(), userService.currentUser.getId())) {
-                s3Client.deleteObject(BUCKET_NAME, filename);
+                s3Client.deleteObject(BUCKET_NAME, fileName);
                 photoRepository.delete(photo);
             }
         }
@@ -66,6 +70,9 @@ public class PhotoService {
             PhotoDto photoDto = new PhotoDto();
             photoDto.setData(Base64.getEncoder().encodeToString(b.getBody()));
             photoDto.setUserName(photo.getUser().getName());
+            photoDto.setFileName(photo.getFileName());
+            photoDto.setNumberLikes(photo.getLikedPhotoUsers().size());
+            photoDto.setPhotoComments(photo.getPhotoComments());
             return photoDto;
         }).collect(Collectors.toList());
     }
@@ -86,6 +93,22 @@ public class PhotoService {
         Photo photo = new Photo();
         photo.setFileName(file.getName());
         photo.setUser(userService.currentUser);
+        photoRepository.save(photo);
+    }
+
+    public void likePhoto(String fileName){
+        Photo photo = photoRepository.findByFileName(fileName);
+        photo.getLikedPhotoUsers().add(userService.currentUser);
+        photoRepository.save(photo);
+    }
+
+    public void addComment(String fileName, String text){
+        Photo photo = photoRepository.findByFileName(fileName);
+        PhotoComment photoComment = new PhotoComment();
+        photoComment.setText(text);
+        photoComment.setCommentMaker(userService.currentUser);
+        photoCommentRepository.save(photoComment);
+        photo.getPhotoComments().add(photoComment);
         photoRepository.save(photo);
     }
 }

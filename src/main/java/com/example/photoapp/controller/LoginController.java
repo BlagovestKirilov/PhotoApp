@@ -125,4 +125,8 @@ public class LoginController {
         return "redirect:/";
 
     }
+    @GetMapping("/confirm")
+    public String changePassword() {
+        return "changePassword";
+    }
 }

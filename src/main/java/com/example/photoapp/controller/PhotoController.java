@@ -41,7 +41,7 @@ public class PhotoController {
 
         photoService.uploadToS3(tempFile);
         photoService.save(tempFile);
-        return "redirect:/";
+        return "redirect:/uploadForm";
     }
 
     @PostMapping("/remove-photo")
@@ -55,4 +55,15 @@ public class PhotoController {
         return "removePhoto";
     }
 
+    @PostMapping("/like-photo")
+    public String likePhoto(@RequestParam("photoFileName") String fileName) {
+        photoService.likePhoto(fileName);
+        return "redirect:/uploadForm"; // Redirect to the homepage or any other appropriate page
+    }
+
+    @PostMapping("/add-comment")
+    public String addComment(@RequestParam("photoFileName") String fileName, @RequestParam("comment") String comment) {
+        photoService.addComment(fileName, comment);
+        return "redirect:/uploadForm"; // Redirect to the homepage or any other appropriate page
+    }
 }

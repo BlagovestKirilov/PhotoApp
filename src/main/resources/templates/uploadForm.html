@@ -3,6 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Photo Uploader</title>
+    <style>
+        .comment-form {
+            display: none;
+        }
+        .button-group {
+            display: flex;
+            align-items: center;
+        }
+        .button-group > * {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
 <h1>Photo Uploader</h1>
@@ -11,6 +23,7 @@
         <td>
             <span style="margin-right: 10px;" th:text="'Hello ' + ${currentUser} + '!'"></span>
             <button type="submit" class="btn btn-primary ms-3">Logout</button>
+            <button type="button" onclick="window.location.href='/change-password'" class="btn btn-primary ms-3">Change Password</button>
         </td>
     </form>
 </div>
@@ -45,9 +58,7 @@
     </div>
 </div>
 
-
 <hr/>
-
 
 <h2>Uploaded Photos</h2>
 
@@ -65,10 +76,46 @@
             <div style="display:flex; align-items:center">
                 <img th:src="'data:image/png;base64,' + ${photo.data}" style="width:200px;height:200px;"/>
             </div>
+            <div>
+                <span th:text="${photo.numberLikes}"></span> Likes
+                <div class="button-group">
+                    <form th:action="@{/like-photo}" method="post">
+                        <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
+                        <button type="submit" class="btn btn-primary">Like</button>
+                    </form>
+                    <button type="button" onclick="toggleCommentForm(this, '${photo.getFileName()}', '${photo.comments}')" class="btn btn-primary">Comment</button>
+                </div>
+                <form th:action="@{/add-comment}" method="post" th:id="'comment-form-' + ${photo.getFileName()}" class="comment-form">
+                    <div class="existing-comments" th:each="comment : ${photo.getPhotoComments()}">
+                        <span th:text="${comment.getCommentMaker().getName() + ': ' + comment.getText()}"></span>
+                    </div>
+                    <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
+                    <label for="comment">Comment:</label>
+                    <input type="text" id="comment" name="comment" required>
+                    <button type="submit">Add Comment</button>
+                </form>
+            </div>
         </td>
     </tr>
     </tbody>
 </table>
+
+<script>
+    function toggleCommentForm(button, fileName, comments) {
+        var parentDiv = button.parentNode.parentNode;
+        var commentForm = parentDiv.querySelector('.comment-form');
+        var existingCommentsDiv = commentForm.querySelector('.existing-comments');
+
+        commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
+
+        if (existingCommentsDiv.innerHTML.trim() === '') {
+            // Load comments from the photo object
+            comments.forEach(comment => {
+                existingCommentsDiv.innerHTML += '<div>' + comment.text + '</div>';
+            });
+        }
+    }
+</script>
 
 </body>
 </html>
