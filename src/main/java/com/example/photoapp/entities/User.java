@@ -38,6 +38,9 @@ public class User {
     @OneToMany
     private List<Photo> photos = new ArrayList<>();
 
+    @OneToOne
+    private Photo profilePhoto;
+
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinTable(
             name = "users_friends",
@@ -58,12 +61,4 @@ public class User {
         this.friends = friends;
         this.registrationStatus = registrationStatus;
     }
-
-    //    public User(String name, String email, String password, List<Role> roles) {
-//        this.name = name;
-//        this.email = email;
-//        this.password = password;
-//        this.roles = roles;
-//        this.friends = new ArrayList<>();
-//    }
 }

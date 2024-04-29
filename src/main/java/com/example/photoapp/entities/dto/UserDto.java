@@ -12,7 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
-    private Long id;
 
     @NotEmpty(message = "Please enter valid name.")
     private String name;

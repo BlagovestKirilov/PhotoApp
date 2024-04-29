@@ -55,7 +55,8 @@ public class LoginController {
     @GetMapping("/logout")
     public String logout(Model model) {
         // String ipAddress = request.getRemoteAddr();
-        return "/";
+        userService.logout();
+        return "redirect:/";
     }
 
     @PostMapping("/logout")
@@ -63,7 +64,7 @@ public class LoginController {
             @Valid @ModelAttribute("user") LoginUserDto userDto,
             BindingResult result,
             Model model) {
-        userService.logout(userDto);
+        userService.logout();
 
         return "redirect:/";
     }

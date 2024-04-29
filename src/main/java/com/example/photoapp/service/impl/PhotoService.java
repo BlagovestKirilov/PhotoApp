@@ -4,11 +4,17 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
+import com.example.photoapp.entities.FriendRequest;
 import com.example.photoapp.entities.Photo;
 import com.example.photoapp.entities.PhotoComment;
+import com.example.photoapp.entities.User;
+import com.example.photoapp.entities.dto.AddFriendDto;
 import com.example.photoapp.entities.dto.PhotoDto;
+import com.example.photoapp.enums.FriendRequestStatusEnum;
+import com.example.photoapp.repositories.FriendRequestRepository;
 import com.example.photoapp.repositories.PhotoCommentRepository;
 import com.example.photoapp.repositories.PhotoRepository;
+import com.example.photoapp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -36,6 +42,11 @@ public class PhotoService {
     private PhotoCommentRepository photoCommentRepository;
     @Autowired
     private AmazonS3 s3Client;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    FriendRequestRepository friendRequestRepository;
 
     public void uploadToS3(File file) {
         String s3Key = file.getName();
@@ -110,5 +121,31 @@ public class PhotoService {
         photoCommentRepository.save(photoComment);
         photo.getPhotoComments().add(photoComment);
         photoRepository.save(photo);
+    }
+
+    public List<AddFriendDto> findNonFriendUsers() {
+        List<User> users = userRepository.findNonFriendUsersByUser(userService.currentUser.getEmail());
+        List<User> pending = friendRequestRepository.findAllBySender(userService.currentUser)
+                .stream()
+                .filter(friendRequest -> friendRequest.getStatus() == FriendRequestStatusEnum.PENDING)
+                .map(FriendRequest::getReceiver)
+                .toList();
+        List<User> rejectedOrAccepted = friendRequestRepository.findAllBySender(userService.currentUser)
+                .stream()
+                .filter(friendRequest -> friendRequest.getStatus() == FriendRequestStatusEnum.REJECTED || friendRequest.getStatus() == FriendRequestStatusEnum.ACCEPTED)
+                .map(FriendRequest::getReceiver)
+                .toList();
+        return users.stream()
+                .filter(user -> !rejectedOrAccepted.contains(user))
+                .map(user -> {
+                    AddFriendDto addFriendDto = new AddFriendDto();
+                    addFriendDto.setName(user.getName());
+                    addFriendDto.setEmail(user.getEmail());
+                    ResponseEntity<byte[]> b = getImage(user.getProfilePhoto().getFileName());
+                    addFriendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+                    addFriendDto.setIsPendingStatus(pending.contains(user) ? Boolean.TRUE : Boolean.FALSE);
+                    return addFriendDto;
+                })
+                .collect(Collectors.toList());
     }
 }

@@ -10,6 +10,8 @@ import com.example.photoapp.repositories.UserConfirmationRepository;
 import com.example.photoapp.repositories.UserRepository;
 import com.example.photoapp.util.TbConstants;
 import com.example.photoapp.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,24 +39,29 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailServiceImpl emailService;
 
+//    @Autowired
+//    private PhotoService photoService;
+
     @Autowired
     private Random random;
 
     public User currentUser;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Override
     public User login(LoginUserDto loginUser) {
         currentUser = userRepository.findByEmail(loginUser.getEmail());
-        if (Objects.nonNull(currentUser)) {
-            return passwordEncoder.matches(loginUser.getPassword(), currentUser.getPassword()) ?
-                    currentUser : null;
+        if (Objects.nonNull(currentUser) && passwordEncoder.matches(loginUser.getPassword(), currentUser.getPassword())) {
+            LOGGER.info("User with email: " + currentUser.getEmail() + " logged in.");
+            return currentUser;
         } else {
             return null;
         }
     }
 
     @Override
-    public void logout(LoginUserDto loginUser) {
+    public void logout() {
         currentUser = null;
     }
 
@@ -77,12 +84,12 @@ public class UserServiceImpl implements UserService {
         userConfirmation.setCodeConfirmationStatus(CodeConfirmationStatusEnum.ACTIVE);
         userConfirmationRepository.save(userConfirmation);
         userRepository.save(user);
-
+        LOGGER.info(randomNumber);
         emailService.sendEmail(userDto.getEmail(),"code",randomNumber);
     }
 
-    public void addFriend(String name) {
-        saveFriendRequest(name);
+    public void addFriend(String receiverEmail) {
+        saveFriendRequest(receiverEmail);
 //        User foundUser = userRepository.findByName(name);
 //        User currentUser = customUserDetailsService.currentUser;
 //        currentUser.getFriends().add(foundUser);
@@ -92,11 +99,11 @@ public class UserServiceImpl implements UserService {
     public void confirmFriendRequest(Long friendRequestId) {
         Optional<FriendRequest> friendRequest = friendRequestRepository.findById(friendRequestId);
         if (friendRequest.isPresent()) {
-            User sender = userRepository.findById(friendRequest.get().getSenderId()).get();
-            User receiver = userRepository.findById(friendRequest.get().getReceiverId()).get();
+            User sender = friendRequest.get().getSender();
+            User receiver = friendRequest.get().getReceiver();
             sender.getFriends().add(receiver);
             receiver.getFriends().add(sender);
-            friendRequest.get().setStatus(FriendRequestStatusEnum.ACCEPTED.toString());
+            friendRequest.get().setStatus(FriendRequestStatusEnum.ACCEPTED);
             userRepository.save(sender);
             userRepository.save(receiver);
             friendRequestRepository.save(friendRequest.get());
@@ -106,23 +113,23 @@ public class UserServiceImpl implements UserService {
     public void rejectFriendRequest(Long friendRequestId) {
         Optional<FriendRequest> friendRequest = friendRequestRepository.findById(friendRequestId);
         if (friendRequest.isPresent()) {
-            friendRequest.get().setStatus(FriendRequestStatusEnum.REJECTED.toString());
+            friendRequest.get().setStatus(FriendRequestStatusEnum.REJECTED);
             friendRequestRepository.save(friendRequest.get());
         }
     }
 
-    public void saveFriendRequest(String receiverName) {
+    public void saveFriendRequest(String receiverEmail) {
         FriendRequest friendRequest = new FriendRequest();
-        friendRequest.setSenderId(currentUser.getId());
-        friendRequest.setReceiverId(userRepository.findByName(receiverName).getId());
+        friendRequest.setSender(currentUser);
+        friendRequest.setReceiver(userRepository.findByEmail(receiverEmail));
         friendRequestRepository.save(friendRequest);
     }
 
     public List<FriendRequestDto> getFriendRequests(Long receiverId) {
-        List<FriendRequest> foundFriendRequest = friendRequestRepository.findFriendRequestByReceiverIdAndStatus(receiverId, FriendRequestStatusEnum.PENDING.toString());
+        List<FriendRequest> foundFriendRequest = friendRequestRepository.findFriendRequestByReceiverIdAndStatus(receiverId, FriendRequestStatusEnum.PENDING);
         List<FriendRequestDto> resultList = new ArrayList<>();
         for (FriendRequest friendRequest : foundFriendRequest) {
-            String senderName = userRepository.findById(friendRequest.getSenderId()).get().getName();// getSender.getName
+            String senderName = friendRequest.getSender().getName();
             resultList.add(new FriendRequestDto(friendRequest.getId(), senderName));
         }
         return resultList;
@@ -177,8 +184,8 @@ public class UserServiceImpl implements UserService {
         User changeUser = userRepository.findByEmail(changePasswordDto.getEmail());
         if(changePasswordDto.getChangePasswordEnum() == ChangePasswordEnum.CHANGE_PASSWORD) {
             if (Objects.nonNull(currentUser) && passwordEncoder.matches(changePasswordDto.getOldPassword(), changeUser.getPassword())) {
-                currentUser.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
-                userRepository.save(currentUser);
+                changeUser.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+                userRepository.save(changeUser);
                 //return true;
             }
         } else if (changePasswordDto.getChangePasswordEnum() == ChangePasswordEnum.FORGOT_PASSWORD) {
@@ -199,6 +206,19 @@ public class UserServiceImpl implements UserService {
 
         emailService.sendEmail(email,"Forgot Registration",randomNumber);
     }
+
+//    public List<AddFriendDto> findNonFriendUsers(){
+//        List<User> users = userRepository.findNonFriendUsersByEmail(currentUser.getEmail());
+//        return users.stream()
+//                .map(user -> {
+//                    AddFriendDto addFriendDto = new AddFriendDto();
+//                    addFriendDto.setName(user.getName());
+//                    ResponseEntity<byte[]> b = photoService.getImage(user.getProfilePhoto().getFileName());
+//                    addFriendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+//                    return addFriendDto;
+//                })
+//                .collect(Collectors.toList());
+//    }
     private String getRandomNumber(){
         return String.valueOf(100000 + random.nextInt(900000));
     }

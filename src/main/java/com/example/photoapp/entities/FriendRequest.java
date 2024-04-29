@@ -20,14 +20,17 @@ public class FriendRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    Long senderId;
+    @JoinColumn(nullable = false)
+    @ManyToOne
+    User sender;
+
+    @JoinColumn(nullable = false)
+    @ManyToOne
+    User receiver;
 
     @Column(nullable = false)
-    Long receiverId;
-
-    @Column(nullable = false)
-    String status = FriendRequestStatusEnum.PENDING.toString();
+    @Enumerated(EnumType.STRING)
+    FriendRequestStatusEnum status = FriendRequestStatusEnum.PENDING;
 
     @Column(nullable = false)
     Date sendRequestTime = new Date();

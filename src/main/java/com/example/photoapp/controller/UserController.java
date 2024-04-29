@@ -1,7 +1,9 @@
 package com.example.photoapp.controller;
 
+import com.example.photoapp.entities.dto.AddFriendDto;
 import com.example.photoapp.entities.dto.ChangePasswordDto;
 import com.example.photoapp.enums.ChangePasswordEnum;
+import com.example.photoapp.service.impl.PhotoService;
 import com.example.photoapp.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,11 +11,16 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/user")
 public class UserController {
     @Autowired
     UserServiceImpl userService;
+
+    @Autowired
+    PhotoService photoService;
 
     @GetMapping("/")
     public String registrationForm() {
@@ -27,13 +34,15 @@ public class UserController {
     }
 
     @PostMapping("/add-friend")
-    public String addFriendConfirm(@RequestParam String friendName) {
-        userService.addFriend(friendName);
+    public String addFriendConfirm(@RequestParam String receiverEmail) {
+        userService.addFriend(receiverEmail);
         return "redirect:/";
     }
 
     @GetMapping("/add-friend")
-    public String addFriend() {
+    public String addFriend(Model model) {
+        List<AddFriendDto> addFriendDtos =photoService.findNonFriendUsers();
+        model.addAttribute("users", addFriendDtos);
         return "addFriend";
     }
 

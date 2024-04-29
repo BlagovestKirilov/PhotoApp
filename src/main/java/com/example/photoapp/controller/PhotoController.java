@@ -68,4 +68,10 @@ public class PhotoController {
         photoService.addComment(fileName, comment);
         return "redirect:/uploadForm"; // Redirect to the homepage or any other appropriate page
     }
+
+    @GetMapping("/upload-photo")
+    public String uploadPhoto() {
+        return "uploadPhoto";
+    }
+
 }

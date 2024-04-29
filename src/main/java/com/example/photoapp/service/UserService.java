@@ -9,7 +9,7 @@ import com.example.photoapp.enums.RegistrationStatusEnum;
 
 public interface UserService {
     User login(LoginUserDto loginUser);
-    void logout(LoginUserDto loginUser);
+    void logout();
     void saveUser(UserDto userDto);
     User findUserByEmail(String email);
     Boolean confirmUser(ConfirmationDto confirmationDto);
