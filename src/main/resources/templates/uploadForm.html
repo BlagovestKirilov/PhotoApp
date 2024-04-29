@@ -17,14 +17,21 @@
     </style>
 </head>
 <body>
+
 <h1>Photo Uploader</h1>
 <div style="margin-bottom: 20px;">
     <form th:action="@{/logout}" method="post">
         <td>
-            <span style="margin-right: 10px;" th:text="'Hello ' + ${currentUser} + '!'"></span>
+            <span style="margin-right: 10px;" th:text="'Hello ' + ${currentUser.getName()} + '!'"></span>
             <button type="submit" class="btn btn-primary ms-3">Logout</button>
-            <button type="button" onclick="window.location.href='/change-password'" class="btn btn-primary ms-3">Change Password</button>
         </td>
+    </form>
+    <form th:action="@{/user/change-password}" method="get">
+        <div class="form-group">
+            <input type="hidden" name="email" th:value="${currentUser.getEmail()}" />
+            <input type="hidden" name="changePasswordEnum" th:value="${currentUserChangePasswordEnum}" />
+            <button type="submit" class="btn btn-primary ms-3">Change Password</button>
+        </div>
     </form>
 </div>
 

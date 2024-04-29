@@ -1,9 +1,12 @@
 package com.example.photoapp.controller;
 
+import com.example.photoapp.entities.dto.ChangePasswordDto;
 import com.example.photoapp.entities.dto.ConfirmationDto;
 import com.example.photoapp.entities.dto.LoginUserDto;
 import com.example.photoapp.entities.dto.UserDto;
 import com.example.photoapp.entities.User;
+import com.example.photoapp.enums.ChangePasswordEnum;
+import com.example.photoapp.enums.CodeConfirmationEnum;
 import com.example.photoapp.enums.RegistrationStatusEnum;
 import com.example.photoapp.service.UserService;
 import jakarta.validation.Valid;
@@ -90,15 +93,17 @@ public class LoginController {
         }
 
         redirectAttributes.addAttribute("userEmail", userDto.getEmail());
+        redirectAttributes.addAttribute("codeConfirmation", CodeConfirmationEnum.REGISTRATION);
         userService.saveUser(userDto);
         return "redirect:/confirm";
     }
 
     @GetMapping("/confirm")
-    public String confirmLoginForm(@RequestParam("userEmail") String userEmail, Model model) {
+    public String confirmLoginForm(@RequestParam("userEmail") String userEmail,@RequestParam("codeConfirmation") CodeConfirmationEnum codeConfirmation, Model model) {
         // String ipAddress = request.getRemoteAddr();
         ConfirmationDto confirmationDto = new ConfirmationDto();
         confirmationDto.setEmail(userEmail);
+        confirmationDto.setCodeConfirmationEnum(codeConfirmation);
         model.addAttribute("confirmationDto", confirmationDto);
         return "codeConfirmation";
     }
@@ -110,10 +115,16 @@ public class LoginController {
             BindingResult result,
             RedirectAttributes redirectAttributes
     ) {
-        Boolean isConfirmed = userService.confirmUser(confirmationDto.getEmail(), confirmationDto.getConfirmationCode());
+        Boolean isConfirmed = userService.confirmUser(confirmationDto);
 
-        if (isConfirmed) {
+        if (isConfirmed && confirmationDto.getCodeConfirmationEnum() == CodeConfirmationEnum.REGISTRATION) {
             userService.updateRegistrationStatus(confirmationDto.getEmail(), RegistrationStatusEnum.CONFIRMED);
+        } else if (isConfirmed && confirmationDto.getCodeConfirmationEnum() == CodeConfirmationEnum.CHANGE_PASSWORD) {
+            ChangePasswordDto changePasswordDto= new ChangePasswordDto();
+            changePasswordDto.setEmail(confirmationDto.getEmail());
+            changePasswordDto.setChangePasswordEnum(ChangePasswordEnum.FORGOT_PASSWORD);
+            model.addAttribute("changePasswordDto", changePasswordDto);
+            return "changePassword";
         } else {
             result.rejectValue("confirmationCode", null, "Wrong code!");
         }
@@ -122,11 +133,21 @@ public class LoginController {
             model.addAttribute("confirmationDto", confirmationDto);
             return "codeConfirmation";
         }
-        return "redirect:/";
+
+            return "redirect:/";
 
     }
-    @GetMapping("/confirm")
-    public String changePassword() {
-        return "changePassword";
+
+    @GetMapping("/forgot-password")
+    public String forgotPasswordForm() {
+        return "forgotPasswordEmail";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam("email") String userEmail, RedirectAttributes redirectAttributes) {
+        userService.forgotPassword(userEmail);
+        redirectAttributes.addAttribute("userEmail", userEmail);
+        redirectAttributes.addAttribute("codeConfirmation", CodeConfirmationEnum.CHANGE_PASSWORD);
+        return "redirect:/confirm";
     }
 }

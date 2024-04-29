@@ -1,5 +1,6 @@
 package com.example.photoapp.controller;
 
+import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.impl.UserServiceImpl;
 import com.example.photoapp.service.impl.PhotoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,8 @@ public class PhotoController {
     @GetMapping("/uploadForm")
     public String showUploadForm(Model model) {
         model.addAttribute("photos", photoService.getFromS3());
-        model.addAttribute("currentUser", userService.currentUser.getName());
+        model.addAttribute("currentUser", userService.currentUser);
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "uploadForm";
     }
 

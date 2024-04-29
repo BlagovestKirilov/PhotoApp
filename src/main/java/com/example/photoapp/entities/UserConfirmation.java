@@ -1,10 +1,14 @@
 package com.example.photoapp.entities;
 
+import com.example.photoapp.enums.CodeConfirmationEnum;
+import com.example.photoapp.enums.CodeConfirmationStatusEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Date;
 
 @Entity
 @Getter
@@ -22,4 +26,15 @@ public class UserConfirmation {
 
     @Column(nullable = false)
     String confirmationCode;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    CodeConfirmationEnum codeConfirmation;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    CodeConfirmationStatusEnum codeConfirmationStatus;
+
+    @Column(nullable = false)
+    Date date = new Date();
 }

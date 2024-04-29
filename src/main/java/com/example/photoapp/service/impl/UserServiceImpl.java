@@ -2,11 +2,8 @@ package com.example.photoapp.service.impl;
 
 
 import com.example.photoapp.entities.*;
-import com.example.photoapp.entities.dto.FriendRequestDto;
-import com.example.photoapp.entities.dto.LoginUserDto;
-import com.example.photoapp.entities.dto.UserDto;
-import com.example.photoapp.enums.FriendRequestStatusEnum;
-import com.example.photoapp.enums.RegistrationStatusEnum;
+import com.example.photoapp.entities.dto.*;
+import com.example.photoapp.enums.*;
 import com.example.photoapp.repositories.FriendRequestRepository;
 import com.example.photoapp.repositories.RoleRepository;
 import com.example.photoapp.repositories.UserConfirmationRepository;
@@ -76,6 +73,8 @@ public class UserServiceImpl implements UserService {
         UserConfirmation userConfirmation = new UserConfirmation();
         userConfirmation.setEmail(userDto.getEmail());
         userConfirmation.setConfirmationCode(passwordEncoder.encode(randomNumber));
+        userConfirmation.setCodeConfirmation(CodeConfirmationEnum.REGISTRATION);
+        userConfirmation.setCodeConfirmationStatus(CodeConfirmationStatusEnum.ACTIVE);
         userConfirmationRepository.save(userConfirmation);
         userRepository.save(user);
 
@@ -154,10 +153,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean confirmUser(String email, String confirmCode){
-        UserConfirmation userConfirmation = userConfirmationRepository.findByEmail(email);
-        if(userConfirmation != null){
-            return passwordEncoder.matches(confirmCode,userConfirmation.getConfirmationCode());
+    public Boolean confirmUser(ConfirmationDto confirmationDto) {
+        UserConfirmation userConfirmation = userConfirmationRepository
+                .findUserConfirmationByEmailAndCodeConfirmationAndCodeConfirmationStatus(confirmationDto.getEmail(), confirmationDto.getCodeConfirmationEnum(), CodeConfirmationStatusEnum.ACTIVE);
+        if (userConfirmation != null) {
+            if (passwordEncoder.matches(confirmationDto.getConfirmationCode(), userConfirmation.getConfirmationCode())) {
+                userConfirmation.setCodeConfirmationStatus(CodeConfirmationStatusEnum.EXPIRED);
+                userConfirmationRepository.save(userConfirmation);
+                return true;
+            }
         }
         return false;
     }
@@ -169,6 +173,32 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    public void changePassword(ChangePasswordDto changePasswordDto){
+        User changeUser = userRepository.findByEmail(changePasswordDto.getEmail());
+        if(changePasswordDto.getChangePasswordEnum() == ChangePasswordEnum.CHANGE_PASSWORD) {
+            if (Objects.nonNull(currentUser) && passwordEncoder.matches(changePasswordDto.getOldPassword(), changeUser.getPassword())) {
+                currentUser.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+                userRepository.save(currentUser);
+                //return true;
+            }
+        } else if (changePasswordDto.getChangePasswordEnum() == ChangePasswordEnum.FORGOT_PASSWORD) {
+            changeUser.setPassword(passwordEncoder.encode(changePasswordDto.getNewPassword()));
+            userRepository.save(changeUser);
+        }
+        //return false;
+    }
+
+    public void forgotPassword(String email){
+        String randomNumber = getRandomNumber();
+        UserConfirmation userConfirmation = new UserConfirmation();
+        userConfirmation.setEmail(email);
+        userConfirmation.setConfirmationCode(passwordEncoder.encode(randomNumber));
+        userConfirmation.setCodeConfirmation(CodeConfirmationEnum.CHANGE_PASSWORD);
+        userConfirmation.setCodeConfirmationStatus(CodeConfirmationStatusEnum.ACTIVE);
+        userConfirmationRepository.save(userConfirmation);
+
+        emailService.sendEmail(email,"Forgot Registration",randomNumber);
+    }
     private String getRandomNumber(){
         return String.valueOf(100000 + random.nextInt(900000));
     }

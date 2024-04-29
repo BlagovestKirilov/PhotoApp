@@ -1,5 +1,6 @@
 package com.example.photoapp.entities.dto;
 
+import com.example.photoapp.enums.CodeConfirmationEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,4 +14,6 @@ public class ConfirmationDto {
     private String email;
 
     private String confirmationCode;
+
+    private CodeConfirmationEnum codeConfirmationEnum;
 }

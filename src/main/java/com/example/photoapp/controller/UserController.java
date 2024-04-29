@@ -1,16 +1,13 @@
 package com.example.photoapp.controller;
 
-import com.example.photoapp.entities.dto.FriendRequestDto;
+import com.example.photoapp.entities.dto.ChangePasswordDto;
+import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/user")
@@ -71,5 +68,21 @@ public class UserController {
     @GetMapping("/reject-friend")
     public String rejectFriend() {
         return "redirect:/user/friend-requests";
+    }
+
+    @GetMapping("/change-password")
+    public String changePassword(Model model, @RequestParam String email, @RequestParam ChangePasswordEnum changePasswordEnum) {
+        ChangePasswordDto changePasswordDto= new ChangePasswordDto();
+        changePasswordDto.setEmail(email);
+        changePasswordDto.setChangePasswordEnum(changePasswordEnum);
+        model.addAttribute("changePasswordDto", changePasswordDto);
+        return "changePassword";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(@ModelAttribute("changePasswordDto") ChangePasswordDto changePasswordDto,
+                                 BindingResult bindingResult, Model model) {
+        userService.changePassword(changePasswordDto);
+        return "redirect:/user/password-changed";
     }
 }
