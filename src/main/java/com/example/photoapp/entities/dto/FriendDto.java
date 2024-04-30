@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddFriendDto {
+public class FriendDto {
     private String name;
 
     private String profilePhotoData;
@@ -17,4 +17,6 @@ public class AddFriendDto {
     private String email;
 
     private Boolean isPendingStatus;
+
+    private Boolean isPendingStatusFromCurrentUser;
 }

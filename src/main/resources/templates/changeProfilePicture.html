@@ -51,14 +51,14 @@
 <body>
 <div th:replace="~{nav.html}"></div>
 <div class="container">
-<!--    <div style="margin-bottom: 20px;">-->
-        <div style="display: inline-block; margin-right: 10px;">
-            <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" id="file">
-                <button type="submit">Upload</button>
-            </form>
-        </div>
-<!--    </div>-->
+    <!--    <div style="margin-bottom: 20px;">-->
+    <div style="display: inline-block; margin-right: 10px;">
+        <form th:action="@{/change-profile-picture}" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" id="file">
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+    <!--    </div>-->
 </div>
 </body>
 </html>

@@ -1,6 +1,6 @@
 package com.example.photoapp.controller;
 
-import com.example.photoapp.entities.dto.AddFriendDto;
+import com.example.photoapp.entities.dto.FriendDto;
 import com.example.photoapp.entities.dto.ChangePasswordDto;
 import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.impl.PhotoService;
@@ -29,7 +29,10 @@ public class UserController {
 
     @GetMapping("/friend-requests")
     public String showFriendRequests(Model model) {
-        model.addAttribute("requests", userService.getFriendRequests(userService.currentUser.getId()));
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        List<FriendDto> d = photoService.getFriendRequests();
+        model.addAttribute("users", d);
         return "friendRequests";
     }
 
@@ -41,46 +44,58 @@ public class UserController {
 
     @GetMapping("/add-friend")
     public String addFriend(Model model) {
-        List<AddFriendDto> addFriendDtos =photoService.findNonFriendUsers();
-        model.addAttribute("users", addFriendDtos);
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        List<FriendDto> friendDtos =photoService.findNonFriendUsers();
+        model.addAttribute("users", friendDtos);
         return "addFriend";
     }
 
     @PostMapping("/remove-friend")
-    public String removeFriendConfirm(@RequestParam String friendName) {
-        userService.removeFriend(friendName);
-        return "removeFriend";
+    public String removeFriendConfirm(@RequestParam String removeUserEmail) {
+        userService.removeFriend(removeUserEmail);
+        return "showFriend";
     }
 
-    @GetMapping("/remove-friend")
-    public String removeFriend() {
-        return "removeFriend";
+    @GetMapping("/show-friend")
+    public String removeFriend(Model model) {
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        List<FriendDto> friendDtos = photoService.getCurrentUserFriends();
+        model.addAttribute("users", friendDtos);
+        return "showFriend";
     }
 
     @PostMapping("/confirm-friend")
-    public String confirmFriend(@RequestParam Long friendRequestId) {
-        userService.confirmFriendRequest(friendRequestId);
+    public String confirmFriend(@RequestParam String senderEmail) {
+        userService.confirmFriendRequest(senderEmail);
         return "redirect:/user/friend-requests";
     }
 
     @GetMapping("/confirm-friend")
-    public String confirmFriend() {
+    public String confirmFriend(Model model) {
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "redirect:/user/friend-requests";
     }
 
     @PostMapping("/reject-friend")
-    public String rejectFriend(@RequestParam Long friendRequestId) {
-        userService.rejectFriendRequest(friendRequestId);
+    public String rejectFriend(@RequestParam String senderEmail) {
+        userService.rejectFriendRequest(senderEmail);
         return "redirect:/user/friend-requests";
     }
 
     @GetMapping("/reject-friend")
-    public String rejectFriend() {
+    public String rejectFriend(Model model) {
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "redirect:/user/friend-requests";
     }
 
     @GetMapping("/change-password")
     public String changePassword(Model model, @RequestParam String email, @RequestParam ChangePasswordEnum changePasswordEnum) {
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         ChangePasswordDto changePasswordDto= new ChangePasswordDto();
         changePasswordDto.setEmail(email);
         changePasswordDto.setChangePasswordEnum(changePasswordEnum);

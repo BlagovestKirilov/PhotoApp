@@ -15,7 +15,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "users")
 public class User {
 
     @Id
@@ -41,24 +40,25 @@ public class User {
     @OneToOne
     private Photo profilePhoto;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @ManyToMany
     @JoinTable(
-            name = "users_friends",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "friends_id", referencedColumnName = "id")}
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
-    private List<User> friends;
+    private List<User> friendList;
 
     @Enumerated(EnumType.STRING)
     private RegistrationStatusEnum registrationStatus;
 
-    public User(String name, String email, String password, List<Role> roles, List<Photo> photos, List<User> friends, RegistrationStatusEnum registrationStatus) {
+    public User(String name, String email, String password, List<Role> roles, List<Photo> photos, List<User> friendList, RegistrationStatusEnum registrationStatus, Photo profilePhoto) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.roles = roles;
         this.photos = photos;
-        this.friends = friends;
+        this.friendList = friendList;
         this.registrationStatus = registrationStatus;
+        this.profilePhoto = profilePhoto;
     }
 }

@@ -4,10 +4,7 @@ package com.example.photoapp.service.impl;
 import com.example.photoapp.entities.*;
 import com.example.photoapp.entities.dto.*;
 import com.example.photoapp.enums.*;
-import com.example.photoapp.repositories.FriendRequestRepository;
-import com.example.photoapp.repositories.RoleRepository;
-import com.example.photoapp.repositories.UserConfirmationRepository;
-import com.example.photoapp.repositories.UserRepository;
+import com.example.photoapp.repositories.*;
 import com.example.photoapp.util.TbConstants;
 import com.example.photoapp.service.UserService;
 import org.slf4j.Logger;
@@ -37,6 +34,9 @@ public class UserServiceImpl implements UserService {
     private UserConfirmationRepository userConfirmationRepository;
 
     @Autowired
+    private PhotoRepository photoRepository;
+
+    @Autowired
     private EmailServiceImpl emailService;
 
 //    @Autowired
@@ -53,6 +53,7 @@ public class UserServiceImpl implements UserService {
     public User login(LoginUserDto loginUser) {
         currentUser = userRepository.findByEmail(loginUser.getEmail());
         if (Objects.nonNull(currentUser) && passwordEncoder.matches(loginUser.getPassword(), currentUser.getPassword())) {
+            currentUser.setFriendList(userRepository.findFriendsByEmail(currentUser.getEmail()));
             LOGGER.info("User with email: " + currentUser.getEmail() + " logged in.");
             return currentUser;
         } else {
@@ -68,14 +69,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void saveUser(UserDto userDto) {
         Role role = roleRepository.findByName(TbConstants.Roles.USER);
-        List<User> friends = new ArrayList<>();
         List<Photo> photos = new ArrayList<>();
+        String DEFAULT_PROFILE_PICTURE = "default_profile_picture.jpg";
 
         if (role == null)
             role = roleRepository.save(new Role(TbConstants.Roles.USER));
 
         User user = new User(userDto.getName(), userDto.getEmail(), passwordEncoder.encode(userDto.getPassword()),
-                List.of(role), photos, friends, RegistrationStatusEnum.PENDING);
+                List.of(role), photos, new ArrayList<>(), RegistrationStatusEnum.PENDING, photoRepository.findByFileNameEndsWith(DEFAULT_PROFILE_PICTURE));
         String randomNumber = getRandomNumber();
         UserConfirmation userConfirmation = new UserConfirmation();
         userConfirmation.setEmail(userDto.getEmail());
@@ -96,22 +97,29 @@ public class UserServiceImpl implements UserService {
 //        userRepository.save(currentUser);
     }
 
-    public void confirmFriendRequest(Long friendRequestId) {
-        Optional<FriendRequest> friendRequest = friendRequestRepository.findById(friendRequestId);
+    public void confirmFriendRequest(String senderEmail) {
+        Optional<FriendRequest> friendRequest = friendRequestRepository.findFirstBySenderAndReceiverAndStatus(
+                userRepository.findByEmail(senderEmail),
+                currentUser,
+                FriendRequestStatusEnum.PENDING
+        );
         if (friendRequest.isPresent()) {
             User sender = friendRequest.get().getSender();
-            User receiver = friendRequest.get().getReceiver();
-            sender.getFriends().add(receiver);
-            receiver.getFriends().add(sender);
+            sender.getFriendList().add(currentUser);
+            currentUser.getFriendList().add(sender);
             friendRequest.get().setStatus(FriendRequestStatusEnum.ACCEPTED);
             userRepository.save(sender);
-            userRepository.save(receiver);
+            userRepository.save(currentUser);
             friendRequestRepository.save(friendRequest.get());
         }
     }
 
-    public void rejectFriendRequest(Long friendRequestId) {
-        Optional<FriendRequest> friendRequest = friendRequestRepository.findById(friendRequestId);
+    public void rejectFriendRequest(String senderEmail) {
+        Optional<FriendRequest> friendRequest = friendRequestRepository.findFirstBySenderAndReceiverAndStatus(
+                userRepository.findByEmail(senderEmail),
+                currentUser,
+                FriendRequestStatusEnum.PENDING
+        );
         if (friendRequest.isPresent()) {
             friendRequest.get().setStatus(FriendRequestStatusEnum.REJECTED);
             friendRequestRepository.save(friendRequest.get());
@@ -126,7 +134,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<FriendRequestDto> getFriendRequests(Long receiverId) {
-        List<FriendRequest> foundFriendRequest = friendRequestRepository.findFriendRequestByReceiverIdAndStatus(receiverId, FriendRequestStatusEnum.PENDING);
+        List<FriendRequest> foundFriendRequest = friendRequestRepository.findAllByReceiverAndStatus(currentUser, FriendRequestStatusEnum.PENDING);
         List<FriendRequestDto> resultList = new ArrayList<>();
         for (FriendRequest friendRequest : foundFriendRequest) {
             String senderName = friendRequest.getSender().getName();
@@ -135,18 +143,18 @@ public class UserServiceImpl implements UserService {
         return resultList;
     }
 
-    public void removeFriend(String userNameForRemoval) {
+    public void removeFriend(String removeUserEmail) {
 
-        List<User> friendsList = currentUser.getFriends();
+        List<User> friendsList = currentUser.getFriendList();
         friendsList.stream()
-                .filter(friend -> friend.getName().equals(userNameForRemoval))
+                .filter(friend -> friend.getEmail().equals(removeUserEmail))
                 .findFirst()
                 .ifPresent(friendsList::remove);
 
-        User userForRemoval = userRepository.findByName(userNameForRemoval);
-        List<User> userForRemovalFriendList = userForRemoval.getFriends();
+        User userForRemoval = userRepository.findByEmail(removeUserEmail);
+        List<User> userForRemovalFriendList = userForRemoval.getFriendList();
         userForRemovalFriendList.stream()
-                .filter(friend -> friend.getName().equals(currentUser.getName()))
+                .filter(friend -> friend.getEmail().equals(currentUser.getEmail()))
                 .findFirst()
                 .ifPresent(userForRemovalFriendList::remove);
 
@@ -207,18 +215,6 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmail(email,"Forgot Registration",randomNumber);
     }
 
-//    public List<AddFriendDto> findNonFriendUsers(){
-//        List<User> users = userRepository.findNonFriendUsersByEmail(currentUser.getEmail());
-//        return users.stream()
-//                .map(user -> {
-//                    AddFriendDto addFriendDto = new AddFriendDto();
-//                    addFriendDto.setName(user.getName());
-//                    ResponseEntity<byte[]> b = photoService.getImage(user.getProfilePhoto().getFileName());
-//                    addFriendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
-//                    return addFriendDto;
-//                })
-//                .collect(Collectors.toList());
-//    }
     private String getRandomNumber(){
         return String.valueOf(100000 + random.nextInt(900000));
     }

@@ -30,7 +30,7 @@ public class PhotoController {
     @GetMapping("/uploadForm")
     public String showUploadForm(Model model) {
         model.addAttribute("photos", photoService.getFromS3());
-        model.addAttribute("currentUser", userService.currentUser);
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "uploadForm";
     }
@@ -53,7 +53,9 @@ public class PhotoController {
     }
 
     @GetMapping("/remove-photo")
-    public String removePhoto() {
+    public String removePhoto(Model model) {
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "removePhoto";
     }
 
@@ -70,8 +72,26 @@ public class PhotoController {
     }
 
     @GetMapping("/upload-photo")
-    public String uploadPhoto() {
+    public String uploadPhoto(Model model) {
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "uploadPhoto";
     }
 
+    @GetMapping("/change-profile-picture")
+    public String changeProfilePicture(Model model) {
+        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        return "changeProfilePicture";
+    }
+    @PostMapping("/change-profile-picture")
+    public String changeProfilePicture(@RequestParam("file") MultipartFile file) throws IOException {
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        File tempFile = File.createTempFile("temp", fileName);
+        file.transferTo(tempFile);
+
+        photoService.uploadToS3(tempFile);
+        photoService.changeProfilePicture(tempFile);
+        return "redirect:/uploadForm";
+    }
 }

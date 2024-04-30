@@ -50,7 +50,8 @@
 </head>
 <body>
 <div class="container">
- <h2 th:text="${confirmationDto.codeConfirmationEnum == 'REGISTRATION'} ? 'Confirm Confirm email for successful registration' : 'Confirm email for successful password change'"></h2>
+  <h2 th:if="${confirmationDto.codeConfirmationEnum.toString() == 'REGISTRATION'}">Confirm email for successful registration</h2>
+  <h2 th:if="${confirmationDto.codeConfirmationEnum.toString() != 'REGISTRATION'}">Confirm email for successful password change</h2>
 
   <form th:action="@{/confirm}" method="post" th:object="${confirmationDto}" role="form">
     <div class="form-group">

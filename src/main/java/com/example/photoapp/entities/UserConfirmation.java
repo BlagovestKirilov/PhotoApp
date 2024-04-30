@@ -15,7 +15,6 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "user_confirmation")
 public class UserConfirmation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

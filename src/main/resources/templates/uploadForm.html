@@ -1,3 +1,4 @@
+<!-- teml.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
@@ -18,67 +19,6 @@
             padding: 20px;
         }
 
-        /* Navbar Styles */
-        nav {
-            background-color: #333;
-            color: #fff;
-            padding: 10px;
-            margin-bottom: 20px;
-        }
-
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        nav ul li {
-            display: inline-block; /* Change from inline to inline-block for proper positioning */
-            position: relative; /* Add relative positioning to the parent list items */
-        }
-
-        nav ul li:not(:last-child) {
-            margin-right: 20px;
-        }
-
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: bold;
-            position: relative;
-        }
-
-        nav ul li a:hover {
-            color: #ccc;
-        }
-
-        /* Dropdown Styles */
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #333;
-            min-width: 160px;
-            z-index: 1;
-            top: 100%; /* Position the dropdown below the parent */
-            left: 0; /* Align the dropdown with the left edge of the parent */
-        }
-
-        .dropdown-content a {
-            color: #fff;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .dropdown-content a:hover {
-            background-color: #555;
-        }
-
-        nav ul li:hover .dropdown-content {
-            display: block;
-        }
-
-        /* Content Styles */
         h1, h2 {
             color: #333;
         }
@@ -119,85 +59,10 @@
 </head>
 
 <body>
-<nav>
-    <ul>
-        <li>
-            <a href="#" onclick="submitForm(event)">Profile</a>
-            <div class="dropdown-content">
-                <form id="changePasswordForm" th:action="@{/user/change-password}" method="get" style="display: none;">
-                    <input type="hidden" name="email" th:value="${currentUser.getEmail()}" />
-                    <input type="hidden" name="changePasswordEnum" th:value="${currentUserChangePasswordEnum}" />
-                </form>
-                <a href="#" onclick="document.getElementById('changePasswordForm').submit()">Change Password</a>
-                <a th:href="@{/logout}">Logout</a>
-            </div>
-        </li>
-        <li>
-            <a href="#">Friends</a>
-            <div class="dropdown-content">
-                <a th:href="@{/user/add-friend}">Add Friend</a>
-                <a th:href="@{/user/remove-friend}">Remove Friend</a>
-                <a th:href="@{/user/friend-requests}">Friend Requests</a>
-            </div>
-        </li>
-        <li><a href="#">Photos</a>
-            <div class="dropdown-content">
-                <a th:href="@{/upload-photo}">Upload photo</a>
-                <a th:href="@{/remove-photo}">Remove photo</a>
-            </div>
-        </li>
-    </ul>
-</nav>
+<div th:replace="~{nav.html}"></div>
 
 <div class="container">
     <h1>Photo Uploader</h1>
-
-<!--    <div style="margin-bottom: 20px;">-->
-<!--        <form th:action="@{/logout}" method="post">-->
-<!--            <td>-->
-<!--                <span style="margin-right: 10px;" th:text="'Hello ' + ${currentUser.getName()} + '!'"></span>-->
-<!--                <button type="submit" class="btn btn-primary ms-3">Logout</button>-->
-<!--            </td>-->
-<!--        </form>-->
-<!--        <form th:action="@{/user/change-password}" method="get">-->
-<!--            <div class="form-group">-->
-<!--                <input type="hidden" name="email" th:value="${currentUser.getEmail()}" />-->
-<!--                <input type="hidden" name="changePasswordEnum" th:value="${currentUserChangePasswordEnum}" />-->
-<!--                <button type="submit" class="btn btn-primary ms-3">Change Password</button>-->
-<!--            </div>-->
-<!--        </form>-->
-<!--    </div>-->
-
-<!--    <hr />-->
-
-<!--    <div style="margin-bottom: 20px;">-->
-<!--        <form th:action="@{/user/add-friend}" method="get" style="display: inline-block;">-->
-<!--            <button type="submit" class="btn btn-primary ms-3">Add friend</button>-->
-<!--        </form>-->
-<!--        <form th:action="@{/user/remove-friend}" method="get" style="display: inline-block;">-->
-<!--            <button type="submit" class="btn btn-primary ms-3">Remove friend</button>-->
-<!--        </form>-->
-<!--        <form th:action="@{/user/friend-requests}" method="get" style="display: inline-block;">-->
-<!--            <button type="submit" class="btn btn-primary ms-3">Friend Requests</button>-->
-<!--        </form>-->
-<!--    </div>-->
-
-<!--    <hr />-->
-
-<!--    <div style="margin-bottom: 20px;">-->
-<!--        <div style="display: inline-block; margin-right: 10px;">-->
-<!--            <form th:action="@{/upload}" method="post" enctype="multipart/form-data">-->
-<!--                <input type="file" name="file" id="file">-->
-<!--                <button type="submit">Upload</button>-->
-<!--            </form>-->
-<!--        </div>-->
-<!--        <div style="display: inline-block; margin-left: 10px;">-->
-<!--            <form th:action="@{/remove-photo}" method="get">-->
-<!--                <button type="submit" class="btn btn-primary ms-3">Remove photo</button>-->
-<!--            </form>-->
-<!--        </div>-->
-<!--    </div>-->
-
     <hr />
 
     <h2>Uploaded Photos</h2>
@@ -255,11 +120,6 @@
                 existingCommentsDiv.innerHTML += '<div>' + comment.text + '</div>';
             });
         }
-    }
-
-    function submitForm(event) {
-        event.preventDefault();
-        document.getElementById('changePasswordForm').submit();
     }
 </script>
 

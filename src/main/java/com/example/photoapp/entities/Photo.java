@@ -13,7 +13,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "photos")
 public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +24,7 @@ public class Photo {
     @OneToOne
     private User user;
 
-    @ManyToMany
+    @OneToMany
     List<User> likedPhotoUsers;
 
     @OneToMany

@@ -14,7 +14,6 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "friend_request")
 public class FriendRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

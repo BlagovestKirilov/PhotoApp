@@ -8,8 +8,9 @@ import com.example.photoapp.entities.FriendRequest;
 import com.example.photoapp.entities.Photo;
 import com.example.photoapp.entities.PhotoComment;
 import com.example.photoapp.entities.User;
-import com.example.photoapp.entities.dto.AddFriendDto;
+import com.example.photoapp.entities.dto.FriendDto;
 import com.example.photoapp.entities.dto.PhotoDto;
+import com.example.photoapp.entities.dto.UserDto;
 import com.example.photoapp.enums.FriendRequestStatusEnum;
 import com.example.photoapp.repositories.FriendRequestRepository;
 import com.example.photoapp.repositories.PhotoCommentRepository;
@@ -67,19 +68,19 @@ public class PhotoService {
 
     public List<PhotoDto> getFromS3() {
 
-        List<Photo> photosInDatabase = photoRepository.findAll().stream()
+        List<Photo> photosInDatabase = photoRepository.findByUserIsNotNull().stream()
                 .filter(photo -> {
-                    long photoUploaderId = photo.getUser().getId();
-                    return userService.currentUser.getFriends().stream()
-                            .anyMatch(friend -> friend.getId() == photoUploaderId)
-                            || userService.currentUser.getId() == photoUploaderId;
+                    String photoUploaderEmail = photo.getUser().getEmail();
+                    return userService.currentUser.getFriendList().stream()
+                            .anyMatch(friend -> friend.getEmail().equals(photoUploaderEmail))
+                            || userService.currentUser.getEmail().equals(photoUploaderEmail);
                 })
                 .toList();
 
         return photosInDatabase.stream().map(photo -> {
-            ResponseEntity<byte[]> b = getImage(photo.getFileName());
+            ResponseEntity<byte[]> picture = getImage(photo.getFileName());
             PhotoDto photoDto = new PhotoDto();
-            photoDto.setData(Base64.getEncoder().encodeToString(b.getBody()));
+            photoDto.setData(Base64.getEncoder().encodeToString(picture.getBody()));
             photoDto.setUserName(photo.getUser().getName());
             photoDto.setFileName(photo.getFileName());
             photoDto.setNumberLikes(photo.getLikedPhotoUsers().size());
@@ -107,6 +108,15 @@ public class PhotoService {
         photoRepository.save(photo);
     }
 
+    public void changeProfilePicture(File file) {
+        Photo photo = new Photo();
+        photo.setFileName(file.getName());
+        photo.setUser(userService.currentUser);
+        userService.currentUser.setProfilePhoto(photo);
+        photoRepository.save(photo);
+        userRepository.save(userService.currentUser);
+    }
+
     public void likePhoto(String fileName){
         Photo photo = photoRepository.findByFileName(fileName);
         photo.getLikedPhotoUsers().add(userService.currentUser);
@@ -123,29 +133,73 @@ public class PhotoService {
         photoRepository.save(photo);
     }
 
-    public List<AddFriendDto> findNonFriendUsers() {
+    public List<FriendDto> findNonFriendUsers() {
         List<User> users = userRepository.findNonFriendUsersByUser(userService.currentUser.getEmail());
-        List<User> pending = friendRequestRepository.findAllBySender(userService.currentUser)
+        List<User> pending = friendRequestRepository.findAllBySenderAndStatus(userService.currentUser,FriendRequestStatusEnum.PENDING)
                 .stream()
-                .filter(friendRequest -> friendRequest.getStatus() == FriendRequestStatusEnum.PENDING)
                 .map(FriendRequest::getReceiver)
                 .toList();
-        List<User> rejectedOrAccepted = friendRequestRepository.findAllBySender(userService.currentUser)
+        List<User> pendingFromCurrentUser = friendRequestRepository.findAllByReceiverAndStatus(userService.currentUser,FriendRequestStatusEnum.PENDING)
                 .stream()
-                .filter(friendRequest -> friendRequest.getStatus() == FriendRequestStatusEnum.REJECTED || friendRequest.getStatus() == FriendRequestStatusEnum.ACCEPTED)
-                .map(FriendRequest::getReceiver)
+                .map(FriendRequest::getSender)
                 .toList();
         return users.stream()
-                .filter(user -> !rejectedOrAccepted.contains(user))
                 .map(user -> {
-                    AddFriendDto addFriendDto = new AddFriendDto();
-                    addFriendDto.setName(user.getName());
-                    addFriendDto.setEmail(user.getEmail());
+                    List<User> g= friendRequestRepository.findAllBySender(user)
+                            .stream().filter(friendRequest -> friendRequest.getStatus() == FriendRequestStatusEnum.PENDING)
+                            .map(FriendRequest::getReceiver).toList();
+                    FriendDto friendDto = new FriendDto();
+                    friendDto.setName(user.getName());
+                    friendDto.setEmail(user.getEmail());
                     ResponseEntity<byte[]> b = getImage(user.getProfilePhoto().getFileName());
-                    addFriendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
-                    addFriendDto.setIsPendingStatus(pending.contains(user) ? Boolean.TRUE : Boolean.FALSE);
-                    return addFriendDto;
+                    friendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+                    friendDto.setIsPendingStatus(pending.contains(user) ? Boolean.TRUE : Boolean.FALSE);
+                    friendDto.setIsPendingStatusFromCurrentUser(pendingFromCurrentUser.contains(user) ? Boolean.TRUE : Boolean.FALSE);
+                    return friendDto;
                 })
                 .collect(Collectors.toList());
+    }
+    public List<FriendDto> getCurrentUserFriends(){
+        return userService.currentUser.getFriendList().stream()
+                .map(user -> {
+                    FriendDto friendDto = new FriendDto();
+                    friendDto.setName(user.getName());
+                    friendDto.setEmail(user.getEmail());
+                    ResponseEntity<byte[]> b = getImage(user.getProfilePhoto().getFileName());
+                    friendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+                    return friendDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<FriendDto> getFriendRequests() {
+        List<FriendRequest> foundFriendRequest = friendRequestRepository.findAllByReceiverAndStatus(userService.currentUser, FriendRequestStatusEnum.PENDING);
+//        List<FriendRequestDto> resultList = new ArrayList<>();
+//        for (FriendRequest friendRequest : foundFriendRequest) {
+//            String senderName = friendRequest.getSender().getName();
+//            resultList.add(new FriendRequestDto(friendRequest.getId(), senderName));
+//        }
+//        return resultList;
+        return foundFriendRequest.stream()
+                .map(friendRequest -> {
+                    User sender = friendRequest.getSender();
+                    FriendDto friendDto = new FriendDto();
+                    friendDto.setName(sender.getName());
+                    friendDto.setEmail(sender.getEmail());
+                    ResponseEntity<byte[]> b = getImage(sender.getProfilePhoto().getFileName());
+                    friendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+                    friendDto.setIsPendingStatus(Boolean.TRUE);
+                    return friendDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public UserDto getCurrentUserDto(){
+        UserDto userDto = new UserDto();
+        userDto.setName(userService.currentUser.getName());
+        userDto.setEmail(userService.currentUser.getEmail());
+        ResponseEntity<byte[]> picture = getImage(userService.currentUser.getProfilePhoto().getFileName());
+        userDto.setProfilePictureData(Base64.getEncoder().encodeToString(picture.getBody()));
+        return userDto;
     }
 }

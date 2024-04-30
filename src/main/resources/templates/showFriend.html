@@ -39,10 +39,9 @@
         }
 
         .container .user p {
-            /*margin: 0;*/
+            margin: 0;
             font-size: 18px;
             color: #333;
-            margin-right: 20px;
         }
 
         .container .friend-status {
@@ -62,7 +61,7 @@
         }
 
         .container .add-friend-button {
-            background-color: #4CAF50;
+            background-color: red;
             border: none;
             color: white;
             padding: 10px 20px;
@@ -82,20 +81,13 @@
 <body>
 <div th:replace="~{nav.html}"></div>
 <div class="container">
-    <h1 style="text-align: center;">Add Friend</h1>
-
+    <h1 style="text-align: center;">Friends</h1>
     <div class="user" th:each="user : ${users}">
         <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">
         <p th:text="${user.getName()}"></p>
-        <form class="add-friend-form" th:if="${!user.getIsPendingStatus() && !user.getIsPendingStatusFromCurrentUser()}" th:action="@{/user/add-friend}" method="post">
-            <input type="hidden" name="receiverEmail" th:value="${user.getEmail()}">
-            <button class="add-friend-button" type="submit">Add Friend</button>
-        </form>
-        <form class="add-friend-form" th:if="${user.getIsPendingStatus()}">
-            <p class="friend-status" th:if="${user.getIsPendingStatus()}">Pending confirmation</p>
-        </form>
-        <form class="add-friend-form" th:if="${user.getIsPendingStatusFromCurrentUser()}">
-            <p class="friend-status" th:if="${user.getIsPendingStatusFromCurrentUser()}">Pending your confirmation</p>
+        <form class="add-friend-form" th:action="@{/user/remove-friend}" method="post">
+            <input type="hidden" name="removeUserEmail" th:value="${user.getEmail()}">
+            <button class="add-friend-button" type="submit">Remove Friend</button>
         </form>
     </div>
 </div>

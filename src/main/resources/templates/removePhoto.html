@@ -5,6 +5,7 @@
     <title>Remove photo</title>
 </head>
 <body>
+<div th:replace="~{nav.html}"></div>
 <h1>Remove photo</h1>
 <form th:action="@{/remove-photo}" method="post">
     <label for="photoName">Photo name:</label>

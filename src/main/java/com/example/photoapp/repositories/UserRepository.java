@@ -12,8 +12,10 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
     User findByName(String name);
-   // @Query("SELECT u FROM User u WHERE u.email <> :userEmail AND :user NOT MEMBER OF u.friends AND u <> :user")
    @Query("SELECT u FROM User u WHERE u.email <> :userEmail " +
-           "AND NOT EXISTS (SELECT f FROM u.friends f WHERE f.email = :userEmail)")
+           "AND NOT EXISTS (SELECT f FROM u.friendList f WHERE f.email = :userEmail)")
     List<User> findNonFriendUsersByUser(@Param("userEmail") String userEmail);
+
+    @Query("SELECT u.friendList FROM User u WHERE u.email = :email")
+    List<User> findFriendsByEmail(@Param("email") String email);
 }
