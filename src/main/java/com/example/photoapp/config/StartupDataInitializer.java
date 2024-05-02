@@ -1,9 +1,9 @@
 package com.example.photoapp.config;
 
 import com.amazonaws.util.IOUtils;
-import com.example.photoapp.entities.Photo;
-import com.example.photoapp.repositories.PhotoRepository;
-import com.example.photoapp.service.impl.PhotoService;
+import com.example.photoapp.entity.Photo;
+import com.example.photoapp.repository.PhotoRepository;
+import com.example.photoapp.service.impl.PhotoServiceImpl;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -22,7 +22,7 @@ public class StartupDataInitializer {
     private PhotoRepository photoRepository;
 
     @Autowired
-    private PhotoService photoService;
+    private PhotoServiceImpl photoServiceImpl;
 
     @PostConstruct
     public void init() throws IOException {
@@ -37,8 +37,8 @@ public class StartupDataInitializer {
             File tempFile = File.createTempFile("init", DEFAULT_PROFILE_PICTURE);
             multipartFile.transferTo(tempFile);
 
-            photoService.uploadToS3(tempFile);
-            photoService.save(tempFile);
+            photoServiceImpl.uploadToS3(tempFile);
+            photoServiceImpl.save(tempFile,"");
         }
     }
 }

@@ -1,7 +1,5 @@
-package com.example.photoapp.entities.dto;
+package com.example.photoapp.entity.dto;
 
-import com.example.photoapp.entities.User;
-import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,6 @@
-package com.example.photoapp.repositories;
+package com.example.photoapp.repository;
 
-import com.example.photoapp.entities.UserConfirmation;
+import com.example.photoapp.entity.UserConfirmation;
 import com.example.photoapp.enums.CodeConfirmationEnum;
 import com.example.photoapp.enums.CodeConfirmationStatusEnum;
 import org.springframework.data.jpa.repository.JpaRepository;

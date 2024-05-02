@@ -1,10 +1,10 @@
 package com.example.photoapp.service.impl;
 
 
-import com.example.photoapp.entities.*;
-import com.example.photoapp.entities.dto.*;
+import com.example.photoapp.entity.*;
+import com.example.photoapp.entity.dto.*;
 import com.example.photoapp.enums.*;
-import com.example.photoapp.repositories.*;
+import com.example.photoapp.repository.*;
 import com.example.photoapp.util.TbConstants;
 import com.example.photoapp.service.UserService;
 import org.slf4j.Logger;

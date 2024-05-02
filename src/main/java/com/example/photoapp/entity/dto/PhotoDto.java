@@ -1,6 +1,6 @@
-package com.example.photoapp.entities.dto;
+package com.example.photoapp.entity.dto;
 
-import com.example.photoapp.entities.PhotoComment;
+import com.example.photoapp.entity.PhotoComment;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +22,8 @@ public class PhotoDto {
     private String fileName;
 
     private List<PhotoComment> photoComments;
+
+    private String userProfilePhotoData;
+
+    private String status;
 }

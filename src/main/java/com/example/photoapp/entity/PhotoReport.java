@@ -1,5 +1,6 @@
-package com.example.photoapp.entities;
+package com.example.photoapp.entity;
 
+import com.example.photoapp.enums.PhotoReportReasonEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,13 +12,17 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhotoComment {
+public class PhotoReport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String text;
+    @OneToOne
+    private Photo reportedPhoto;
 
     @OneToOne
-    private User commentMaker;
+    private User reporterUser;
+
+    @Enumerated(EnumType.STRING)
+    PhotoReportReasonEnum reportReason;
 }

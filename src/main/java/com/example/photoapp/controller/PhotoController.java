@@ -2,7 +2,7 @@ package com.example.photoapp.controller;
 
 import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.impl.UserServiceImpl;
-import com.example.photoapp.service.impl.PhotoService;
+import com.example.photoapp.service.impl.PhotoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +19,8 @@ import java.util.Objects;
 @Controller
 public class PhotoController {
 
-    @Autowired PhotoService photoService;
+    @Autowired
+    PhotoServiceImpl photoServiceImpl;
 
     @Autowired UserServiceImpl userService;
 
@@ -29,58 +30,59 @@ public class PhotoController {
     }
     @GetMapping("/uploadForm")
     public String showUploadForm(Model model) {
-        model.addAttribute("photos", photoService.getFromS3());
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("photos", photoServiceImpl.getFromS3());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "uploadForm";
     }
 
     @PostMapping("/upload")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    public String handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam("status") String status) throws IOException {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         File tempFile = File.createTempFile("temp", fileName);
         file.transferTo(tempFile);
 
-        photoService.uploadToS3(tempFile);
-        photoService.save(tempFile);
+        photoServiceImpl.uploadToS3(tempFile);
+        photoServiceImpl.save(tempFile, status);
         return "redirect:/uploadForm";
     }
 
     @PostMapping("/remove-photo")
-    public String removePhotoConfirm(@RequestParam String photoName) {
-        photoService.deleteFromS3(photoName);
+    public String removePhotoConfirm(@RequestParam String photoFileName) {
+        photoServiceImpl.deleteFromS3(photoFileName);
         return "redirect:/";
     }
 
     @GetMapping("/remove-photo")
     public String removePhoto(Model model) {
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("photos",photoServiceImpl.getCurrentUserPhotos());
         return "removePhoto";
     }
 
     @PostMapping("/like-photo")
     public String likePhoto(@RequestParam("photoFileName") String fileName) {
-        photoService.likePhoto(fileName);
-        return "redirect:/uploadForm"; // Redirect to the homepage or any other appropriate page
+        photoServiceImpl.likePhoto(fileName);
+        return "redirect:/uploadForm";
     }
 
     @PostMapping("/add-comment")
     public String addComment(@RequestParam("photoFileName") String fileName, @RequestParam("comment") String comment) {
-        photoService.addComment(fileName, comment);
-        return "redirect:/uploadForm"; // Redirect to the homepage or any other appropriate page
+        photoServiceImpl.addComment(fileName, comment);
+        return "redirect:/uploadForm";
     }
 
     @GetMapping("/upload-photo")
     public String uploadPhoto(Model model) {
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "uploadPhoto";
     }
 
     @GetMapping("/change-profile-picture")
     public String changeProfilePicture(Model model) {
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "changeProfilePicture";
     }
@@ -90,8 +92,14 @@ public class PhotoController {
         File tempFile = File.createTempFile("temp", fileName);
         file.transferTo(tempFile);
 
-        photoService.uploadToS3(tempFile);
-        photoService.changeProfilePicture(tempFile);
+        photoServiceImpl.uploadToS3(tempFile);
+        photoServiceImpl.changeProfilePicture(tempFile);
+        return "redirect:/uploadForm";
+    }
+
+    @PostMapping("/report-photo")
+    public String reportPhoto(@RequestParam("photoFileName") String photoFileName, @RequestParam("reason") String reason){
+        photoServiceImpl.reportPhoto(photoFileName, reason);
         return "redirect:/uploadForm";
     }
 }

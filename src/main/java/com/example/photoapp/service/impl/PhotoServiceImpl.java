@@ -4,18 +4,13 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
-import com.example.photoapp.entities.FriendRequest;
-import com.example.photoapp.entities.Photo;
-import com.example.photoapp.entities.PhotoComment;
-import com.example.photoapp.entities.User;
-import com.example.photoapp.entities.dto.FriendDto;
-import com.example.photoapp.entities.dto.PhotoDto;
-import com.example.photoapp.entities.dto.UserDto;
+import com.example.photoapp.entity.*;
+import com.example.photoapp.entity.dto.FriendDto;
+import com.example.photoapp.entity.dto.PhotoDto;
+import com.example.photoapp.entity.dto.UserDto;
 import com.example.photoapp.enums.FriendRequestStatusEnum;
-import com.example.photoapp.repositories.FriendRequestRepository;
-import com.example.photoapp.repositories.PhotoCommentRepository;
-import com.example.photoapp.repositories.PhotoRepository;
-import com.example.photoapp.repositories.UserRepository;
+import com.example.photoapp.enums.PhotoReportReasonEnum;
+import com.example.photoapp.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -31,7 +26,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class PhotoService {
+public class PhotoServiceImpl {
     @Value("${cloud.aws.bucketName}")
     private String BUCKET_NAME;
 
@@ -45,9 +40,10 @@ public class PhotoService {
     private AmazonS3 s3Client;
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     FriendRequestRepository friendRequestRepository;
+    @Autowired
+    PhotoReportRepository photoReportRepository;
 
     public void uploadToS3(File file) {
         String s3Key = file.getName();
@@ -56,11 +52,11 @@ public class PhotoService {
         s3Client.putObject(putObjectRequest);
     }
 
-    public void deleteFromS3(String fileName) {
-        Photo photo = photoRepository.findByFileName(fileName);
+    public void deleteFromS3(String photoFileName) {
+        Photo photo = photoRepository.findByFileName(photoFileName);
         if (Objects.nonNull(photo)) {
             if (Objects.equals(photo.getUser().getId(), userService.currentUser.getId())) {
-                s3Client.deleteObject(BUCKET_NAME, fileName);
+                s3Client.deleteObject(BUCKET_NAME, photoFileName);
                 photoRepository.delete(photo);
             }
         }
@@ -77,16 +73,7 @@ public class PhotoService {
                 })
                 .toList();
 
-        return photosInDatabase.stream().map(photo -> {
-            ResponseEntity<byte[]> picture = getImage(photo.getFileName());
-            PhotoDto photoDto = new PhotoDto();
-            photoDto.setData(Base64.getEncoder().encodeToString(picture.getBody()));
-            photoDto.setUserName(photo.getUser().getName());
-            photoDto.setFileName(photo.getFileName());
-            photoDto.setNumberLikes(photo.getLikedPhotoUsers().size());
-            photoDto.setPhotoComments(photo.getPhotoComments());
-            return photoDto;
-        }).collect(Collectors.toList());
+        return getPhotoDtos(photosInDatabase);
     }
 
     public ResponseEntity<byte[]> getImage(String key) {
@@ -101,10 +88,11 @@ public class PhotoService {
         }
     }
 
-    public void save(File file) {
+    public void save(File file, String status) {
         Photo photo = new Photo();
         photo.setFileName(file.getName());
         photo.setUser(userService.currentUser);
+        photo.setStatus(status);
         photoRepository.save(photo);
     }
 
@@ -145,9 +133,9 @@ public class PhotoService {
                 .toList();
         return users.stream()
                 .map(user -> {
-                    List<User> g= friendRequestRepository.findAllBySender(user)
-                            .stream().filter(friendRequest -> friendRequest.getStatus() == FriendRequestStatusEnum.PENDING)
-                            .map(FriendRequest::getReceiver).toList();
+//                    List<User> g= friendRequestRepository.findAllBySender(user)
+//                            .stream().filter(friendRequest -> friendRequest.getStatus() == FriendRequestStatusEnum.PENDING)
+//                            .map(FriendRequest::getReceiver).toList();
                     FriendDto friendDto = new FriendDto();
                     friendDto.setName(user.getName());
                     friendDto.setEmail(user.getEmail());
@@ -174,12 +162,6 @@ public class PhotoService {
 
     public List<FriendDto> getFriendRequests() {
         List<FriendRequest> foundFriendRequest = friendRequestRepository.findAllByReceiverAndStatus(userService.currentUser, FriendRequestStatusEnum.PENDING);
-//        List<FriendRequestDto> resultList = new ArrayList<>();
-//        for (FriendRequest friendRequest : foundFriendRequest) {
-//            String senderName = friendRequest.getSender().getName();
-//            resultList.add(new FriendRequestDto(friendRequest.getId(), senderName));
-//        }
-//        return resultList;
         return foundFriendRequest.stream()
                 .map(friendRequest -> {
                     User sender = friendRequest.getSender();
@@ -201,5 +183,34 @@ public class PhotoService {
         ResponseEntity<byte[]> picture = getImage(userService.currentUser.getProfilePhoto().getFileName());
         userDto.setProfilePictureData(Base64.getEncoder().encodeToString(picture.getBody()));
         return userDto;
+    }
+
+    public List<PhotoDto> getCurrentUserPhotos(){
+        List<Photo> currentUserPhotos = photoRepository.findByUser(userService.currentUser);
+        return getPhotoDtos(currentUserPhotos);
+    }
+
+    private List<PhotoDto> getPhotoDtos(List<Photo> currentUserPhotos) {
+        return currentUserPhotos.stream().map(photo -> {
+            ResponseEntity<byte[]> picture = getImage(photo.getFileName());
+            PhotoDto photoDto = new PhotoDto();
+            photoDto.setData(Base64.getEncoder().encodeToString(picture.getBody()));
+            photoDto.setUserName(photo.getUser().getName());
+            photoDto.setFileName(photo.getFileName());
+            photoDto.setNumberLikes(photo.getLikedPhotoUsers().size());
+            photoDto.setPhotoComments(photo.getPhotoComments());
+            ResponseEntity<byte[]> profilePicture = getImage(photo.getUser().getProfilePhoto().getFileName());
+            photoDto.setUserProfilePhotoData(Base64.getEncoder().encodeToString(profilePicture.getBody()));
+            photoDto.setStatus(photo.getStatus());
+            return photoDto;
+        }).collect(Collectors.toList());
+    }
+
+    public void reportPhoto(String photoName, String reason){
+        PhotoReport photoReport = new PhotoReport();
+        photoReport.setReporterUser(userService.currentUser);
+        photoReport.setReportedPhoto(photoRepository.findByFileName(photoName));
+        photoReport.setReportReason(PhotoReportReasonEnum.valueOf(reason));
+        photoReportRepository.save(photoReport);
     }
 }

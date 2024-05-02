@@ -1,4 +1,4 @@
-package com.example.photoapp.entities.dto;
+package com.example.photoapp.entity.dto;
 
 import com.example.photoapp.enums.ChangePasswordEnum;
 import lombok.AllArgsConstructor;

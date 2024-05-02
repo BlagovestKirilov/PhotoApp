@@ -1,4 +1,4 @@
-package com.example.photoapp.entities;
+package com.example.photoapp.entity;
 
 import com.example.photoapp.enums.FriendRequestStatusEnum;
 import jakarta.persistence.*;

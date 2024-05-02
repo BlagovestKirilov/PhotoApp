@@ -1,4 +1,4 @@
-package com.example.photoapp.entities.dto;
+package com.example.photoapp.entity.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -11,17 +11,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-
-    @NotEmpty(message = "Please enter valid name.")
-    private String name;
-
+public class LoginUserDto {
     @NotEmpty(message = "Please enter valid email.")
     @Email
     private String email;
 
     @NotEmpty(message = "Please enter valid password.")
     private String password;
-
-    private String profilePictureData;
 }

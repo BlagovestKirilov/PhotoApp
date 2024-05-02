@@ -1,9 +1,9 @@
 package com.example.photoapp.controller;
 
-import com.example.photoapp.entities.dto.FriendDto;
-import com.example.photoapp.entities.dto.ChangePasswordDto;
+import com.example.photoapp.entity.dto.FriendDto;
+import com.example.photoapp.entity.dto.ChangePasswordDto;
 import com.example.photoapp.enums.ChangePasswordEnum;
-import com.example.photoapp.service.impl.PhotoService;
+import com.example.photoapp.service.impl.PhotoServiceImpl;
 import com.example.photoapp.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,7 +20,7 @@ public class UserController {
     UserServiceImpl userService;
 
     @Autowired
-    PhotoService photoService;
+    PhotoServiceImpl photoServiceImpl;
 
     @GetMapping("/")
     public String registrationForm() {
@@ -29,9 +29,9 @@ public class UserController {
 
     @GetMapping("/friend-requests")
     public String showFriendRequests(Model model) {
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
-        List<FriendDto> d = photoService.getFriendRequests();
+        List<FriendDto> d = photoServiceImpl.getFriendRequests();
         model.addAttribute("users", d);
         return "friendRequests";
     }
@@ -44,9 +44,9 @@ public class UserController {
 
     @GetMapping("/add-friend")
     public String addFriend(Model model) {
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
-        List<FriendDto> friendDtos =photoService.findNonFriendUsers();
+        List<FriendDto> friendDtos = photoServiceImpl.findNonFriendUsers();
         model.addAttribute("users", friendDtos);
         return "addFriend";
     }
@@ -59,9 +59,9 @@ public class UserController {
 
     @GetMapping("/show-friend")
     public String removeFriend(Model model) {
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
-        List<FriendDto> friendDtos = photoService.getCurrentUserFriends();
+        List<FriendDto> friendDtos = photoServiceImpl.getCurrentUserFriends();
         model.addAttribute("users", friendDtos);
         return "showFriend";
     }
@@ -74,7 +74,7 @@ public class UserController {
 
     @GetMapping("/confirm-friend")
     public String confirmFriend(Model model) {
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "redirect:/user/friend-requests";
     }
@@ -87,14 +87,14 @@ public class UserController {
 
     @GetMapping("/reject-friend")
     public String rejectFriend(Model model) {
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "redirect:/user/friend-requests";
     }
 
     @GetMapping("/change-password")
     public String changePassword(Model model, @RequestParam String email, @RequestParam ChangePasswordEnum changePasswordEnum) {
-        model.addAttribute("currentUser", photoService.getCurrentUserDto());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         ChangePasswordDto changePasswordDto= new ChangePasswordDto();
         changePasswordDto.setEmail(email);

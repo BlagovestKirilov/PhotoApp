@@ -1,10 +1,10 @@
 package com.example.photoapp.service;
 
 
-import com.example.photoapp.entities.dto.ConfirmationDto;
-import com.example.photoapp.entities.dto.LoginUserDto;
-import com.example.photoapp.entities.dto.UserDto;
-import com.example.photoapp.entities.User;
+import com.example.photoapp.entity.dto.ConfirmationDto;
+import com.example.photoapp.entity.dto.LoginUserDto;
+import com.example.photoapp.entity.dto.UserDto;
+import com.example.photoapp.entity.User;
 import com.example.photoapp.enums.RegistrationStatusEnum;
 
 public interface UserService {

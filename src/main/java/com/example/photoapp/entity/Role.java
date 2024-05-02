@@ -1,4 +1,4 @@
-package com.example.photoapp.entities;
+package com.example.photoapp.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

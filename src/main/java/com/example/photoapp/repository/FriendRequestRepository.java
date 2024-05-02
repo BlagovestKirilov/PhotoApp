@@ -1,7 +1,7 @@
-package com.example.photoapp.repositories;
+package com.example.photoapp.repository;
 
-import com.example.photoapp.entities.FriendRequest;
-import com.example.photoapp.entities.User;
+import com.example.photoapp.entity.FriendRequest;
+import com.example.photoapp.entity.User;
 import com.example.photoapp.enums.FriendRequestStatusEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
