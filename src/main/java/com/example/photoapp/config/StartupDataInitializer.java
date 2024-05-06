@@ -2,7 +2,10 @@ package com.example.photoapp.config;
 
 import com.amazonaws.util.IOUtils;
 import com.example.photoapp.entity.Photo;
+import com.example.photoapp.entity.Role;
+import com.example.photoapp.enums.RoleEnum;
 import com.example.photoapp.repository.PhotoRepository;
+import com.example.photoapp.repository.RoleRepository;
 import com.example.photoapp.service.impl.PhotoServiceImpl;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -20,6 +24,9 @@ public class StartupDataInitializer {
 
     @Autowired
     private PhotoRepository photoRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private PhotoServiceImpl photoServiceImpl;
@@ -39,6 +46,12 @@ public class StartupDataInitializer {
 
             photoServiceImpl.uploadToS3(tempFile);
             photoServiceImpl.save(tempFile,"");
+        }
+
+        if(roleRepository.count() == 0){
+            Role userRole = new Role(RoleEnum.ROLE_USER);
+            Role adminRole = new Role(RoleEnum.ROLE_ADMIN);
+            roleRepository.saveAll(List.of(userRole,adminRole));
         }
     }
 }

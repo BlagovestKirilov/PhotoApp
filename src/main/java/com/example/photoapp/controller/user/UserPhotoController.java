@@ -1,4 +1,4 @@
-package com.example.photoapp.controller;
+package com.example.photoapp.controller.user;
 
 import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.impl.UserServiceImpl;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 @Controller
-public class PhotoController {
+public class UserPhotoController {
 
     @Autowired
     PhotoServiceImpl photoServiceImpl;

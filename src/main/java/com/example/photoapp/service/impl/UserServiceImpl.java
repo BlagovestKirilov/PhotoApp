@@ -5,7 +5,6 @@ import com.example.photoapp.entity.*;
 import com.example.photoapp.entity.dto.*;
 import com.example.photoapp.enums.*;
 import com.example.photoapp.repository.*;
-import com.example.photoapp.util.TbConstants;
 import com.example.photoapp.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,15 +67,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(UserDto userDto) {
-        Role role = roleRepository.findByName(TbConstants.Roles.USER);
+        Role role = roleRepository.findByName(RoleEnum.ROLE_USER);
         List<Photo> photos = new ArrayList<>();
         String DEFAULT_PROFILE_PICTURE = "default_profile_picture.jpg";
 
-        if (role == null)
-            role = roleRepository.save(new Role(TbConstants.Roles.USER));
-
         User user = new User(userDto.getName(), userDto.getEmail(), passwordEncoder.encode(userDto.getPassword()),
-                List.of(role), photos, new ArrayList<>(), RegistrationStatusEnum.PENDING, photoRepository.findByFileNameEndsWith(DEFAULT_PROFILE_PICTURE));
+                role,  new ArrayList<>(), RegistrationStatusEnum.PENDING, photoRepository.findByFileNameEndsWith(DEFAULT_PROFILE_PICTURE));
         String randomNumber = getRandomNumber();
         UserConfirmation userConfirmation = new UserConfirmation();
         userConfirmation.setEmail(userDto.getEmail());

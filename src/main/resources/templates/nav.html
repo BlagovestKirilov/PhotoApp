@@ -90,7 +90,7 @@
 
 <body>
 <nav>
-    <ul>
+    <ul th:if="${currentUser.getRole() == 'ROLE_USER'}">
         <li>
             <img th:src="'data:image/png;base64,' + ${currentUser.getProfilePictureData()}" onclick="submitForm(event)" />
             <div class="dropdown-content">
@@ -116,6 +116,18 @@
             <div class="dropdown-content">
                 <a th:href="@{/upload-photo}">Upload photo</a>
                 <a th:href="@{/remove-photo}">Remove photo</a>
+            </div>
+        </li>
+    </ul>
+    <ul th:if="${currentUser.getRole() == 'ROLE_ADMIN'}">
+        <li>
+            <img th:src="'data:image/png;base64,' + ${currentUser.getProfilePictureData()}" onclick="submitForm(event)" />
+        </li>
+        <li><a href="#">Photos</a>
+            <div class="dropdown-content">
+                <a th:href="@{/admin/all-user}">All users</a>
+                <a th:href="@{/admin/all-photo}">All photos</a>
+                <a th:href="@{/admin/reported-photo}">Reported photo</a>
             </div>
         </li>
     </ul>

@@ -5,11 +5,10 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
 import com.example.photoapp.entity.*;
-import com.example.photoapp.entity.dto.FriendDto;
-import com.example.photoapp.entity.dto.PhotoDto;
-import com.example.photoapp.entity.dto.UserDto;
+import com.example.photoapp.entity.dto.*;
 import com.example.photoapp.enums.FriendRequestStatusEnum;
 import com.example.photoapp.enums.PhotoReportReasonEnum;
+import com.example.photoapp.enums.RoleEnum;
 import com.example.photoapp.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +19,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,8 +52,8 @@ public class PhotoServiceImpl {
     public void deleteFromS3(String photoFileName) {
         Photo photo = photoRepository.findByFileName(photoFileName);
         if (Objects.nonNull(photo)) {
-            if (Objects.equals(photo.getUser().getId(), userService.currentUser.getId())) {
-                s3Client.deleteObject(BUCKET_NAME, photoFileName);
+            if (Objects.equals(photo.getUser().getId(), userService.currentUser.getId()) || userService.currentUser.getRole().getName() == RoleEnum.ROLE_ADMIN) {
+                //s3Client.deleteObject(BUCKET_NAME, photoFileName);
                 photoRepository.delete(photo);
             }
         }
@@ -74,6 +71,41 @@ public class PhotoServiceImpl {
                 .toList();
 
         return getPhotoDtos(photosInDatabase);
+    }
+    public List<PhotoDto> getAllPhoto() {
+        return getPhotoDtos(photoRepository.findByUserIsNotNull());
+    }
+    public List<PhotoReportDto> getReportedPhotos(){
+        List<PhotoReport> photoReports = photoReportRepository.findAll();
+        Map<Photo, List<PhotoReportReasonEnum>> g = photoReportRepository.findAll().stream()
+                // Sort the PhotoReports by reported photo ID
+                .sorted(Comparator.comparing(photoReport -> photoReport.getReportedPhoto().getId()))
+                // Group the PhotoReports by reported photo
+                .collect(Collectors.groupingBy(
+                        PhotoReport::getReportedPhoto,
+                        Collectors.mapping(PhotoReport::getReportReason, Collectors.toList())
+                ));
+        return photoReportRepository.findAll().stream()
+                .sorted(Comparator.comparing(photoReport -> photoReport.getReportedPhoto().getId()))
+                .collect(Collectors.groupingBy(
+                        PhotoReport::getReportedPhoto,
+                        Collectors.mapping(PhotoReport::getReportReason, Collectors.toList())
+                )).keySet().stream().map(photo -> {
+                    PhotoReportDto photoReportDto = new PhotoReportDto();
+                    ResponseEntity<byte[]> picture = getImage(photo.getFileName());
+                    PhotoDto photoDto = new PhotoDto();
+                    photoDto.setData(Base64.getEncoder().encodeToString(picture.getBody()));
+                    photoDto.setUserName(photo.getUser().getName());
+                    photoDto.setFileName(photo.getFileName());
+                    photoDto.setNumberLikes(photo.getLikedPhotoUsers().size());
+                    photoDto.setPhotoComments(getPhotoCommentsDtos(photo));
+                    ResponseEntity<byte[]> profilePicture = getImage(photo.getUser().getProfilePhoto().getFileName());
+                    photoDto.setUserProfilePhotoData(Base64.getEncoder().encodeToString(profilePicture.getBody()));
+                    photoDto.setStatus(photo.getStatus());
+                    photoReportDto.setPhotoDto(photoDto);
+                    photoReportDto.setReportedReasons(g.get(photo).stream().map(Enum::name).collect(Collectors.toList()));
+                    return photoReportDto;
+                }).collect(Collectors.toList());
     }
 
     public ResponseEntity<byte[]> getImage(String key) {
@@ -116,9 +148,10 @@ public class PhotoServiceImpl {
         PhotoComment photoComment = new PhotoComment();
         photoComment.setText(text);
         photoComment.setCommentMaker(userService.currentUser);
+        photoComment.setPhoto(photo);
         photoCommentRepository.save(photoComment);
-        photo.getPhotoComments().add(photoComment);
-        photoRepository.save(photo);
+        //photo.getPhotoComments().add(photoComment);
+        //photoRepository.save(photo);
     }
 
     public List<FriendDto> findNonFriendUsers() {
@@ -160,6 +193,19 @@ public class PhotoServiceImpl {
                 .collect(Collectors.toList());
     }
 
+    public List<FriendDto> getAllUsers(){
+        return userRepository.findAll().stream()
+                .map(user -> {
+                    FriendDto friendDto = new FriendDto();
+                    friendDto.setName(user.getName());
+                    friendDto.setEmail(user.getEmail());
+                    ResponseEntity<byte[]> b = getImage(user.getProfilePhoto().getFileName());
+                    friendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+                    return friendDto;
+                })
+                .collect(Collectors.toList());
+    }
+
     public List<FriendDto> getFriendRequests() {
         List<FriendRequest> foundFriendRequest = friendRequestRepository.findAllByReceiverAndStatus(userService.currentUser, FriendRequestStatusEnum.PENDING);
         return foundFriendRequest.stream()
@@ -180,6 +226,7 @@ public class PhotoServiceImpl {
         UserDto userDto = new UserDto();
         userDto.setName(userService.currentUser.getName());
         userDto.setEmail(userService.currentUser.getEmail());
+        userDto.setRole(userService.currentUser.getRole().getName().toString());
         ResponseEntity<byte[]> picture = getImage(userService.currentUser.getProfilePhoto().getFileName());
         userDto.setProfilePictureData(Base64.getEncoder().encodeToString(picture.getBody()));
         return userDto;
@@ -198,11 +245,20 @@ public class PhotoServiceImpl {
             photoDto.setUserName(photo.getUser().getName());
             photoDto.setFileName(photo.getFileName());
             photoDto.setNumberLikes(photo.getLikedPhotoUsers().size());
-            photoDto.setPhotoComments(photo.getPhotoComments());
+            photoDto.setPhotoComments(getPhotoCommentsDtos(photo));
             ResponseEntity<byte[]> profilePicture = getImage(photo.getUser().getProfilePhoto().getFileName());
             photoDto.setUserProfilePhotoData(Base64.getEncoder().encodeToString(profilePicture.getBody()));
             photoDto.setStatus(photo.getStatus());
             return photoDto;
+        }).collect(Collectors.toList());
+    }
+
+    private List<PhotoCommentDto> getPhotoCommentsDtos(Photo photo){
+        return photoCommentRepository.findAllByPhoto(photo).stream().map(photoComment -> {
+            PhotoCommentDto photoCommentDto= new PhotoCommentDto();
+            photoCommentDto.setCommentMaker(photoComment.getCommentMaker().getName());
+            photoCommentDto.setText(photoComment.getText());
+            return photoCommentDto;
         }).collect(Collectors.toList());
     }
 

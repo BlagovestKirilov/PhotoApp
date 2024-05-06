@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -26,16 +25,9 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String password;
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
-    )
-    private List<Role> roles = new ArrayList<>();
 
-    @OneToMany
-    private List<Photo> photos = new ArrayList<>();
+    @ManyToOne()
+    private Role role;
 
     @OneToOne
     private Photo profilePhoto;
@@ -51,12 +43,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RegistrationStatusEnum registrationStatus;
 
-    public User(String name, String email, String password, List<Role> roles, List<Photo> photos, List<User> friendList, RegistrationStatusEnum registrationStatus, Photo profilePhoto) {
+    public User(String name, String email, String password, Role role,List<User> friendList, RegistrationStatusEnum registrationStatus, Photo profilePhoto) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.roles = roles;
-        this.photos = photos;
+        this.role = role;
+        //this.photos = photos;
         this.friendList = friendList;
         this.registrationStatus = registrationStatus;
         this.profilePhoto = profilePhoto;

@@ -20,4 +20,8 @@ public class PhotoComment {
 
     @OneToOne
     private User commentMaker;
+
+    @ManyToOne
+    @JoinColumn(name = "photo_id")
+    private Photo photo;
 }

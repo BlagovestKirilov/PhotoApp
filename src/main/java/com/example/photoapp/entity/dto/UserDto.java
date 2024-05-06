@@ -24,4 +24,6 @@ public class UserDto {
     private String password;
 
     private String profilePictureData;
+
+    private String role;
 }

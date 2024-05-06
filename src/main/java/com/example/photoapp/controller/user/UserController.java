@@ -1,4 +1,4 @@
-package com.example.photoapp.controller;
+package com.example.photoapp.controller.user;
 
 import com.example.photoapp.entity.dto.FriendDto;
 import com.example.photoapp.entity.dto.ChangePasswordDto;

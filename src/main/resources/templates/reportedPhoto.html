@@ -55,7 +55,8 @@
             margin-top: 10px;
         }
 
-        .comment-form {
+        .comment-form,
+        .report-form {
             display: none;
             margin-top: 10px;
         }
@@ -164,42 +165,38 @@
     <h1>Photo Uploader</h1>
     <hr />
 
-    <h2>Uploaded Photos</h2>
+    <h2>Reported Photos</h2>
 
-    <div th:each="photo : ${photos}" class="post">
-        <img th:src="'data:image/png;base64,' + ${photo.getUserProfilePhotoData()}" class="profile-pic" />
+    <div th:each="reportedPhoto : ${reportedPhotos}" class="post">
+        <img th:src="'data:image/png;base64,' + ${reportedPhoto.getPhotoDto().getUserProfilePhotoData()}" class="profile-pic" />
         <div class="post-content">
-            <h3 th:text="${photo.userName}" />
-            <h1 th:text="${photo.getStatus()}" />
-            <img th:src="'data:image/png;base64,' + ${photo.data}" />
+            <h3 th:text="${reportedPhoto.getPhotoDto().userName}" />
+            <h1 th:text="${reportedPhoto.getPhotoDto().getStatus()}" />
+            <img th:src="'data:image/png;base64,' + ${reportedPhoto.getPhotoDto().data}" />
             <div>
-                <span th:text="${photo.numberLikes}"></span> Likes
+                <span th:text="${reportedPhoto.getPhotoDto().numberLikes}"></span> Likes
                 <div class="button-group">
-                    <form th:action="@{/like-photo}" method="post">
-                        <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
-                        <button type="submit" class="btn-primary">Like</button>
+                    <button type="button" onclick="toggleCommentForm(this)" class="btn-primary">View Comments</button>
+                    <button type="button" onclick="toggleReportForm(this)" class="btn-primary">View Reports</button>
+                    <form class="remove-photo-form" th:action="@{/remove-photo}" method="post">
+                        <input type="hidden" name="photoFileName" th:value="${reportedPhoto.getPhotoDto().getFileName()}">
+                        <button class="delete-photo-button" type="submit">Remove Photo</button>
                     </form>
-                    <button type="button" onclick="toggleCommentForm(this, '${photo.getFileName()}', '${photo.comments}')" class="btn-primary">Comment</button>
-                    <div class="dropdown">
-                        <button class="dropbtn" onclick="toggleDropdown(this)">Generate Report</button>
-                        <div class="dropdown-content">
-                            <a href="#" th:attr="onclick='submitReportForm(\'' + ${photo.getFileName()} + '\', \'' + 'INAPPROPRIATE_CONTENT' + '\')'">Inappropriate Content</a>
-                            <a href="#" th:attr="onclick='submitReportForm(\'' + ${photo.getFileName()} + '\', \'' + 'COPYRIGHT_VIOLATION' + '\')'">Copyright Violation</a>
-                            <a href="#" th:attr="onclick='submitReportForm(\'' + ${photo.getFileName()} + '\', \'' + 'SPAM' + '\')'">Spam</a>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="comment-form" style="display: none;">
-                    <div class="existing-comments" th:each="comment : ${photo.getPhotoComments()}">
+                    <span th:text="Comments"></span>
+                    <div class="existing-comments" th:each="comment : ${reportedPhoto.getPhotoDto().getPhotoComments()}">
                         <span th:text="${comment.getCommentMaker() + ': ' + comment.getText()}"></span>
                     </div>
-                    <form th:action="@{/add-comment}" method="post" th:id="'comment-form-' + ${photo.getFileName()}">
-                        <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
-                        <label for="comment">Comment:</label>
-                        <input type="text" id="comment" name="comment" required>
-                        <button type="submit">Add Comment</button>
-                    </form>
+                </div>
+
+                <div class="report-form">
+                    <span>Reports</span>
+                    <div class="existing-reports" th:each="report, reportCount : ${#maps.entries(reportedPhoto.getReportedReasons())}">
+                        <span th:text="${report.key}"></span>
+                        <span th:text="${reportCount.value}"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -253,11 +250,18 @@
     }
 
     // JavaScript for toggling comment form
-    function toggleCommentForm(button, fileName) {
+    function toggleCommentForm(button) {
         var parentDiv = button.parentNode.parentNode;
         var commentForm = parentDiv.querySelector('.comment-form');
 
         commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function toggleReportForm(button) {
+        var parentDiv = button.parentNode.parentNode;
+        var reportForm = parentDiv.querySelector('.report-form');
+
+        reportForm.style.display = reportForm.style.display === 'none' ? 'block' : 'none';
     }
 
 </script>

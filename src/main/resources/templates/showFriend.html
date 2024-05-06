@@ -85,7 +85,7 @@
     <div class="user" th:each="user : ${users}">
         <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">
         <p th:text="${user.getName()}"></p>
-        <form class="add-friend-form" th:action="@{/user/remove-friend}" method="post">
+        <form th:if="${currentUser.getRole() == 'ROLE_USER'}" class="add-friend-form" th:action="@{/user/remove-friend}" method="post">
             <input type="hidden" name="removeUserEmail" th:value="${user.getEmail()}">
             <button class="add-friend-button" type="submit">Remove Friend</button>
         </form>

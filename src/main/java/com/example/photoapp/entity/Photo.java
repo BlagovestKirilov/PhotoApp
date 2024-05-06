@@ -32,9 +32,18 @@ public class Photo {
     )
     List<User> likedPhotoUsers;
 
-    @OneToMany
-    List<PhotoComment> photoComments;
+    @OneToMany(mappedBy = "photo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PhotoComment> comments;
 
     private String status;
+
+    @PreRemove
+    public void preRemove() {
+        // Perform auditing tasks here, such as logging the deletion
+        // You can access entity fields and perform any necessary actions
+        // For example, you can log who deleted the entity and when
+        // You can also archive the entity instead of permanently deleting it
+        System.out.println("Entity deleted: " + this.toString());
+    }
 
 }
