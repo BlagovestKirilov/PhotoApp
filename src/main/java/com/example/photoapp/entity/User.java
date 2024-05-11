@@ -43,12 +43,18 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RegistrationStatusEnum registrationStatus;
 
-    public User(String name, String email, String password, Role role,List<User> friendList, RegistrationStatusEnum registrationStatus, Photo profilePhoto) {
+    @Column
+    private String country;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserBan> userBans;
+
+    public User(String name, String email, String country, String password, Role role,List<User> friendList, RegistrationStatusEnum registrationStatus, Photo profilePhoto) {
         this.name = name;
         this.email = email;
+        this.country = country;
         this.password = password;
         this.role = role;
-        //this.photos = photos;
         this.friendList = friendList;
         this.registrationStatus = registrationStatus;
         this.profilePhoto = profilePhoto;

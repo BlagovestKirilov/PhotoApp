@@ -29,6 +29,7 @@
             display: flex;
             align-items: center;
             margin-bottom: 15px;
+            justify-content: space-between;
         }
 
         .container .user img {
@@ -36,27 +37,17 @@
             height: 80px;
             border-radius: 50%;
             margin-right: 20px;
+            flex-shrink: 0;
         }
 
         .container .user p {
-            /*margin: 0;*/
             font-size: 18px;
             color: #333;
             margin-right: 20px;
-        }
-
-        .container .friend-status {
-            font-size: 16px;
-            color: #888;
-            background-color: #f0f0f0;
-            padding: 8px 12px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-left: auto; /* Pushes the status to the right */
+            flex-grow: 1;
         }
 
         .container .add-friend-form {
-            margin-left: auto; /* Pushes the form to the right */
             display: flex;
             align-items: center;
         }
@@ -77,12 +68,26 @@
         .container .add-friend-button:hover {
             background-color: #45a049;
         }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box; /* Include padding in width */
+            font-size: 16px;
+        }
+
     </style>
 </head>
 <body>
 <div th:replace="~{nav.html}"></div>
 <div class="container">
     <h1 style="text-align: center;">Add Friend</h1>
+
+    <!-- Search input field -->
+    <input type="text" id="searchInput" placeholder="Search by name..." style="margin-bottom: 10px;">
 
     <div class="user" th:each="user : ${users}">
         <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">
@@ -99,5 +104,30 @@
         </form>
     </div>
 </div>
+
+<script>
+    // Get the input field and add an event listener
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', filterUsers);
+
+    function filterUsers() {
+        // Get the search query
+        const query = searchInput.value.toLowerCase();
+        // Get all user elements
+        const users = document.querySelectorAll('.user');
+
+        // Loop through each user and check if the name contains the search query
+        users.forEach(user => {
+            const name = user.querySelector('p').innerText.toLowerCase();
+            if (name.startsWith(query)) {
+                // If the name matches the search query, display the user
+                user.style.display = 'flex';
+            } else {
+                // If the name does not match the search query, hide the user
+                user.style.display = 'none';
+            }
+        });
+    }
+</script>
 </body>
 </html>

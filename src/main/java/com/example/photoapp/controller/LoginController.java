@@ -82,7 +82,7 @@ public class LoginController {
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes) {
-        User existingUser = userService.findUserByEmail(userDto.getEmail());
+        User existingUser = userService.findUserByEmailForRegistration(userDto.getEmail());
 
         if (existingUser != null)
             result.rejectValue("email", null,

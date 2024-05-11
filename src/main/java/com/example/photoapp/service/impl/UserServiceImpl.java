@@ -33,13 +33,13 @@ public class UserServiceImpl implements UserService {
     private UserConfirmationRepository userConfirmationRepository;
 
     @Autowired
+    private UserBanRepository userBanRepository;
+
+    @Autowired
     private PhotoRepository photoRepository;
 
     @Autowired
     private EmailServiceImpl emailService;
-
-//    @Autowired
-//    private PhotoService photoService;
 
     @Autowired
     private Random random;
@@ -67,30 +67,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(UserDto userDto) {
-        Role role = roleRepository.findByName(RoleEnum.ROLE_USER);
-        List<Photo> photos = new ArrayList<>();
-        String DEFAULT_PROFILE_PICTURE = "default_profile_picture.jpg";
-
-        User user = new User(userDto.getName(), userDto.getEmail(), passwordEncoder.encode(userDto.getPassword()),
-                role,  new ArrayList<>(), RegistrationStatusEnum.PENDING, photoRepository.findByFileNameEndsWith(DEFAULT_PROFILE_PICTURE));
         String randomNumber = getRandomNumber();
-        UserConfirmation userConfirmation = new UserConfirmation();
-        userConfirmation.setEmail(userDto.getEmail());
-        userConfirmation.setConfirmationCode(passwordEncoder.encode(randomNumber));
-        userConfirmation.setCodeConfirmation(CodeConfirmationEnum.REGISTRATION);
-        userConfirmation.setCodeConfirmationStatus(CodeConfirmationStatusEnum.ACTIVE);
-        userConfirmationRepository.save(userConfirmation);
-        userRepository.save(user);
+        if (Objects.isNull(userRepository.findByEmail(userDto.getEmail()))) {
+            Role role = roleRepository.findByName(RoleEnum.ROLE_USER);
+            String DEFAULT_PROFILE_PICTURE = "default_profile_picture.jpg";
+
+            User user = new User(userDto.getName(), userDto.getEmail(), userDto.getCountry(), passwordEncoder.encode(userDto.getPassword()),
+                    role, new ArrayList<>(), RegistrationStatusEnum.PENDING, photoRepository.findByFileNameEndsWith(DEFAULT_PROFILE_PICTURE));
+            UserConfirmation userConfirmation = new UserConfirmation();
+            userConfirmation.setEmail(userDto.getEmail());
+            userConfirmation.setConfirmationCode(passwordEncoder.encode(randomNumber));
+            userConfirmation.setCodeConfirmation(CodeConfirmationEnum.REGISTRATION);
+            userConfirmation.setCodeConfirmationStatus(CodeConfirmationStatusEnum.ACTIVE);
+            userConfirmationRepository.save(userConfirmation);
+            userRepository.save(user);
+        }
         LOGGER.info(randomNumber);
-        emailService.sendEmail(userDto.getEmail(),"code",randomNumber);
+        emailService.sendEmail(userDto.getEmail(), "code", randomNumber);
     }
 
     public void addFriend(String receiverEmail) {
         saveFriendRequest(receiverEmail);
-//        User foundUser = userRepository.findByName(name);
-//        User currentUser = customUserDetailsService.currentUser;
-//        currentUser.getFriends().add(foundUser);
-//        userRepository.save(currentUser);
     }
 
     public void confirmFriendRequest(String senderEmail) {
@@ -159,8 +156,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public User findUserByEmailForRegistration(String email) {
+        User user = userRepository.findByEmail(email);
+        if(Objects.nonNull(user) && user.getRegistrationStatus().equals(RegistrationStatusEnum.CONFIRMED)){
+            return user;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -211,6 +213,24 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmail(email,"Forgot Registration",randomNumber);
     }
 
+    @Override
+    public void banUser(UserBanDto userBanDto){
+        UserBan userBan = new UserBan();
+        User user = photoRepository.findByFileName(userBanDto.getPhotoFileName()).getUser();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        userBan.setUser(user);
+        userBan.setAdminUser(currentUser);
+        userBan.setReason(ReportReasonEnum.valueOf(userBanDto.getReason()));
+        userBan.setStartDate(calendar.getTime());
+        calendar.add(Calendar.DAY_OF_MONTH,userBanDto.getBanDuration());
+        userBan.setEndDate(calendar.getTime());
+        userBanRepository.save(userBan);
+    }
+
+    public Boolean isThereActiveBans(){
+        return userBanRepository.findAllByUser(currentUser).stream().filter(userBan -> userBan.getEndDate().after(new Date())).toList().size() > 0;
+    }
     private String getRandomNumber(){
         return String.valueOf(100000 + random.nextInt(900000));
     }

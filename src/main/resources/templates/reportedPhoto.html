@@ -182,6 +182,10 @@
                         <input type="hidden" name="photoFileName" th:value="${reportedPhoto.getPhotoDto().getFileName()}">
                         <button class="delete-photo-button" type="submit">Remove Photo</button>
                     </form>
+                    <form class="remove-photo-form" th:action="@{/admin/ban-user}" method="get">
+                        <input type="hidden" name="photoFileName" th:value="${reportedPhoto.getPhotoDto().getFileName()}">
+                        <button class="delete-photo-button" type="submit">Ban user</button>
+                    </form>
                 </div>
 
                 <div class="comment-form" style="display: none;">
@@ -193,9 +197,8 @@
 
                 <div class="report-form">
                     <span>Reports</span>
-                    <div class="existing-reports" th:each="report, reportCount : ${#maps.entries(reportedPhoto.getReportedReasons())}">
-                        <span th:text="${report.key}"></span>
-                        <span th:text="${reportCount.value}"></span>
+                    <div class="existing-reports" th:each="report : ${reportedPhoto.getReportedReasons()}">
+                        <span th:text="${report}"></span>
                     </div>
                 </div>
             </div>

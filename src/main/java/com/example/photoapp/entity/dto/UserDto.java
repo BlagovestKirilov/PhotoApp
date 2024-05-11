@@ -26,4 +26,6 @@ public class UserDto {
     private String profilePictureData;
 
     private String role;
+
+    private String country;
 }

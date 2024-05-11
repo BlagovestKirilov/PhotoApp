@@ -7,22 +7,33 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
+import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhotoReport {
+@Entity
+public class UserBan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    private Photo reportedPhoto;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @OneToOne
-    private User reporterUser;
+    @ManyToOne
+    @JoinColumn(name = "admin_user_id")
+    private User adminUser;
 
+    @Column(nullable = false)
+    private Date startDate;
+
+    @Column(nullable = false)
+    private Date endDate;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    ReportReasonEnum reportReason;
+    private ReportReasonEnum reason;
 }

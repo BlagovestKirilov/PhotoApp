@@ -6,7 +6,6 @@
     <meta charset="UTF-8">
     <title>Photo Uploader</title>
     <style>
-        /* General Styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -30,9 +29,7 @@
         nav ul li {
             display: inline-block;
             position: relative;
-        }
-
-        nav ul li:not(:last-child) {
+            vertical-align: middle; /* Aligns items vertically */
             margin-right: 20px;
         }
 
@@ -40,7 +37,6 @@
             color: #fff;
             text-decoration: none;
             font-weight: bold;
-            position: relative;
         }
 
         nav ul li a:hover {
@@ -75,15 +71,12 @@
 
         /* Profile Picture Styles */
         nav ul li img {
-            width: 40px; /* Adjust the width and height as needed */
+            width: 40px;
             height: 40px;
-            border-radius: 50%; /* Make it circular */
-            cursor: pointer; /* Add cursor pointer */
-            margin-right: 10px; /* Add some spacing between the image and text */
-        }
-
-        .button-group>* {
+            border-radius: 50%;
+            cursor: pointer;
             margin-right: 10px;
+            vertical-align: middle; /* Aligns the image vertically */
         }
     </style>
 </head>
@@ -95,6 +88,7 @@
             <img th:src="'data:image/png;base64,' + ${currentUser.getProfilePictureData()}" onclick="submitForm(event)" />
             <div class="dropdown-content">
                 <a th:href="@{/uploadForm}">Home</a>
+                <a th:href="@{/profile}">My profile</a>
                 <a th:href="@{/change-profile-picture}">Change profile picture</a>
                 <form id="changePasswordForm" th:action="@{/user/change-password}" method="get" style="display: none;">
                     <input type="hidden" name="email" th:value="${currentUser.getEmail()}" />
@@ -122,6 +116,9 @@
     <ul th:if="${currentUser.getRole() == 'ROLE_ADMIN'}">
         <li>
             <img th:src="'data:image/png;base64,' + ${currentUser.getProfilePictureData()}" onclick="submitForm(event)" />
+            <div class="dropdown-content">
+                <a th:href="@{/logout}">Logout</a>
+            </div>
         </li>
         <li><a href="#">Photos</a>
             <div class="dropdown-content">

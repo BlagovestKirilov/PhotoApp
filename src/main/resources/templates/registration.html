@@ -29,7 +29,8 @@
             margin-bottom: 5px;
         }
 
-        input {
+        input,
+        select {
             width: 100%;
             padding: 8px;
             margin-top: 5px;
@@ -68,15 +69,78 @@
             <p class="text-danger" th:errors="*{email}" th:if="${#fields.hasErrors('email')}"></p>
         </div>
         <div class="form-group">
+            <label for="country">Country:</label>
+            <select id="country" name="country"></select>
+        </div>
+        <div class="form-group">
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required="required"/>
             <p class="text-danger" th:errors="*{password}" th:if="${#fields.hasErrors('password')}"></p>
         </div>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required="required"/>
+            <div id="passwordMismatchError" style="color: red; display: none;">Passwords do not match</div>
+        </div>
         <div>
-            <button class="btn btn-primary" type="submit">Register</button>
+            <button class="btn btn-primary" type="submit" onclick="validatePasswords()">Register</button>
             or <a class="link-primary" th:href="@{/login}">Login</a>
         </div>
     </form>
 </div>
+<script>
+    function validatePasswords() {
+        var password = document.getElementById("password").value;
+        var confirmPassword = document.getElementById("confirmPassword").value;
+
+        if (password !== confirmPassword) {
+            document.getElementById("passwordMismatchError").style.display = "block";
+            event.preventDefault();
+        } else {
+            document.getElementById("passwordMismatchError").style.display = "none";
+            document.getElementById("changePasswordForm").submit();
+        }
+    }
+    function populateCountries() {
+        var countries = [
+            "Bulgaria", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",
+            "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin",
+            "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Burkina Faso", "Burundi",
+            "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia",
+            "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+            "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland",
+            "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau",
+            "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+            "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos",
+            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
+            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
+            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine",
+            "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia",
+            "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino",
+            "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia",
+            "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname",
+            "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga",
+            "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates",
+            "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+            "Yemen", "Zambia", "Zimbabwe"
+        ];
+        var select = document.getElementById("country");
+
+        // Clear existing options
+        select.innerHTML = "";
+
+        // Populate the dropdown with countries
+        countries.forEach(function(country) {
+            var option = document.createElement("option");
+            option.value = country;
+            option.text = country;
+            select.appendChild(option);
+        });
+    }
+
+    // Call the function to populate the dropdown when the page loads
+    window.onload = populateCountries;
+</script>
 </body>
 </html>

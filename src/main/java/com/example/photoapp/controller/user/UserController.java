@@ -39,7 +39,7 @@ public class UserController {
     @PostMapping("/add-friend")
     public String addFriendConfirm(@RequestParam String receiverEmail) {
         userService.addFriend(receiverEmail);
-        return "redirect:/";
+        return "redirect:/user/add-friend";
     }
 
     @GetMapping("/add-friend")

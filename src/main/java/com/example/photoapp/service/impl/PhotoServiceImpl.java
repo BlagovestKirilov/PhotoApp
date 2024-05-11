@@ -7,7 +7,7 @@ import com.amazonaws.util.IOUtils;
 import com.example.photoapp.entity.*;
 import com.example.photoapp.entity.dto.*;
 import com.example.photoapp.enums.FriendRequestStatusEnum;
-import com.example.photoapp.enums.PhotoReportReasonEnum;
+import com.example.photoapp.enums.ReportReasonEnum;
 import com.example.photoapp.enums.RoleEnum;
 import com.example.photoapp.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,19 +68,18 @@ public class PhotoServiceImpl {
                             .anyMatch(friend -> friend.getEmail().equals(photoUploaderEmail))
                             || userService.currentUser.getEmail().equals(photoUploaderEmail);
                 })
+                .sorted(Comparator.comparing(Photo::getDateUploaded).reversed())
                 .toList();
 
         return getPhotoDtos(photosInDatabase);
     }
+
     public List<PhotoDto> getAllPhoto() {
         return getPhotoDtos(photoRepository.findByUserIsNotNull());
     }
     public List<PhotoReportDto> getReportedPhotos(){
-        List<PhotoReport> photoReports = photoReportRepository.findAll();
-        Map<Photo, List<PhotoReportReasonEnum>> g = photoReportRepository.findAll().stream()
-                // Sort the PhotoReports by reported photo ID
+        Map<Photo, List<ReportReasonEnum>> reportMap = photoReportRepository.findAll().stream()
                 .sorted(Comparator.comparing(photoReport -> photoReport.getReportedPhoto().getId()))
-                // Group the PhotoReports by reported photo
                 .collect(Collectors.groupingBy(
                         PhotoReport::getReportedPhoto,
                         Collectors.mapping(PhotoReport::getReportReason, Collectors.toList())
@@ -103,7 +102,7 @@ public class PhotoServiceImpl {
                     photoDto.setUserProfilePhotoData(Base64.getEncoder().encodeToString(profilePicture.getBody()));
                     photoDto.setStatus(photo.getStatus());
                     photoReportDto.setPhotoDto(photoDto);
-                    photoReportDto.setReportedReasons(g.get(photo).stream().map(Enum::name).collect(Collectors.toList()));
+                    photoReportDto.setReportedReasons(reportMap.get(photo).stream().map(Enum::name).collect(Collectors.toList()));
                     return photoReportDto;
                 }).collect(Collectors.toList());
     }
@@ -233,7 +232,7 @@ public class PhotoServiceImpl {
     }
 
     public List<PhotoDto> getCurrentUserPhotos(){
-        List<Photo> currentUserPhotos = photoRepository.findByUser(userService.currentUser);
+        List<Photo> currentUserPhotos = photoRepository.findByUserOrderByDateUploadedDesc(userService.currentUser);
         return getPhotoDtos(currentUserPhotos);
     }
 
@@ -266,7 +265,7 @@ public class PhotoServiceImpl {
         PhotoReport photoReport = new PhotoReport();
         photoReport.setReporterUser(userService.currentUser);
         photoReport.setReportedPhoto(photoRepository.findByFileName(photoName));
-        photoReport.setReportReason(PhotoReportReasonEnum.valueOf(reason));
+        photoReport.setReportReason(ReportReasonEnum.valueOf(reason));
         photoReportRepository.save(photoReport);
     }
 }

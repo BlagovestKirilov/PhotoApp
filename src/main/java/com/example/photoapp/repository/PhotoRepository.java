@@ -15,5 +15,5 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
     List<Photo> findByUserIsNotNull();
 
-    List<Photo> findByUser(User user);
+    List<Photo> findByUserOrderByDateUploadedDesc(User user);
 }

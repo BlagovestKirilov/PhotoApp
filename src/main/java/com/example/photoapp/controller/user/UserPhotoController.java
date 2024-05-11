@@ -1,7 +1,7 @@
 package com.example.photoapp.controller.user;
 
 import com.example.photoapp.enums.ChangePasswordEnum;
-import com.example.photoapp.service.impl.UserServiceImpl;
+import com.example.photoapp.service.UserService;
 import com.example.photoapp.service.impl.PhotoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,9 +20,10 @@ import java.util.Objects;
 public class UserPhotoController {
 
     @Autowired
-    PhotoServiceImpl photoServiceImpl;
+    private PhotoServiceImpl photoServiceImpl;
 
-    @Autowired UserServiceImpl userService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/")
     public String firstPage() {
@@ -34,6 +35,14 @@ public class UserPhotoController {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "uploadForm";
+    }
+
+    @GetMapping("/profile")
+    public String showProfile(Model model) {
+        model.addAttribute("photos", photoServiceImpl.getCurrentUserPhotos());
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        return "profile";
     }
 
     @PostMapping("/upload")
@@ -77,6 +86,7 @@ public class UserPhotoController {
     public String uploadPhoto(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("isThereActiveBans", userService.isThereActiveBans());
         return "uploadPhoto";
     }
 

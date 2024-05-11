@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Login Page</title>
+    <title>Confirm Registration</title>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <style>
@@ -49,24 +49,30 @@
     </style>
 </head>
 <body>
-<div th:replace="~{nav.html}"></div>
-<div th:if="${!isThereActiveBans.booleanValue()}" class="container">
-    <div style="margin-bottom: 20px;">
-        <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="file">Select File:</label>
-                <input type="file" name="file" id="file">
-            </div>
-            <div class="form-group">
-                <label for="status">Status:</label>
-                <input type="text" name="status" id="status">
-            </div>
-            <button type="submit">Upload</button>
-        </form>
-    </div>
-</div>
-<div th:if="${isThereActiveBans.booleanValue()}" class="container">
-  <h2>You have active bans!</h2>
+<div class="container">
+    <h2>Ban user"</h2>
+
+    <form th:action="@{/admin/ban-user}" method="post" th:object="${userBanDto}" role="form">
+        <div class="form-group">
+            <input type="hidden" th:field="*{photoFileName}" />
+            <label for="banDuration">Ban Duration (in days):</label>
+            <select id="banDuration" name="banDuration" th:field="*{banDuration}">
+                <option value="1">1 day</option>
+                <option value="3">3 days</option>
+                <option value="5">5 days</option>
+                <option value="7">7 days</option>
+            </select>
+            <label for="reason">Reason:</label>
+            <select id="reason" name="reason" th:field="*{reason}">
+                <option value="INAPPROPRIATE_CONTENT">INAPPROPRIATE CONTENT</option>
+                <option value="COPYRIGHT_VIOLATION">COPYRIGHT VIOLATION</option>
+                <option value="SPAM">SPAM</option>
+            </select>
+        </div>
+        <div>
+            <button class="btn btn-primary" type="submit">Confirm</button>
+        </div>
+    </form>
 </div>
 </body>
 </html>

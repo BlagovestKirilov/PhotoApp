@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -36,6 +37,8 @@ public class Photo {
     private List<PhotoComment> comments;
 
     private String status;
+
+    private Date dateUploaded = new Date();
 
     @PreRemove
     public void preRemove() {
