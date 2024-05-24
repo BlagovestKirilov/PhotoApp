@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #28a745;
+        }
+        .profile-card {
+            background-color: #fff;
+            border: 1px solid #e3e6f0;
+            border-radius: .35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
+        }
+        .profile-card .card-header {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .profile-info {
+            margin-top: 20px;
+        }
+        .card-title {
+            color: #28a745;
+        }
+        .card-text strong {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <div class="profile-header">
+        <img src="https://via.placeholder.com/150" alt="Profile Image" class="profile-image">
+        <h2 th:text="${profile.name}">John Doe</h2>
+        <p class="text-muted" th:text="${profile.bio}">A short bio about John Doe.</p>
+    </div>
+    <div class="card profile-card">
+        <div class="card-header">
+            <h5 class="mb-0">Profile Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row profile-info">
+                <div class="col-md-6">
+                    <h5 class="card-title">Contact Information</h5>
+                    <p class="card-text"><strong>Email:</strong> <span th:text="${profile.email}">john.doe@example.com</span></p>
+                    <p class="card-text"><strong>Phone:</strong> <span th:text="${profile.phone}">123-456-7890</span></p>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="card-title">Address</h5>
+                    <p class="card-text" th:text="${profile.address}">123 Main St, Anytown, USA</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

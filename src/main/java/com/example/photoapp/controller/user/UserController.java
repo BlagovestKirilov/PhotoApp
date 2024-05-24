@@ -1,11 +1,13 @@
 package com.example.photoapp.controller.user;
 
+import com.example.photoapp.entity.User;
 import com.example.photoapp.entity.dto.FriendDto;
 import com.example.photoapp.entity.dto.ChangePasswordDto;
 import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.impl.PhotoServiceImpl;
 import com.example.photoapp.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -108,5 +110,10 @@ public class UserController {
                                  BindingResult bindingResult, Model model) {
         userService.changePassword(changePasswordDto);
         return "redirect:/user/password-changed";
+    }
+    @GetMapping("/get-friends")
+    public ResponseEntity<List<FriendDto>> getFriends( User currentUser) {
+        List<FriendDto> friendDtos = photoServiceImpl.getCurrentUserFriends();
+        return ResponseEntity.ok(friendDtos);
     }
 }

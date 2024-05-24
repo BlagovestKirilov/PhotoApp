@@ -15,7 +15,6 @@ public class EmailServiceImpl {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);
-
         javaMailSender.send(message);
     }
 }

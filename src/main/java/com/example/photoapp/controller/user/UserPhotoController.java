@@ -34,6 +34,7 @@ public class UserPhotoController {
         model.addAttribute("photos", photoServiceImpl.getFromS3());
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "uploadForm";
     }
 

@@ -161,10 +161,6 @@
 <div th:replace="~{nav.html}"></div>
 
 <div class="container">
-    <h1>Photo Uploader</h1>
-    <hr />
-
-    <h2>Uploaded Photos</h2>
 
     <div th:each="photo : ${photos}" class="post">
         <img th:src="'data:image/png;base64,' + ${photo.getUserProfilePhotoData()}" class="profile-pic" />

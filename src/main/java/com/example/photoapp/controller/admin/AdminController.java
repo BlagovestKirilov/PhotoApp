@@ -14,7 +14,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
-public class AdminPhotoController {
+public class AdminController {
     @Autowired
     private PhotoServiceImpl photoServiceImpl;
 

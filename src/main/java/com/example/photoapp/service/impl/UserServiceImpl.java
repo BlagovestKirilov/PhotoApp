@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -31,6 +32,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserConfirmationRepository userConfirmationRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Autowired
     private UserBanRepository userBanRepository;
@@ -87,7 +91,10 @@ public class UserServiceImpl implements UserService {
     }
 
     public void addFriend(String receiverEmail) {
-        saveFriendRequest(receiverEmail);
+        User receiver = userRepository.findByEmail(receiverEmail);
+        saveFriendRequest(receiver);
+        String notificationText = currentUser.getName() + " sent you friend request.";
+        generateNotification(receiver, notificationText);
     }
 
     public void confirmFriendRequest(String senderEmail) {
@@ -119,10 +126,10 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    public void saveFriendRequest(String receiverEmail) {
+    public void saveFriendRequest(User receiver) {
         FriendRequest friendRequest = new FriendRequest();
         friendRequest.setSender(currentUser);
-        friendRequest.setReceiver(userRepository.findByEmail(receiverEmail));
+        friendRequest.setReceiver(receiver);
         friendRequestRepository.save(friendRequest);
     }
 
@@ -223,9 +230,24 @@ public class UserServiceImpl implements UserService {
         userBan.setAdminUser(currentUser);
         userBan.setReason(ReportReasonEnum.valueOf(userBanDto.getReason()));
         userBan.setStartDate(calendar.getTime());
-        calendar.add(Calendar.DAY_OF_MONTH,userBanDto.getBanDuration());
+        calendar.add(Calendar.DAY_OF_MONTH, userBanDto.getBanDuration());
         userBan.setEndDate(calendar.getTime());
         userBanRepository.save(userBan);
+        generateNotification(user, String.format("You received a ban for uploading photos for %s days!", userBanDto.getBanDuration()));
+    }
+
+    public void generateNotification(User receiver, String text){
+        Notification notification = new Notification();
+        notification.setUser(receiver);
+        notification.setMessage(text);
+        notificationRepository.save(notification);
+    }
+
+    public List<String> getCurrentUserNotification(){
+        return notificationRepository.findAllByUser(currentUser)
+                .stream()
+                .map(Notification::getMessage)
+                .collect(Collectors.toList());
     }
 
     public Boolean isThereActiveBans(){

@@ -55,6 +55,9 @@ public class PhotoServiceImpl {
             if (Objects.equals(photo.getUser().getId(), userService.currentUser.getId()) || userService.currentUser.getRole().getName() == RoleEnum.ROLE_ADMIN) {
                 //s3Client.deleteObject(BUCKET_NAME, photoFileName);
                 photoRepository.delete(photo);
+                if(userService.currentUser.getRole().getName() == RoleEnum.ROLE_ADMIN){
+                    userService.generateNotification(photo.getUser(), "Admin has deleted your photo!");
+                }
             }
         }
     }
@@ -226,6 +229,7 @@ public class PhotoServiceImpl {
         userDto.setName(userService.currentUser.getName());
         userDto.setEmail(userService.currentUser.getEmail());
         userDto.setRole(userService.currentUser.getRole().getName().toString());
+        userDto.setCountry(userService.currentUser.getCountry());
         ResponseEntity<byte[]> picture = getImage(userService.currentUser.getProfilePhoto().getFileName());
         userDto.setProfilePictureData(Base64.getEncoder().encodeToString(picture.getBody()));
         return userDto;
