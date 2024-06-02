@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -51,6 +53,18 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications;
+
+    @OneToMany(mappedBy = "sender")
+    private Set<ChatMessage> sentMessages;
+
+    @OneToMany(mappedBy = "recipient")
+    private Set<ChatMessage> receivedMessages;
+
+    @Column
+    private String education;
+
+    @Column
+    private Date birtdate;
     public User(String name, String email, String country, String password, Role role,List<User> friendList, RegistrationStatusEnum registrationStatus, Photo profilePhoto) {
         this.name = name;
         this.email = email;

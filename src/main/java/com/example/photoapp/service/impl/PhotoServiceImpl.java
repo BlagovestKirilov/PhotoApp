@@ -41,6 +41,8 @@ public class PhotoServiceImpl {
     FriendRequestRepository friendRequestRepository;
     @Autowired
     PhotoReportRepository photoReportRepository;
+    @Autowired
+    PageRepository pageRepository;
 
     public void uploadToS3(File file) {
         String s3Key = file.getName();
@@ -230,13 +232,45 @@ public class PhotoServiceImpl {
         userDto.setEmail(userService.currentUser.getEmail());
         userDto.setRole(userService.currentUser.getRole().getName().toString());
         userDto.setCountry(userService.currentUser.getCountry());
+        userDto.setBirtdate(userService.currentUser.getBirtdate());
+        userDto.setEducation(userService.currentUser.getEducation());
         ResponseEntity<byte[]> picture = getImage(userService.currentUser.getProfilePhoto().getFileName());
+        userDto.setProfilePictureData(Base64.getEncoder().encodeToString(picture.getBody()));
+        return userDto;
+    }
+
+    public Page getPageByName(String name){
+        return pageRepository.findAllByPageName(name);
+    }
+
+    public UserDto getUserDtoByEmail(String email){
+        User user = userRepository.findByEmail(email);
+        UserDto userDto = new UserDto();
+        userDto.setName(user.getName());
+        userDto.setEmail(user.getEmail());
+        userDto.setRole(user.getRole().getName().toString());
+        userDto.setCountry(user.getCountry());
+        userDto.setBirtdate(user.getBirtdate());
+        userDto.setEducation(user.getEducation());
+        ResponseEntity<byte[]> picture = getImage(user.getProfilePhoto().getFileName());
         userDto.setProfilePictureData(Base64.getEncoder().encodeToString(picture.getBody()));
         return userDto;
     }
 
     public List<PhotoDto> getCurrentUserPhotos(){
         List<Photo> currentUserPhotos = photoRepository.findByUserOrderByDateUploadedDesc(userService.currentUser);
+        return getPhotoDtos(currentUserPhotos);
+    }
+
+    public List<PhotoDto> getUserPhotosByEmail(String email){
+        User user = userRepository.findByEmail(email);
+        List<Photo> currentUserPhotos = photoRepository.findByUserOrderByDateUploadedDesc(user);
+        return getPhotoDtos(currentUserPhotos);
+    }
+
+    public List<PhotoDto> getPagePhotosByPageName(String pageName){
+        Page page = pageRepository.findAllByPageName(pageName);
+        List<Photo> currentUserPhotos = photoRepository.findByPageOrderByDateUploadedDesc(page);
         return getPhotoDtos(currentUserPhotos);
     }
 

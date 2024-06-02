@@ -22,8 +22,11 @@ public class Photo {
     @Column(nullable = false)
     private String fileName;
 
-    @OneToOne
+    @OneToOne()
     private User user;
+
+    @OneToOne()
+    private Page page;
 
     @ManyToMany
     @JoinTable(

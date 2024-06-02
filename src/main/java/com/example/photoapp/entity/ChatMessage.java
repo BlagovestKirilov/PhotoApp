@@ -1,19 +1,41 @@
 package com.example.photoapp.entity;
 
-public class ChatMessage {
-    private String content;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    public ChatMessage() {}
+import java.time.LocalDateTime;
+    @Entity
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class ChatMessage {
 
-    public ChatMessage(String content) {
-        this.content = content;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        @ManyToOne
+        private User sender;
+
+        @ManyToOne
+        private User recipient;
+
+        private String text;
+        private LocalDateTime timestamp;
+
+        private Boolean isSentToRecipient = Boolean.FALSE;
+
+        private Boolean isSentToSender = Boolean.FALSE;
+
+        public ChatMessage(User sender, User recipient, String text) {
+            this.sender = sender;
+            this.recipient = recipient;
+            this.text = text;
+            this.timestamp = LocalDateTime.now();
+        }
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-}

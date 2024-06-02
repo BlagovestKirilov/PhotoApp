@@ -1,12 +1,14 @@
 package com.example.photoapp.repository;
 
-import com.example.photoapp.entity.Notification;
+import com.example.photoapp.entity.Page;
 import com.example.photoapp.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findAllByUser(User user);
+public interface PageRepository extends JpaRepository<Page, Long> {
+    List<Page> findAllByOwner(User user);
+
+    Page findAllByPageName(String name);
 }

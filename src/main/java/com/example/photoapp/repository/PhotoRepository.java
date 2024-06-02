@@ -1,5 +1,6 @@
 package com.example.photoapp.repository;
 
+import com.example.photoapp.entity.Page;
 import com.example.photoapp.entity.Photo;
 import com.example.photoapp.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,5 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findByUserIsNotNull();
 
     List<Photo> findByUserOrderByDateUploadedDesc(User user);
+    List<Photo> findByPageOrderByDateUploadedDesc(Page page);
 }

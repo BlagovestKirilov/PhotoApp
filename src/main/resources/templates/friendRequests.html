@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Friend</title>
     <style>
+        body{
+            background-image: linear-gradient(90deg, rgba(116,216,252, 0.45),rgba(156,153,254, 0.49));
+        }
         .container body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -97,8 +100,10 @@
     <h1 style="text-align: center;">Friend requests</h1>
 
     <div class="user" th:each="user : ${users}">
-        <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">
-        <p th:text="${user.getName()}"></p>
+        <a th:href="@{/profile(email=${user.getEmail()})}">
+            <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">
+        </a>
+        <a th:href="@{/profile(email=${user.getEmail()})}" th:text="${user.getName()}"></a>
         <form class="add-friend-form" th:action="@{/user/confirm-friend}" method="post">
             <input type="hidden" name="senderEmail" th:value="${user.getEmail()}"/>
             <button class="add-friend-button" type="submit">Confirm</button>

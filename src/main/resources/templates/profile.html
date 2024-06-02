@@ -9,6 +9,7 @@
     <style>
         body {
             background-color: #f8f9fa;
+            background-image: linear-gradient(90deg, rgba(116,216,252, 0.45),rgba(156,153,254, 0.49));
         }
         .profile-header {
             text-align: center;
@@ -86,22 +87,32 @@
 
 <div class="container mt-5">
     <div class="profile-header">
-        <img src="https://via.placeholder.com/150" alt="Profile Image" class="profile-image mb-3">
-        <h2 th:text="${currentUser.getName()}">John Doe</h2>
-<!--        <p class="text-muted" th:text="${currentUser.getBio()}">A short bio about John Doe.</p>-->
+        <img th:src="'data:image/png;base64,' + ${user.getProfilePictureData()}" alt="Profile Image" class="profile-image mb-3">
+        <h2 th:text="${user.getName()}">John Doe</h2>
+        <button th:if="${user.getEmail() == currentUser.getEmail()}"class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+        <button class="btn btn-primary"
+                th:onclick="|window.location.href='@{/change-profile-picture}'|">
+            Change profile picture
+        </button>
+        <button class="btn btn-primary"
+                th:onclick="document.getElementById('changePasswordForm').submit()">
+            Change password
+        </button>
     </div>
     <div class="card profile-card">
         <div class="card-header">
             <h5 class="mb-0">Profile Information</h5>
         </div>
         <div class="card-body">
-            <p><strong>Name:</strong> <span th:text="${currentUser.getName()}">John Doe</span></p>
-            <p><strong>Email:</strong> <span th:text="${currentUser.getEmail()}">john.doe@example.com</span></p>
-            <p><strong>Country:</strong> <span th:text="${currentUser.getCountry()}">USA</span></p>
+            <p><strong>Name:</strong> <span th:text="${user.getName()}">John Doe</span></p>
+            <p><strong>Email:</strong> <span th:text="${user.getEmail()}">john.doe@example.com</span></p>
+            <p><strong>Country:</strong> <span th:text="${user.getCountry()}">USA</span></p>
+            <p><strong>Education: </strong><span th:if="${user.getEducation() != null}" th:text="${user.getEducation()}"></span></p>
+            <p><strong>Birthdate: </strong><span th:if="${user.getBirtdate()!= null}" th:text="${#dates.format(user.getBirtdate(), 'dd.MM.yyyy')}"></span></p>
         </div>
     </div>
 
-    <h1 class="text-center">My Photos</h1>
+    <h1 class="text-center">Photos</h1>
 
     <div class="row">
         <div th:each="photo : ${photos}" class="col-md-4 col-sm-6 mb-4">
@@ -144,6 +155,51 @@
             </div>
         </div>
     </div>
+    <form id="changePasswordForm" th:action="@{/user/change-password}" method="get" style="display: none;">
+        <input type="hidden" name="email" th:value="${currentUser.getEmail()}" />
+        <input type="hidden" name="changePasswordEnum" th:value="${currentUserChangePasswordEnum}" />
+    </form>
+</div>
+
+<<div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form th:action="@{/user/edit}" method="post">
+            <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editName">Name</label>
+                        <input type="text" class="form-control" id="editName" name="name" th:value="${user.getName()}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" th:value="${user.getEmail()}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCountry">Country</label>
+                        <select class="form-control" id="editCountry" name="country" th:value="${user.getCountry()}" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBirthdate">Birthdate</label>
+                        <input type="date" class="form-control" id="editBirthdate" name="birtdate" th:value="${user.getBirtdate()}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEducation">Education</label>
+                        <input type="text" class="form-control" id="editEducation" name="education" th:value="${user.getEducation()}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -153,6 +209,47 @@
 
         commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
     }
+        function populateCountries() {
+        var countries = [
+        "Bulgaria", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",
+        "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin",
+        "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Burkina Faso", "Burundi",
+        "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia",
+        "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czechia", "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+        "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland",
+        "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau",
+        "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+        "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos",
+        "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
+        "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
+        "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+        "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine",
+        "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia",
+        "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino",
+        "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia",
+        "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname",
+        "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga",
+        "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates",
+        "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+        "Yemen", "Zambia", "Zimbabwe"
+        ];
+        var select = document.getElementById("editCountry");
+
+        // Clear existing options
+        select.innerHTML = "";
+
+        // Populate the dropdown with countries
+        countries.forEach(function(country) {
+        var option = document.createElement("option");
+        option.value = country;
+        option.text = country;
+        select.appendChild(option);
+    });
+    }
+
+        // Call the function to populate the dropdown when the page loads
+        window.onload = populateCountries;
+
 </script>
 
 <!-- Bootstrap JS and dependencies -->

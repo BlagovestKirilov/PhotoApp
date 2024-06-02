@@ -3,6 +3,7 @@ package com.example.photoapp.controller.user;
 import com.example.photoapp.entity.User;
 import com.example.photoapp.entity.dto.FriendDto;
 import com.example.photoapp.entity.dto.ChangePasswordDto;
+import com.example.photoapp.entity.dto.UserDto;
 import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.impl.PhotoServiceImpl;
 import com.example.photoapp.service.impl.UserServiceImpl;
@@ -115,5 +116,11 @@ public class UserController {
     public ResponseEntity<List<FriendDto>> getFriends( User currentUser) {
         List<FriendDto> friendDtos = photoServiceImpl.getCurrentUserFriends();
         return ResponseEntity.ok(friendDtos);
+    }
+
+    @PostMapping("/edit")
+    public String editProfile(@ModelAttribute("user") UserDto user) {
+        userService.editProfile(user);
+        return "redirect:/profile";
     }
 }

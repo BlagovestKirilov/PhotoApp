@@ -12,8 +12,8 @@
         /* Custom Styles */
         body {
             font-family: Arial, sans-serif;
-            padding-top: 56px; /* Height of the navbar */
-            margin-bottom: 100px; /* Ensure space at the bottom for the sidebar */
+            padding-top: 56px;
+            margin-bottom: 100px;
         }
 
         .navbar-custom {
@@ -21,7 +21,7 @@
             position: fixed;
             top: 0;
             width: 100%;
-            z-index: 1000; /* Ensure the navbar is above other elements */
+            z-index: 1000;
         }
 
         .navbar-custom .navbar-brand,
@@ -33,42 +33,16 @@
             position: relative;
         }
 
-        .navbar-custom .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #333;
-            min-width: 160px;
-            z-index: 1;
-            top: 100%;
-            left: 0;
-        }
-
-        .navbar-custom .dropdown-content a {
-            color: #fff;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-        }
-
-        .navbar-custom .dropdown-content a:hover {
-            background-color: #555;
-        }
-
-        .navbar-custom .nav-item:hover .dropdown-content {
-            display: block;
-        }
-
         .friends-sidebar {
             width: 300px;
             position: fixed;
-            top: 56px; /* Height of the navbar */
+            top: 56px;
             right: 0;
             bottom: 0;
             background-color: #f8f9fa;
             border-left: 1px solid #dee2e6;
             overflow-y: auto;
-            display: none;
-            z-index: 1050; /* Ensure it is above other content */
+            z-index: 1050;
         }
 
         .friends-sidebar-header {
@@ -94,19 +68,64 @@
             background-color: #e9ecef;
         }
 
+        .chat-window {
+            width: 300px;
+            position: fixed;
+            /*top: 500px;*/
+            right: 310px; /* Adjusted position to the right of the friend's list */
+            bottom: 0;
+            background-color: #fff;
+            border-left: 1px solid #dee2e6;
+            overflow-y: auto;
+            display: none;
+            z-index: 1050;
+        }
+
+        .chat-window-header {
+            position: fixed;
+            width: 300px;
+            padding: 10px;
+            background-color: #343a40;
+            color: #fff;
+            text-align: center;
+            z-index: 1001;
+        }
+
+        .chat-messages {
+            padding: 10px;
+            overflow-y: auto;
+            height: calc(100vh - 156px);
+        }
+
+        .chat-input {
+            padding: 10px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .chat-input input {
+            width: calc(100% - 60px);
+            padding: 5px;
+        }
+
+        .chat-input button {
+            width: 50px;
+        }
+
         .content {
             padding: 20px;
-            margin-top: 56px; /* Height of the navbar */
+            margin-top: 56px;
+            margin-right: 300px; /* Adjusted margin to accommodate the friend's list */
         }
 
         @media (min-width: 768px) {
             .friends-sidebar {
-                top: 56px; /* Height of the navbar */
+                top: 56px;
                 bottom: auto;
-                height: calc(100vh - 56px); /* Adjust height dynamically */
+                height: calc(100vh - 56px);
             }
+
             .content {
-                margin-right: 300px;
+                margin-right: 610px; /* Adjusted margin for both friend's list and chat window */
             }
         }
     </style>
@@ -129,9 +148,10 @@
                 </a>
                 <div class="dropdown-menu dropdown-content" aria-labelledby="navbarDropdownUser">
                     <a class="dropdown-item" th:href="@{/uploadForm}">Home</a>
-                    <a class="dropdown-item" th:href="@{/profile}">My profile</a>
-                    <a class="dropdown-item" th:href="@{/change-profile-picture}">Change profile picture</a>
-                    <a class="dropdown-item" href="#" onclick="document.getElementById('changePasswordForm').submit()">Change Password</a>
+                    <a class="dropdown-item" th:href="@{/profile(email=${currentUser.getEmail()})}">My Profile</a>
+                    <a class="dropdown-item" th:href="@{/show-pages}">My pages</a>
+                    <!--                    <a class="dropdown-item" th:href="@{/change-profile-picture}">Change profile picture</a>-->
+                    <!--                    <a class="dropdown-item" href="#" onclick="document.getElementById('changePasswordForm').submit()">Change Password</a>-->
                     <a class="dropdown-item" th:href="@{/logout}">Logout</a>
                 </div>
             </li>
@@ -144,6 +164,16 @@
                     <a class="dropdown-item" th:href="@{/user/add-friend}">Add Friend</a>
                     <a class="dropdown-item" th:href="@{/user/show-friend}">Show Friends</a>
                     <a class="dropdown-item" th:href="@{/user/friend-requests}">Friend Requests</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPhoto" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Photos
+                </a>
+                <div class="dropdown-menu dropdown-content" aria-labelledby="navbarDropdownUser">
+                    <a class="dropdown-item" th:href="@{/upload-photo}">Upload photo</a>
+                    <a class="dropdown-item" th:href="@{/remove-photo}">Remove photo</a>
                 </div>
             </li>
             <li class="nav-item dropdown">
@@ -175,10 +205,25 @@
     </ul>
 </div>
 
+<div class="chat-window" id="chatWindow">
+    <div class="chat-window-header" id="chatWindowHeader">
+        <span id="chatWindowTitle">Chat</span>
+        <button class="close" onclick="closeChatWindow()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <!-- Chat messages will be dynamically loaded here -->
+    </div>
+    <div class="chat-input">
+        <input type="text" id="chatInputField" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
 <div class="content">
     <!-- Main content of the page goes here -->
-    <h1>Welcome to Photo Uploader</h1>
-    <p>This is the main content area. Click on "Chat" in the navbar to see your friends.</p>
+    <!--    <h1>Welcome to Photo Uploader</h1>-->
 </div>
 
 <!-- Hidden form for changing password -->
@@ -192,36 +237,182 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var currentUserEmail = /*[[${currentUser.getEmail()}]]*/ '';
+    /*]]>*/// Set this value from your backend or wherever the current user's email is available
+
+    // Function to display chat messages
+    function displayChatMessages(messages, currentUserEmail) {
+        const chatMessagesContainer = document.getElementById('chatMessages');
+        messages.forEach(message => {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = `${message.senderName}: ${message.text}`;
+            chatMessagesContainer.appendChild(messageDiv);
+        });
+    }
+
+    // Function to fetch chat messages
+    function fetchChatMessages(currentUserEmail, friendEmail) {
+        fetch(`/chat/messages?currentUserEmail=${encodeURIComponent(currentUserEmail)}&friendEmail=${encodeURIComponent(friendEmail)}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Display chat messages
+                displayChatMessages(data, currentUserEmail);
+            })
+            .catch(error => console.error('Error fetching chat messages:', error.message));
+    }
+
+    // Function to send a message
+    function sendMessage() {
+        let inputField = document.getElementById('chatInputField');
+        let messageText = inputField.value;
+        if (messageText.trim() !== '') {
+            let activeChatHeader = document.getElementById('chatWindowHeader').textContent;
+            let friendName = activeChatHeader.replace('Chat with ', '');
+            let friendEmail = findFriendEmailByName(friendName);
+            if (friendEmail) {
+                fetch(`/chat/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        senderEmail: currentUserEmail,
+                        recipientEmail: friendEmail,
+                        text: messageText
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            inputField.value = '';
+                            fetchChatMessages(currentUserEmail, friendEmail);
+                        }
+                    })
+                    .catch(error => console.error('Error sending message:', error));
+                inputField.value = '';
+            }
+        }
+    }
+
+    // Function to find friend email by name
+    function findFriendEmailByName(name) {
+        let friendsList = document.getElementById('friendsList').children;
+        for (let i = 0; i < friendsList.length; i++) {
+            if (friendsList[i].textContent === name) {
+                return friendsList[i].getAttribute('data-email');
+            }
+        }
+        return null;
+    }
+
+    // Function to open the chat window
+    // Function to open the chat window
+    function openChatWindow(friend) {
+        const chatMessagesContainer = document.getElementById('chatMessages');
+
+        chatMessagesContainer.innerHTML = ''; // Clear previous messages
+        document.getElementById('chatWindowHeader').textContent = 'Chat with ' + friend.name;
+        document.getElementById('chatWindow').style.display = 'block';
+        fetchChatMessages(currentUserEmail, friend.email);
+        fetchNewMessages(currentUserEmail, friend.email); // Start fetching new messages
+    }
+
+        // Function to close the chat window
+    function closeChatWindow() {
+        document.getElementById('chatWindow').style.display = 'none';
+    }
+
+    document.getElementById('friendsSidebar').style.display = 'none';
+
+    // Event listener for clicking the chat dropdown
     document.getElementById('navbarDropdownChat').addEventListener('click', function() {
         var sidebar = document.getElementById('friendsSidebar');
         if (sidebar.style.display === 'block') {
             sidebar.style.display = 'none';
+            closeChatWindow();
         } else {
             fetchFriends();
             sidebar.style.display = 'block';
         }
     });
 
+    // Event listener for clicking on a friend's name to open chat window
     function fetchFriends() {
-        // Use AJAX to fetch friends from the server
         fetch('/user/get-friends')
             .then(response => response.json())
             .then(data => {
                 let friendsList = document.getElementById('friendsList');
-                friendsList.innerHTML = ''; // Clear existing friends
+                friendsList.innerHTML = '';
                 data.forEach(friend => {
                     let listItem = document.createElement('li');
                     listItem.className = 'list-group-item';
-                    listItem.textContent = friend.name; // Adjust based on your backend response structure
+                    listItem.textContent = friend.name;
+                    listItem.setAttribute('data-email', friend.email);
                     listItem.addEventListener('click', function() {
-                        // Navigate to the friend's chat page
-                        window.location.href = '/chat/' + friend.id; // Adjust based on your routing
+                        openChatWindow(friend);
                     });
                     friendsList.appendChild(listItem);
                 });
             })
             .catch(error => console.error('Error fetching friends:', error));
+    }
+
+    // Fetch initial friends on page load
+     fetchFriends();
+
+    // Fetch new messages periodically
+
+    // Function to fetch new messages periodically
+
+    function fetchNewMessages(currentUserEmail, friendEmail) {
+
+        setInterval(() => {
+
+            fetch(`/chat/new-messages?currentUserEmail=${encodeURIComponent(currentUserEmail)}&friendEmail=${encodeURIComponent(friendEmail)}`, {
+
+                headers: {
+
+                    'Content-Type': 'application/json'
+
+                }
+
+            })
+
+                .then(response => {
+
+                    if (!response.ok) {
+
+                        throw new Error('Network response was not ok');
+
+                    }
+
+                    return response.json();
+
+                })
+
+                .then(data => {
+
+                    // Display new messages
+
+                    displayChatMessages(data, currentUserEmail);
+
+                })
+
+                .catch(error => console.error('Error fetching chat messages:', error.message));
+
+        }, 1000); // Fetch messages every 5 seconds (adjust as needed)
+
     }
 </script>
 </body>

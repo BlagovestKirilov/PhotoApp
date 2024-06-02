@@ -48,9 +48,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private Random random;
 
+    @Autowired
+    private PageRepository pageRepository;
+
     public User currentUser;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final String DEFAULT_PROFILE_PICTURE = "default_profile_picture.jpg";
 
     @Override
     public User login(LoginUserDto loginUser) {
@@ -74,7 +78,6 @@ public class UserServiceImpl implements UserService {
         String randomNumber = getRandomNumber();
         if (Objects.isNull(userRepository.findByEmail(userDto.getEmail()))) {
             Role role = roleRepository.findByName(RoleEnum.ROLE_USER);
-            String DEFAULT_PROFILE_PICTURE = "default_profile_picture.jpg";
 
             User user = new User(userDto.getName(), userDto.getEmail(), userDto.getCountry(), passwordEncoder.encode(userDto.getPassword()),
                     role, new ArrayList<>(), RegistrationStatusEnum.PENDING, photoRepository.findByFileNameEndsWith(DEFAULT_PROFILE_PICTURE));
@@ -250,8 +253,40 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void editProfile(UserDto userDto) {
+        if(!currentUser.getName().equals(userDto.getName())){
+            currentUser.setName(userDto.getName());
+        }
+        if(!currentUser.getEmail().equals(userDto.getEmail())){
+            currentUser.setEmail(userDto.getEmail());
+        }
+        if(!currentUser.getCountry().equals(userDto.getCountry())){
+            currentUser.setCountry(userDto.getCountry());
+        }
+        if(currentUser.getEducation() == null || !currentUser.getEducation().equals(userDto.getEducation())){
+            currentUser.setEducation(userDto.getEducation());
+        }
+        if(currentUser.getBirtdate() == null || !currentUser.getBirtdate().equals(userDto.getBirtdate())){
+            currentUser.setBirtdate(userDto.getBirtdate());
+        }
+        userRepository.save(currentUser);
+    }
+
     public Boolean isThereActiveBans(){
-        return userBanRepository.findAllByUser(currentUser).stream().filter(userBan -> userBan.getEndDate().after(new Date())).toList().size() > 0;
+        return !userBanRepository.findAllByUser(currentUser).stream().filter(userBan -> userBan.getEndDate().after(new Date())).toList().isEmpty();
+    }
+
+    public void savePage(String pageName){
+        Page page = new Page();
+        page.setPageName(pageName);
+        page.setOwner(currentUser);
+        page.setProfilePhoto(photoRepository.findByFileNameEndsWith(DEFAULT_PROFILE_PICTURE));
+        pageRepository.save(page);
+    }
+
+    public List<Page> getCurrentUserPage(){
+        return pageRepository.findAllByOwner(currentUser);
     }
     private String getRandomNumber(){
         return String.valueOf(100000 + random.nextInt(900000));

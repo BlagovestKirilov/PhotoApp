@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Friend</title>
     <style>
+        body{
+            background-image: linear-gradient(90deg, rgba(116,216,252, 0.45),rgba(156,153,254, 0.49));
+        }
         .container body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -38,9 +41,9 @@
             margin-right: 20px;
         }
 
-        .container .user p {
+        .container .user a {
             margin: 0;
-            font-size: 18px;
+            font-size: 20px;
             color: #333;
         }
 
@@ -84,8 +87,10 @@
     <h1 th:if="${currentUser.getRole() == 'ROLE_USER'}" tyle="text-align: center;">Friends</h1>
     <h1 th:if="${currentUser.getRole() == 'ROLE_ADMIN'}" tyle="text-align: center;">All users</h1>
     <div class="user" th:each="user : ${users}">
-        <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">
-        <p th:text="${user.getName()}"></p>
+        <a th:href="@{/profile(email=${user.getEmail()})}">
+            <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">
+        </a>
+        <a th:href="@{/profile(email=${user.getEmail()})}" th:text="${user.getName()}"></a>
         <form th:if="${currentUser.getRole() == 'ROLE_USER'}" class="add-friend-form" th:action="@{/user/remove-friend}" method="post">
             <input type="hidden" name="removeUserEmail" th:value="${user.getEmail()}">
             <button class="add-friend-button" type="submit">Remove Friend</button>

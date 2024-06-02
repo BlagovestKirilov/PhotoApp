@@ -1,5 +1,7 @@
 package com.example.photoapp.controller.user;
 
+import com.example.photoapp.entity.Page;
+import com.example.photoapp.entity.dto.FriendDto;
 import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.UserService;
 import com.example.photoapp.service.impl.PhotoServiceImpl;
@@ -14,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 @Controller
@@ -39,8 +42,9 @@ public class UserPhotoController {
     }
 
     @GetMapping("/profile")
-    public String showProfile(Model model) {
-        model.addAttribute("photos", photoServiceImpl.getCurrentUserPhotos());
+    public String showProfile(Model model, @RequestParam(name = "email") String email) {
+        model.addAttribute("photos", photoServiceImpl.getUserPhotosByEmail(email));
+        model.addAttribute("user", photoServiceImpl.getUserDtoByEmail(email));
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         return "profile";
@@ -112,5 +116,28 @@ public class UserPhotoController {
     public String reportPhoto(@RequestParam("photoFileName") String photoFileName, @RequestParam("reason") String reason){
         photoServiceImpl.reportPhoto(photoFileName, reason);
         return "redirect:/uploadForm";
+    }
+
+    @GetMapping("/show-pages")
+    public String removeFriend(Model model) {
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        List<Page> pages = userService.getCurrentUserPage();
+        model.addAttribute("pages", pages);
+        return "showPages";
+    }
+
+    @PostMapping("/create-page")
+    public String createPage(@RequestParam("pageName") String pageName, Model model) {
+        userService.savePage(pageName);
+        return "redirect:/show-pages"; // Assuming this is the page that shows the user's pages
+    }
+    @GetMapping("/page")
+    public String showPage(Model model, @RequestParam(name = "name") String name) {
+        model.addAttribute("photos", photoServiceImpl.getPagePhotosByPageName(name));
+        model.addAttribute("page", photoServiceImpl.getPageByName(name));
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        return "page";
     }
 }

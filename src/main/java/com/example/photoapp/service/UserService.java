@@ -2,6 +2,7 @@ package com.example.photoapp.service;
 
 
 import com.example.photoapp.entity.Notification;
+import com.example.photoapp.entity.Page;
 import com.example.photoapp.entity.dto.ConfirmationDto;
 import com.example.photoapp.entity.dto.LoginUserDto;
 import com.example.photoapp.entity.dto.UserBanDto;
@@ -22,4 +23,8 @@ public interface UserService {
     void banUser(UserBanDto userBanDto);
     Boolean isThereActiveBans();
     List<String> getCurrentUserNotification();
+    void editProfile(UserDto userDto);
+
+    void savePage(String pageName);
+    List<Page> getCurrentUserPage();
 }
