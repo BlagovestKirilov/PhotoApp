@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.URL;
 
 import java.util.List;
 @Entity
@@ -19,6 +20,13 @@ public class Page {
 
     @Column(nullable = false, unique = true)
     private String pageName;
+
+    @Column()
+    private String description;
+
+    @Column()
+    @URL
+    private String website;
 
     @OneToOne
     private User owner;

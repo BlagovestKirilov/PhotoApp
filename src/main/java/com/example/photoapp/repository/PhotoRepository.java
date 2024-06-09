@@ -18,4 +18,6 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
     List<Photo> findByUserOrderByDateUploadedDesc(User user);
     List<Photo> findByPageOrderByDateUploadedDesc(Page page);
+
+    List<Photo> findAllByPage(Page page);
 }

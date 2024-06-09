@@ -61,6 +61,12 @@ public class UserPhotoController {
         return "redirect:/uploadForm";
     }
 
+    @PostMapping("/upload-photo-page")
+    public String uploadPhotoPage(@RequestParam("file") MultipartFile file, @RequestParam("status") String status, @RequestParam("pageName") String pageName) throws IOException {
+        photoServiceImpl.uploadPhotoByPage(file,status,pageName);
+        return "redirect:/uploadForm";
+    }
+
     @PostMapping("/remove-photo")
     public String removePhotoConfirm(@RequestParam String photoFileName) {
         photoServiceImpl.deleteFromS3(photoFileName);
@@ -78,6 +84,12 @@ public class UserPhotoController {
     @PostMapping("/like-photo")
     public String likePhoto(@RequestParam("photoFileName") String fileName) {
         photoServiceImpl.likePhoto(fileName);
+        return "redirect:/uploadForm";
+    }
+
+    @PostMapping("/unlike-photo")
+    public String unlikePhoto(@RequestParam("photoFileName") String fileName) {
+        photoServiceImpl.unLikePhoto(fileName);
         return "redirect:/uploadForm";
     }
 
@@ -119,7 +131,7 @@ public class UserPhotoController {
     }
 
     @GetMapping("/show-pages")
-    public String removeFriend(Model model) {
+    public String showPages(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         List<Page> pages = userService.getCurrentUserPage();

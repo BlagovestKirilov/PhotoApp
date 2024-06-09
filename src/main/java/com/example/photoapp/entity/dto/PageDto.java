@@ -11,20 +11,18 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhotoDto {
-    private String data;
+public class PageDto {
+    private String name;
 
-    private String userName;
+    private String newPageName;
 
-    private Integer numberLikes;
+    private String profilePhotoData;
 
-    private String fileName;
+    private String ownerEmail;
 
-    private List<PhotoCommentDto> photoComments;
+    private String description;
 
-    private String userProfilePhotoData;
-
-    private String status;
+    private String website;
 
     private List<String> likeUsersEmails;
 }

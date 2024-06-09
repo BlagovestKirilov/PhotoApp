@@ -43,11 +43,12 @@
             flex-shrink: 0;
         }
 
-        .container .user p {
+        .container .user a.name {
             font-size: 18px;
             color: #333;
             margin-right: 20px;
             flex-grow: 1;
+            text-decoration: none;
         }
 
         .container .add-friend-form {
@@ -73,13 +74,35 @@
         }
 
         #searchInput {
-            width: 100%;
+            width: calc(100% - 50px); /* Adjusted width to account for button */
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             margin-bottom: 10px;
             box-sizing: border-box; /* Include padding in width */
             font-size: 16px;
+            display: inline-block;
+        }
+
+        #searchButton {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        #searchButton:hover {
+            background-color: #45a049;
+        }
+
+        .results {
+            display: none; /* Initially hide the results */
         }
 
     </style>
@@ -87,51 +110,92 @@
 <body>
 <div th:replace="~{nav.html}"></div>
 <div class="container">
-    <h1 style="text-align: center;">Add Friend</h1>
+    <h1 style="text-align: center;">Search</h1>
 
-    <!-- Search input field -->
-    <input type="text" id="searchInput" placeholder="Search by name..." style="margin-bottom: 10px;">
+    <!-- Search input field and button -->
+    <div>
+        <input type="text" id="searchInput" placeholder="Search by name..." style="margin-bottom: 10px;">
+        <button id="searchButton">Search</button>
+    </div>
 
-    <div class="user" th:each="user : ${users}">
-        <a th:href="@{/profile(email=${user.getEmail()})}">
-            <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">
-        </a>
-        <a th:href="@{/profile(email=${user.getEmail()})}" th:text="${user.getName()}"></a>
-        <form class="add-friend-form" th:if="${!user.getIsPendingStatus() && !user.getIsPendingStatusFromCurrentUser()}" th:action="@{/user/add-friend}" method="post">
-            <input type="hidden" name="receiverEmail" th:value="${user.getEmail()}">
-            <button class="add-friend-button" type="submit">Add Friend</button>
-        </form>
-        <form class="add-friend-form" th:if="${user.getIsPendingStatus()}">
-            <p class="friend-status" th:if="${user.getIsPendingStatus()}">Pending confirmation</p>
-        </form>
-        <form class="add-friend-form" th:if="${user.getIsPendingStatusFromCurrentUser()}">
-            <p class="friend-status" th:if="${user.getIsPendingStatusFromCurrentUser()}">Pending your confirmation</p>
-        </form>
+    <div class="results">
+        <div id="usersSection">
+            <h1 style="text-align: center;">Users</h1>
+            <div class="user" th:each="user : ${users}">
+                <a th:href="@{/profile(email=${user.getEmail()})}">
+                    <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">
+                </a>
+                <a class="name" th:href="@{/profile(email=${user.getEmail()})}" th:text="${user.getName()}"></a>
+                <form class="add-friend-form" th:if="${!user.getIsPendingStatus() && !user.getIsPendingStatusFromCurrentUser()}" th:action="@{/user/add-friend}" method="post">
+                    <input type="hidden" name="receiverEmail" th:value="${user.getEmail()}">
+                    <button class="add-friend-button" type="submit">Add Friend</button>
+                </form>
+                <form class="add-friend-form" th:if="${user.getIsPendingStatus()}">
+                    <p class="friend-status" th:if="${user.getIsPendingStatus()}">Pending confirmation</p>
+                </form>
+                <form class="add-friend-form" th:if="${user.getIsPendingStatusFromCurrentUser()}">
+                    <p class="friend-status" th:if="${user.getIsPendingStatusFromCurrentUser()}">Pending your confirmation</p>
+                </form>
+            </div>
+        </div>
+        <div id="pagesSection">
+            <h1 style="text-align: center;">Pages</h1>
+            <div class="user" th:each="user : ${pages}">
+                <a th:href="@{/page(name=${user.getName()})}">
+                    <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData}" alt="Profile Photo">
+                </a>
+                <a class="name" th:text="${user.getName()}"></a>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Get the input field and add an event listener
+    // Get the input field and button
     const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', filterUsers);
+    const searchButton = document.getElementById('searchButton');
+    const results = document.querySelector('.results');
+    const usersSection = document.getElementById('usersSection');
+    const pagesSection = document.getElementById('pagesSection');
+
+    // Add event listener for button click
+    searchButton.addEventListener('click', () => {
+        if (searchInput.value.trim() !== '') {
+            filterUsers();
+            results.style.display = 'block';
+        } else {
+            results.style.display = 'none';
+        }
+    });
 
     function filterUsers() {
         // Get the search query
         const query = searchInput.value.toLowerCase();
         // Get all user elements
         const users = document.querySelectorAll('.user');
+        let userFound = false;
+        let pageFound = false;
 
         // Loop through each user and check if the name contains the search query
         users.forEach(user => {
-            const name = user.querySelector('p').innerText.toLowerCase();
-            if (name.startsWith(query)) {
+            const name = user.querySelector('a.name').innerText.toLowerCase();
+            if (name.includes(query)) {
                 // If the name matches the search query, display the user
                 user.style.display = 'flex';
+                if (user.closest('#usersSection')) {
+                    userFound = true;
+                } else if (user.closest('#pagesSection')) {
+                    pageFound = true;
+                }
             } else {
                 // If the name does not match the search query, hide the user
                 user.style.display = 'none';
             }
         });
+
+        // Show or hide the users and pages sections based on whether matches were found
+        usersSection.style.display = userFound ? 'block' : 'none';
+        pagesSection.style.display = pageFound ? 'block' : 'none';
     }
 </script>
 </body>

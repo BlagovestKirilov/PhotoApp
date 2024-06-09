@@ -89,12 +89,12 @@
     <div class="profile-header">
         <img th:src="'data:image/png;base64,' + ${user.getProfilePictureData()}" alt="Profile Image" class="profile-image mb-3">
         <h2 th:text="${user.getName()}">John Doe</h2>
-        <button th:if="${user.getEmail() == currentUser.getEmail()}"class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
-        <button class="btn btn-primary"
+        <button th:if="${user.getEmail() == currentUser.getEmail()}" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+        <button th:if="${user.getEmail() == currentUser.getEmail()}" class="btn btn-primary"
                 th:onclick="|window.location.href='@{/change-profile-picture}'|">
             Change profile picture
         </button>
-        <button class="btn btn-primary"
+        <button th:if="${user.getEmail() == currentUser.getEmail()}" class="btn btn-primary"
                 th:onclick="document.getElementById('changePasswordForm').submit()">
             Change password
         </button>
@@ -105,14 +105,14 @@
         </div>
         <div class="card-body">
             <p><strong>Name:</strong> <span th:text="${user.getName()}">John Doe</span></p>
-            <p><strong>Email:</strong> <span th:text="${user.getEmail()}">john.doe@example.com</span></p>
-            <p><strong>Country:</strong> <span th:text="${user.getCountry()}">USA</span></p>
-            <p><strong>Education: </strong><span th:if="${user.getEducation() != null}" th:text="${user.getEducation()}"></span></p>
-            <p><strong>Birthdate: </strong><span th:if="${user.getBirtdate()!= null}" th:text="${#dates.format(user.getBirtdate(), 'dd.MM.yyyy')}"></span></p>
+            <p><strong th:if="${user.getEmail() != null && !user.getEmail().isEmpty()}">Email:</strong> <span th:text="${user.getEmail()}">john.doe@example.com</span></p>
+            <p><strong th:if="${user.getCountry() != null && !user.getCountry().isEmpty()}">Country:</strong> <span th:text="${user.getCountry()}">USA</span></p>
+            <p><strong th:if="${user.getEducation()!= null && !user.getEducation().isEmpty()}">Education: </strong><span th:if="${user.getEducation() != null}" th:text="${user.getEducation()}"></span></p>
+            <p><strong th:if="${user.getBirtdate() != null}">Birthdate: </strong><span th:if="${user.getBirtdate()!= null}" th:text="${#dates.format(user.getBirtdate(), 'dd.MM.yyyy')}"></span></p>
         </div>
     </div>
 
-    <h1 class="text-center">Photos</h1>
+    <h1 class="text-center" th:if="${user.getRole() == 'ROLE_USER'}">Photos</h1>
 
     <div class="row">
         <div th:each="photo : ${photos}" class="col-md-4 col-sm-6 mb-4">
@@ -134,7 +134,6 @@
                         <div class="comment-form" style="display: none;">
                             <div class="comment-section" th:each="comment : ${photo.getPhotoComments()}">
                                 <div class="media">
-                                    <img src="https://via.placeholder.com/40" class="mr-3 rounded-circle" alt="User Image">
                                     <div class="media-body">
                                         <h5 class="mt-0" th:text="${comment.getCommentMaker()}">User Name</h5>
                                         <span th:text="${comment.getText()}">Comment text</span>

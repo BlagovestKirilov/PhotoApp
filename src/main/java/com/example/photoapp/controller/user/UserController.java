@@ -3,6 +3,7 @@ package com.example.photoapp.controller.user;
 import com.example.photoapp.entity.User;
 import com.example.photoapp.entity.dto.FriendDto;
 import com.example.photoapp.entity.dto.ChangePasswordDto;
+import com.example.photoapp.entity.dto.PageDto;
 import com.example.photoapp.entity.dto.UserDto;
 import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.impl.PhotoServiceImpl;
@@ -34,8 +35,8 @@ public class UserController {
     public String showFriendRequests(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
-        List<FriendDto> d = photoServiceImpl.getFriendRequests();
-        model.addAttribute("users", d);
+        List<FriendDto> users = photoServiceImpl.getFriendRequests();
+        model.addAttribute("users", users);
         return "friendRequests";
     }
 
@@ -51,6 +52,7 @@ public class UserController {
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         List<FriendDto> friendDtos = photoServiceImpl.findNonFriendUsers();
         model.addAttribute("users", friendDtos);
+        model.addAttribute("pages", photoServiceImpl.getCurrentUserNowOwnedPages());
         return "addFriend";
     }
 
@@ -122,5 +124,23 @@ public class UserController {
     public String editProfile(@ModelAttribute("user") UserDto user) {
         userService.editProfile(user);
         return "redirect:/profile";
+    }
+
+    @PostMapping("/edit-page")
+    public String editPage(@ModelAttribute("user") PageDto pageDto) {
+        userService.editPage(pageDto);
+        return "redirect:/page?name=" + pageDto.getNewPageName();
+    }
+
+    @PostMapping("/like-page")
+    public String likePage(@RequestParam String pageName, @RequestParam String userEmail) {
+        userService.likePage(pageName, userEmail);
+        return "redirect:/page?name=" + pageName;
+    }
+
+    @PostMapping("/unlike-page")
+    public String unlikePage(@RequestParam String pageName, @RequestParam String userEmail) {
+        userService.unlikePage(pageName, userEmail);
+        return "redirect:/page?name=" + pageName;
     }
 }

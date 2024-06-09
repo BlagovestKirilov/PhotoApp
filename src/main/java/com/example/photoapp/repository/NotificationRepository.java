@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findAllByUser(User user);
+    List<Notification> findAllByUserOrderByDateDesc(User user);
 }

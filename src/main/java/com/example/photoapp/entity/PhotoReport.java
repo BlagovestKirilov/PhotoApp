@@ -17,7 +17,7 @@ public class PhotoReport {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Photo reportedPhoto;
 
     @OneToOne

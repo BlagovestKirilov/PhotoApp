@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,21 +69,24 @@ public class PhotoServiceImpl {
 
     public List<PhotoDto> getFromS3() {
 
-        List<Photo> photosInDatabase = photoRepository.findByUserIsNotNull().stream()
+        List<Photo> photosInDatabaseUser = new ArrayList<>(photoRepository.findByUserIsNotNull().stream()
                 .filter(photo -> {
                     String photoUploaderEmail = photo.getUser().getEmail();
                     return userService.currentUser.getFriendList().stream()
                             .anyMatch(friend -> friend.getEmail().equals(photoUploaderEmail))
                             || userService.currentUser.getEmail().equals(photoUploaderEmail);
                 })
-                .sorted(Comparator.comparing(Photo::getDateUploaded).reversed())
-                .toList();
-
-        return getPhotoDtos(photosInDatabase);
+                .toList());
+        List<Photo> photosInDatabasePage = new ArrayList<>();
+        pageRepository.findAllByLikedPageUsersContains(userService.currentUser).forEach(page -> photosInDatabasePage.addAll(photoRepository.findAllByPage(page)));
+        List<PhotoDto> photoDtos = getPhotoDtos(photosInDatabaseUser, false);
+        photoDtos.addAll(getPhotoDtos(photosInDatabasePage, true));
+        //photoDtos.sort(Comparator.comparing(Photo::getDateUploaded).reversed());
+        return photoDtos;
     }
 
     public List<PhotoDto> getAllPhoto() {
-        return getPhotoDtos(photoRepository.findByUserIsNotNull());
+        return getPhotoDtos(photoRepository.findByUserIsNotNull(), false);
     }
     public List<PhotoReportDto> getReportedPhotos(){
         Map<Photo, List<ReportReasonEnum>> reportMap = photoReportRepository.findAll().stream()
@@ -99,11 +105,11 @@ public class PhotoServiceImpl {
                     ResponseEntity<byte[]> picture = getImage(photo.getFileName());
                     PhotoDto photoDto = new PhotoDto();
                     photoDto.setData(Base64.getEncoder().encodeToString(picture.getBody()));
-                    photoDto.setUserName(photo.getUser().getName());
+                    photoDto.setUserName(photo.getUser() != null ? photo.getUser().getName() : photo.getPage().getPageName());
                     photoDto.setFileName(photo.getFileName());
                     photoDto.setNumberLikes(photo.getLikedPhotoUsers().size());
                     photoDto.setPhotoComments(getPhotoCommentsDtos(photo));
-                    ResponseEntity<byte[]> profilePicture = getImage(photo.getUser().getProfilePhoto().getFileName());
+                    ResponseEntity<byte[]> profilePicture = getImage(photo.getUser() != null ? photo.getUser().getProfilePhoto().getFileName() : photo.getPage().getProfilePhoto().getFileName());
                     photoDto.setUserProfilePhotoData(Base64.getEncoder().encodeToString(profilePicture.getBody()));
                     photoDto.setStatus(photo.getStatus());
                     photoReportDto.setPhotoDto(photoDto);
@@ -144,8 +150,17 @@ public class PhotoServiceImpl {
     public void likePhoto(String fileName){
         Photo photo = photoRepository.findByFileName(fileName);
         photo.getLikedPhotoUsers().add(userService.currentUser);
+        userService.generateNotification(photo.getUser(), userService.currentUser.getName() +" liked your photo!");
         photoRepository.save(photo);
     }
+    public void unLikePhoto(String fileName){
+        Photo photo = photoRepository.findByFileName(fileName);
+        List<User> users = photo.getLikedPhotoUsers().stream().filter(user -> !user.getEmail().equals(userService.currentUser.getEmail())).toList();
+        photo.setLikedPhotoUsers(users);
+        userService.generateNotification(photo.getUser(), userService.currentUser.getName() +" unliked your photo!");
+        photoRepository.save(photo);
+    }
+
 
     public void addComment(String fileName, String text){
         Photo photo = photoRepository.findByFileName(fileName);
@@ -170,9 +185,6 @@ public class PhotoServiceImpl {
                 .toList();
         return users.stream()
                 .map(user -> {
-//                    List<User> g= friendRequestRepository.findAllBySender(user)
-//                            .stream().filter(friendRequest -> friendRequest.getStatus() == FriendRequestStatusEnum.PENDING)
-//                            .map(FriendRequest::getReceiver).toList();
                     FriendDto friendDto = new FriendDto();
                     friendDto.setName(user.getName());
                     friendDto.setEmail(user.getEmail());
@@ -182,6 +194,23 @@ public class PhotoServiceImpl {
                     friendDto.setIsPendingStatusFromCurrentUser(pendingFromCurrentUser.contains(user) ? Boolean.TRUE : Boolean.FALSE);
                     return friendDto;
                 })
+                .collect(Collectors.toList());
+    }
+    public List<PageDto> getCurrentUserNowOwnedPages(){
+        return pageRepository.findAllByOwnerNot(userService.currentUser).stream().map(page -> {
+            PageDto pageDto = new PageDto();
+            pageDto.setName(page.getPageName());
+            pageDto.setDescription(page.getDescription());
+            pageDto.setWebsite(page.getWebsite());
+            pageDto.setOwnerEmail(page.getOwner().getEmail());
+            ResponseEntity<byte[]> b = getImage(page.getProfilePhoto().getFileName());
+            pageDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+            pageDto.setLikeUsersEmails(page.getLikedPageUsers()
+                    .stream()
+                    .map(User::getEmail)
+                    .collect(Collectors.toList()));
+            return pageDto;
+        })
                 .collect(Collectors.toList());
     }
     public List<FriendDto> getCurrentUserFriends(){
@@ -199,6 +228,7 @@ public class PhotoServiceImpl {
 
     public List<FriendDto> getAllUsers(){
         return userRepository.findAll().stream()
+                .filter(user -> !user.getRole().getName().equals(RoleEnum.ROLE_ADMIN))
                 .map(user -> {
                     FriendDto friendDto = new FriendDto();
                     friendDto.setName(user.getName());
@@ -239,8 +269,20 @@ public class PhotoServiceImpl {
         return userDto;
     }
 
-    public Page getPageByName(String name){
-        return pageRepository.findAllByPageName(name);
+    public PageDto getPageByName(String name){
+        Page page = pageRepository.findAllByPageName(name);
+        PageDto pageDto = new PageDto();
+        pageDto.setName(page.getPageName());
+        pageDto.setDescription(page.getDescription());
+        pageDto.setWebsite(page.getWebsite());
+        pageDto.setOwnerEmail(page.getOwner().getEmail());
+        ResponseEntity<byte[]> b = getImage(page.getProfilePhoto().getFileName());
+        pageDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+        pageDto.setLikeUsersEmails(page.getLikedPageUsers()
+                .stream()
+                .map(User::getEmail)
+                .collect(Collectors.toList()));
+        return pageDto;
     }
 
     public UserDto getUserDtoByEmail(String email){
@@ -259,31 +301,40 @@ public class PhotoServiceImpl {
 
     public List<PhotoDto> getCurrentUserPhotos(){
         List<Photo> currentUserPhotos = photoRepository.findByUserOrderByDateUploadedDesc(userService.currentUser);
-        return getPhotoDtos(currentUserPhotos);
+        return getPhotoDtos(currentUserPhotos, false);
     }
 
     public List<PhotoDto> getUserPhotosByEmail(String email){
         User user = userRepository.findByEmail(email);
         List<Photo> currentUserPhotos = photoRepository.findByUserOrderByDateUploadedDesc(user);
-        return getPhotoDtos(currentUserPhotos);
+        return getPhotoDtos(currentUserPhotos, false);
     }
 
     public List<PhotoDto> getPagePhotosByPageName(String pageName){
         Page page = pageRepository.findAllByPageName(pageName);
         List<Photo> currentUserPhotos = photoRepository.findByPageOrderByDateUploadedDesc(page);
-        return getPhotoDtos(currentUserPhotos);
+        return getPhotoDtos(currentUserPhotos, true);
     }
 
-    private List<PhotoDto> getPhotoDtos(List<Photo> currentUserPhotos) {
+    private List<PhotoDto> getPhotoDtos(List<Photo> currentUserPhotos, Boolean isPage) {
         return currentUserPhotos.stream().map(photo -> {
             ResponseEntity<byte[]> picture = getImage(photo.getFileName());
             PhotoDto photoDto = new PhotoDto();
             photoDto.setData(Base64.getEncoder().encodeToString(picture.getBody()));
-            photoDto.setUserName(photo.getUser().getName());
+            ResponseEntity<byte[]> profilePicture;
+            if (isPage) {
+                photoDto.setUserName(photo.getPage().getPageName());
+                profilePicture = getImage(photo.getPage().getProfilePhoto().getFileName());
+            } else {
+                photoDto.setUserName(photo.getUser().getName());
+                profilePicture = getImage(photo.getUser().getProfilePhoto().getFileName());
+            }
             photoDto.setFileName(photo.getFileName());
+            List<String> likedPhotoUsersEmails = new ArrayList<>();
+            photo.getLikedPhotoUsers().forEach(user -> likedPhotoUsersEmails.add(user.getEmail()));
+            photoDto.setLikeUsersEmails(likedPhotoUsersEmails);
             photoDto.setNumberLikes(photo.getLikedPhotoUsers().size());
             photoDto.setPhotoComments(getPhotoCommentsDtos(photo));
-            ResponseEntity<byte[]> profilePicture = getImage(photo.getUser().getProfilePhoto().getFileName());
             photoDto.setUserProfilePhotoData(Base64.getEncoder().encodeToString(profilePicture.getBody()));
             photoDto.setStatus(photo.getStatus());
             return photoDto;
@@ -306,4 +357,18 @@ public class PhotoServiceImpl {
         photoReport.setReportReason(ReportReasonEnum.valueOf(reason));
         photoReportRepository.save(photoReport);
     }
+
+    public void uploadPhotoByPage(MultipartFile file,String status, String pageName) throws IOException {
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        File tempFile = File.createTempFile("temp", fileName);
+        file.transferTo(tempFile);
+
+        uploadToS3(tempFile);
+        Photo photo = new Photo();
+        photo.setFileName(tempFile.getName());
+        photo.setPage(pageRepository.findAllByPageName(pageName));
+        photo.setStatus(status);
+        photoRepository.save(photo);
+    }
+
 }

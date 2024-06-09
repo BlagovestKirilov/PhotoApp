@@ -3,10 +3,7 @@ package com.example.photoapp.service;
 
 import com.example.photoapp.entity.Notification;
 import com.example.photoapp.entity.Page;
-import com.example.photoapp.entity.dto.ConfirmationDto;
-import com.example.photoapp.entity.dto.LoginUserDto;
-import com.example.photoapp.entity.dto.UserBanDto;
-import com.example.photoapp.entity.dto.UserDto;
+import com.example.photoapp.entity.dto.*;
 import com.example.photoapp.entity.User;
 import com.example.photoapp.enums.RegistrationStatusEnum;
 
@@ -27,4 +24,10 @@ public interface UserService {
 
     void savePage(String pageName);
     List<Page> getCurrentUserPage();
+    List<Page> getAllPages();
+    void likePage(String pageName, String userEmail);
+
+    void unlikePage(String pageName, String userEmail);
+
+    void editPage(PageDto pageDto);
 }

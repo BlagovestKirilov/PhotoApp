@@ -226,7 +226,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void banUser(UserBanDto userBanDto){
         UserBan userBan = new UserBan();
-        User user = photoRepository.findByFileName(userBanDto.getPhotoFileName()).getUser();
+        Photo photo = photoRepository.findByFileName(userBanDto.getPhotoFileName());
+        User user = photo.getUser();
+        if(user == null){
+            user = photo.getPage().getOwner();
+        }
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         userBan.setUser(user);
@@ -247,7 +251,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<String> getCurrentUserNotification(){
-        return notificationRepository.findAllByUser(currentUser)
+        return notificationRepository.findAllByUserOrderByDateDesc(currentUser)
                 .stream()
                 .map(Notification::getMessage)
                 .collect(Collectors.toList());
@@ -273,6 +277,21 @@ public class UserServiceImpl implements UserService {
         userRepository.save(currentUser);
     }
 
+    public void editPage(PageDto pageDto) {
+        Page page = pageRepository.findAllByPageName(pageDto.getName());
+        if (page.getPageName() != null && !page.getPageName().equals(pageDto.getNewPageName())) {
+            page.setPageName(pageDto.getNewPageName());
+        }
+
+        if (page.getDescription() == null || (pageDto.getDescription() != null && !page.getDescription().equals(pageDto.getDescription()))) {
+            page.setDescription(pageDto.getDescription());
+        }
+
+        if (page.getWebsite() == null || (pageDto.getWebsite() != null && !page.getWebsite().equals(pageDto.getWebsite()))) {
+            page.setWebsite(pageDto.getWebsite());
+        }
+        pageRepository.save(page);
+    }
     public Boolean isThereActiveBans(){
         return !userBanRepository.findAllByUser(currentUser).stream().filter(userBan -> userBan.getEndDate().after(new Date())).toList().isEmpty();
     }
@@ -285,9 +304,29 @@ public class UserServiceImpl implements UserService {
         pageRepository.save(page);
     }
 
+    public void likePage(String pageName, String userEmail){
+        Page page = pageRepository.findAllByPageName(pageName);
+        User user = userRepository.findByEmail(userEmail);
+        page.getLikedPageUsers().add(user);
+        generateNotification(page.getOwner(), user.getName() + " liked your page!");
+        pageRepository.save(page);
+    }
+
+    public void unlikePage(String pageName, String userEmail){
+        Page page = pageRepository.findAllByPageName(pageName);
+        User user = userRepository.findByEmail(userEmail);
+        page.getLikedPageUsers().remove(user);
+        pageRepository.save(page);
+    }
+
     public List<Page> getCurrentUserPage(){
         return pageRepository.findAllByOwner(currentUser);
     }
+
+    public List<Page> getAllPages(){
+        return pageRepository.findAll();
+    }
+
     private String getRandomNumber(){
         return String.valueOf(100000 + random.nextInt(900000));
     }

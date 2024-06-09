@@ -1,5 +1,6 @@
 package com.example.photoapp.controller.admin;
 
+import com.example.photoapp.entity.Page;
 import com.example.photoapp.entity.dto.FriendDto;
 import com.example.photoapp.entity.dto.UserBanDto;
 import com.example.photoapp.enums.ChangePasswordEnum;
@@ -37,12 +38,21 @@ public class AdminController {
     }
 
     @GetMapping("/all-user")
-    public String getAllFriends(Model model) {
+    public String getAllUsers(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         List<FriendDto> friendDtos = photoServiceImpl.getAllUsers();
         model.addAttribute("users", friendDtos);
         return "showFriend";
+    }
+
+    @GetMapping("/all-pages")
+    public String getAllPages(Model model) {
+        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
+        model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        List<Page> pages = userService.getAllPages();
+        model.addAttribute("pages", pages);
+        return "showPages";
     }
 
     @GetMapping("/ban-user")
@@ -58,6 +68,6 @@ public class AdminController {
     @PostMapping("/ban-user")
     public String postBanUser(@ModelAttribute("userBanDto") UserBanDto userBanDto) {
         userService.banUser(userBanDto);
-        return "banUser";
+        return "redirect:/admin/reported-photo";
     }
 }

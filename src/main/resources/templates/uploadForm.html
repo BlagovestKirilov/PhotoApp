@@ -171,10 +171,14 @@
             <img th:src="'data:image/png;base64,' + ${photo.data}" />
             <div>
                 <span th:text="${photo.numberLikes}"></span> Likes
-                <div class="button-group">
+                <div class="button-group" th:if="${currentUser.getRole() == 'ROLE_USER'}">
                     <form th:action="@{/like-photo}" method="post">
                         <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
-                        <button type="submit" class="btn-primary">Like</button>
+                        <button type="submit" class="btn-primary" th:if="${!photo.getLikeUsersEmails().contains(currentUser.getEmail())}">Like</button>
+                    </form>
+                    <form th:action="@{/unlike-photo}" method="post">
+                        <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
+                        <button type="submit" class="btn-primary" th:if="${photo.getLikeUsersEmails().contains(currentUser.getEmail())}">Unlike</button>
                     </form>
                     <button type="button" onclick="toggleCommentForm(this, '${photo.getFileName()}', '${photo.comments}')" class="btn-primary">Comment</button>
                     <div class="dropdown">
