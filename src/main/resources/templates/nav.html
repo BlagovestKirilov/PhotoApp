@@ -351,8 +351,6 @@
             let activeChatHeader = document.getElementById('chatWindowHeader').textContent;
             let startIndex = chatWindowHeader.innerHTML.indexOf('Chat with ') + 'Chat with '.length;
             let endIndex = chatWindowHeader.innerHTML.indexOf('</span>', startIndex);
-
-// Extract the friend's name using substring
             let friendName = chatWindowHeader.innerHTML.substring(startIndex, endIndex);
             let friendEmail = findFriendEmailByName(friendName);
             if (friendEmail) {
