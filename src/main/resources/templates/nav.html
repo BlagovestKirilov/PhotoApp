@@ -134,8 +134,9 @@
 
         .chat-input button {
             width: 50px;
+            height: 35px;
             border: none;
-            background-color: #007bff;
+            background-color: green;
             color: white;
             cursor: pointer;
             border-radius: 3px;
@@ -160,12 +161,23 @@
                 margin-right: 610px; /* Adjusted margin for both friend's list and chat window */
             }
         }
+
+        .sent-message {
+            text-align: right;
+            color: #007bff; /* Optional: Change color for sent messages */
+        }
+
+        /* Style for received messages (optional) */
+        .received-message {
+            /* Add your styling for received messages */
+            color: #28a745; /* Optional: Change color for received messages */
+        }
     </style>
 </head>
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-custom">
-    <a class="navbar-brand" th:href="@{/uploadForm}">Photo Uploader</a>
+    <a class="navbar-brand" th:href="@{/uploadForm}">LopusNet</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -301,6 +313,12 @@
         messages.forEach(message => {
             const messageDiv = document.createElement('div');
             messageDiv.textContent = `${message.senderName}: ${message.text}`;
+            var currentUserEmail1 = /*[[${currentUser.getName()}]]*/ '';
+            if (message.senderName === currentUserEmail1) {
+                messageDiv.classList.add('sent-message'); // Add your CSS class name for sent messages
+            } else {
+                messageDiv.classList.add('received-message'); // Add your CSS class name for received messages
+            }
             chatMessagesContainer.appendChild(messageDiv);
         });
     }
@@ -331,7 +349,11 @@
         let messageText = inputField.value;
         if (messageText.trim() !== '') {
             let activeChatHeader = document.getElementById('chatWindowHeader').textContent;
-            let friendName = activeChatHeader.replace('Chat with ', '');
+            let startIndex = chatWindowHeader.innerHTML.indexOf('Chat with ') + 'Chat with '.length;
+            let endIndex = chatWindowHeader.innerHTML.indexOf('</span>', startIndex);
+
+// Extract the friend's name using substring
+            let friendName = chatWindowHeader.innerHTML.substring(startIndex, endIndex);
             let friendEmail = findFriendEmailByName(friendName);
             if (friendEmail) {
                 fetch(`/chat/send`, {
@@ -375,14 +397,14 @@
         const chatMessagesContainer = document.getElementById('chatMessages');
 
         chatMessagesContainer.innerHTML = ''; // Clear previous messages
-        document.getElementById('chatWindowHeader').textContent = 'Chat with ' + friend.name;
+        chatWindowHeader.innerHTML = '<span>Chat with ' + friend.name + '</span><button class="close" onclick="closeChatWindow()"><span aria-hidden="true">&times;</span></button>';
         document.getElementById('chatWindow').style.display = 'block';
         fetchChatMessages(currentUserEmail, friend.email);
         fetchNewMessages(currentUserEmail, friend.email); // Start fetching new messages
         scrollToBottom();
     }
 
-        // Function to close the chat window
+    // Function to close the chat window
     function closeChatWindow() {
         document.getElementById('chatWindow').style.display = 'none';
     }
@@ -423,7 +445,7 @@
     }
 
     // Fetch initial friends on page load
-     fetchFriends();
+    fetchFriends();
 
     // Fetch new messages periodically
 
