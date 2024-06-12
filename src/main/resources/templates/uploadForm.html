@@ -21,6 +21,8 @@
             background-color: #fff; /* White container background */
             border-radius: 8px; /* Rounded corners */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            display: inline-block; /* Display as inline-block to align with next element */
+            vertical-align: top; /* Aligns with top of line */
         }
 
         .post {
@@ -167,6 +169,33 @@
             margin-top: 11px;
         }
 
+        .people-you-may-know {
+            width: 18%; /* Adjusted width for the people you may know section */
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            display: inline-block; /* Display as inline-block to align with previous element */
+            vertical-align: top; /* Aligns with top of line */
+        }
+
+        .person {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .person img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .person .name {
+            font-weight: bold;
+        }
 
     </style>
 </head>
@@ -174,6 +203,13 @@
 <body>
 <div th:replace="~{nav.html}"></div>
 
+<div class="people-you-may-know">
+    <h3>People You May Know</h3>
+    <div th:each="user : ${peopleYouMayKnow}" class="person">
+        <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Picture">
+        <span class="name" th:text="${user.name}">User Name</span>
+    </div>
+</div>
 <div class="container">
 
     <div th:each="photo : ${photos}" class="post">
@@ -227,7 +263,11 @@
             </div>
         </div>
     </div>
+
+
 </div>
+</div>
+
 
 <script>
     // JavaScript for showing dropdown menu when "Generate Report" button is clicked

@@ -38,6 +38,8 @@ public class UserPhotoController {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         model.addAttribute("notifications", userService.getCurrentUserNotification());
+        List<FriendDto> friendDtos = photoServiceImpl.getCurrentUserNonFrinedsByCountry();
+        model.addAttribute("peopleYouMayKnow", friendDtos);
         return "uploadForm";
     }
 
@@ -47,6 +49,7 @@ public class UserPhotoController {
         model.addAttribute("user", photoServiceImpl.getUserDtoByEmail(email));
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "profile";
     }
 
@@ -77,6 +80,7 @@ public class UserPhotoController {
     public String removePhoto(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         model.addAttribute("photos",photoServiceImpl.getCurrentUserPhotos());
         return "removePhoto";
     }
@@ -103,6 +107,7 @@ public class UserPhotoController {
     public String uploadPhoto(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         model.addAttribute("isThereActiveBans", userService.isThereActiveBans());
         return "uploadPhoto";
     }
@@ -111,6 +116,7 @@ public class UserPhotoController {
     public String changeProfilePicture(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "changeProfilePicture";
     }
     @PostMapping("/change-profile-picture")
@@ -134,6 +140,7 @@ public class UserPhotoController {
     public String showPages(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         List<Page> pages = userService.getCurrentUserPage();
         model.addAttribute("pages", pages);
         return "showPages";
@@ -150,6 +157,7 @@ public class UserPhotoController {
         model.addAttribute("page", photoServiceImpl.getPageByName(name));
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "page";
     }
 }

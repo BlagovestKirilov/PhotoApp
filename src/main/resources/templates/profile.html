@@ -94,6 +94,10 @@
                 th:onclick="|window.location.href='@{/change-profile-picture}'|">
             Change profile picture
         </button>
+        <button th:if="${user.getEmail() != currentUser.getEmail()}" class="btn btn-primary"
+                th:onclick="|window.location.href='@{/change-profile-picture}'|">
+            Add friend!NI
+        </button>
         <button th:if="${user.getEmail() == currentUser.getEmail()}" class="btn btn-primary"
                 th:onclick="document.getElementById('changePasswordForm').submit()">
             Change password

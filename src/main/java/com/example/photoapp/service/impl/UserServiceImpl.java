@@ -6,6 +6,7 @@ import com.example.photoapp.entity.dto.*;
 import com.example.photoapp.enums.*;
 import com.example.photoapp.repository.*;
 import com.example.photoapp.service.UserService;
+import com.example.photoapp.util.CurrentUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,18 +52,20 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PageRepository pageRepository;
 
-    public User currentUser;
+    @Autowired
+    public CurrentUser currentUser;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
     private final String DEFAULT_PROFILE_PICTURE = "default_profile_picture.jpg";
 
     @Override
     public User login(LoginUserDto loginUser) {
-        currentUser = userRepository.findByEmail(loginUser.getEmail());
-        if (Objects.nonNull(currentUser) && passwordEncoder.matches(loginUser.getPassword(), currentUser.getPassword())) {
-            currentUser.setFriendList(userRepository.findFriendsByEmail(currentUser.getEmail()));
-            LOGGER.info("User with email: " + currentUser.getEmail() + " logged in.");
-            return currentUser;
+        User user = userRepository.findByEmail(loginUser.getEmail());
+        currentUser.setUser(user);
+        if (Objects.nonNull(currentUser.getUser()) && passwordEncoder.matches(loginUser.getPassword(), currentUser.getUser().getPassword())) {
+            currentUser.getUser().setFriendList(userRepository.findFriendsByEmail(currentUser.getUser().getEmail()));
+            LOGGER.info("User with email: " + currentUser.getUser().getEmail() + " logged in.");
+            return currentUser.getUser();
         } else {
             return null;
         }
@@ -70,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void logout() {
-        currentUser = null;
+        currentUser.setUser(null);
     }
 
     @Override
@@ -96,23 +99,23 @@ public class UserServiceImpl implements UserService {
     public void addFriend(String receiverEmail) {
         User receiver = userRepository.findByEmail(receiverEmail);
         saveFriendRequest(receiver);
-        String notificationText = currentUser.getName() + " sent you friend request.";
+        String notificationText = currentUser.getUser().getName() + " sent you friend request.";
         generateNotification(receiver, notificationText);
     }
 
     public void confirmFriendRequest(String senderEmail) {
         Optional<FriendRequest> friendRequest = friendRequestRepository.findFirstBySenderAndReceiverAndStatus(
                 userRepository.findByEmail(senderEmail),
-                currentUser,
+                currentUser.getUser(),
                 FriendRequestStatusEnum.PENDING
         );
         if (friendRequest.isPresent()) {
             User sender = friendRequest.get().getSender();
-            sender.getFriendList().add(currentUser);
-            currentUser.getFriendList().add(sender);
+            sender.getFriendList().add(currentUser.getUser());
+            currentUser.getUser().getFriendList().add(sender);
             friendRequest.get().setStatus(FriendRequestStatusEnum.ACCEPTED);
             userRepository.save(sender);
-            userRepository.save(currentUser);
+            userRepository.save(currentUser.getUser());
             friendRequestRepository.save(friendRequest.get());
         }
     }
@@ -120,7 +123,7 @@ public class UserServiceImpl implements UserService {
     public void rejectFriendRequest(String senderEmail) {
         Optional<FriendRequest> friendRequest = friendRequestRepository.findFirstBySenderAndReceiverAndStatus(
                 userRepository.findByEmail(senderEmail),
-                currentUser,
+                currentUser.getUser(),
                 FriendRequestStatusEnum.PENDING
         );
         if (friendRequest.isPresent()) {
@@ -131,13 +134,13 @@ public class UserServiceImpl implements UserService {
 
     public void saveFriendRequest(User receiver) {
         FriendRequest friendRequest = new FriendRequest();
-        friendRequest.setSender(currentUser);
+        friendRequest.setSender(currentUser.getUser());
         friendRequest.setReceiver(receiver);
         friendRequestRepository.save(friendRequest);
     }
 
     public List<FriendRequestDto> getFriendRequests(Long receiverId) {
-        List<FriendRequest> foundFriendRequest = friendRequestRepository.findAllByReceiverAndStatus(currentUser, FriendRequestStatusEnum.PENDING);
+        List<FriendRequest> foundFriendRequest = friendRequestRepository.findAllByReceiverAndStatus(currentUser.getUser(), FriendRequestStatusEnum.PENDING);
         List<FriendRequestDto> resultList = new ArrayList<>();
         for (FriendRequest friendRequest : foundFriendRequest) {
             String senderName = friendRequest.getSender().getName();
@@ -148,7 +151,7 @@ public class UserServiceImpl implements UserService {
 
     public void removeFriend(String removeUserEmail) {
 
-        List<User> friendsList = currentUser.getFriendList();
+        List<User> friendsList = currentUser.getUser().getFriendList();
         friendsList.stream()
                 .filter(friend -> friend.getEmail().equals(removeUserEmail))
                 .findFirst()
@@ -157,11 +160,11 @@ public class UserServiceImpl implements UserService {
         User userForRemoval = userRepository.findByEmail(removeUserEmail);
         List<User> userForRemovalFriendList = userForRemoval.getFriendList();
         userForRemovalFriendList.stream()
-                .filter(friend -> friend.getEmail().equals(currentUser.getEmail()))
+                .filter(friend -> friend.getEmail().equals(currentUser.getUser().getEmail()))
                 .findFirst()
                 .ifPresent(userForRemovalFriendList::remove);
 
-        userRepository.save(currentUser);
+        userRepository.save(currentUser.getUser());
         userRepository.save(userForRemoval);
     }
 
@@ -234,7 +237,7 @@ public class UserServiceImpl implements UserService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         userBan.setUser(user);
-        userBan.setAdminUser(currentUser);
+        userBan.setAdminUser(currentUser.getUser());
         userBan.setReason(ReportReasonEnum.valueOf(userBanDto.getReason()));
         userBan.setStartDate(calendar.getTime());
         calendar.add(Calendar.DAY_OF_MONTH, userBanDto.getBanDuration());
@@ -251,7 +254,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<String> getCurrentUserNotification(){
-        return notificationRepository.findAllByUserOrderByDateDesc(currentUser)
+        return notificationRepository.findAllByUserOrderByDateDesc(currentUser.getUser())
                 .stream()
                 .map(Notification::getMessage)
                 .collect(Collectors.toList());
@@ -259,22 +262,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void editProfile(UserDto userDto) {
-        if(!currentUser.getName().equals(userDto.getName())){
-            currentUser.setName(userDto.getName());
+        if(!currentUser.getUser().getName().equals(userDto.getName())){
+            currentUser.getUser().setName(userDto.getName());
         }
-        if(!currentUser.getEmail().equals(userDto.getEmail())){
-            currentUser.setEmail(userDto.getEmail());
+        if(!currentUser.getUser().getEmail().equals(userDto.getEmail())){
+            currentUser.getUser().setEmail(userDto.getEmail());
         }
-        if(!currentUser.getCountry().equals(userDto.getCountry())){
-            currentUser.setCountry(userDto.getCountry());
+        if(!currentUser.getUser().getCountry().equals(userDto.getCountry())){
+            currentUser.getUser().setCountry(userDto.getCountry());
         }
-        if(currentUser.getEducation() == null || !currentUser.getEducation().equals(userDto.getEducation())){
-            currentUser.setEducation(userDto.getEducation());
+        if(currentUser.getUser().getEducation() == null || !currentUser.getUser().getEducation().equals(userDto.getEducation())){
+            currentUser.getUser().setEducation(userDto.getEducation());
         }
-        if(currentUser.getBirtdate() == null || !currentUser.getBirtdate().equals(userDto.getBirtdate())){
-            currentUser.setBirtdate(userDto.getBirtdate());
+        if(currentUser.getUser().getBirtdate() == null || !currentUser.getUser().getBirtdate().equals(userDto.getBirtdate())){
+            currentUser.getUser().setBirtdate(userDto.getBirtdate());
         }
-        userRepository.save(currentUser);
+        userRepository.save(currentUser.getUser());
     }
 
     public void editPage(PageDto pageDto) {
@@ -293,13 +296,13 @@ public class UserServiceImpl implements UserService {
         pageRepository.save(page);
     }
     public Boolean isThereActiveBans(){
-        return !userBanRepository.findAllByUser(currentUser).stream().filter(userBan -> userBan.getEndDate().after(new Date())).toList().isEmpty();
+        return !userBanRepository.findAllByUser(currentUser.getUser()).stream().filter(userBan -> userBan.getEndDate().after(new Date())).toList().isEmpty();
     }
 
     public void savePage(String pageName){
         Page page = new Page();
         page.setPageName(pageName);
-        page.setOwner(currentUser);
+        page.setOwner(currentUser.getUser());
         page.setProfilePhoto(photoRepository.findByFileNameEndsWith(DEFAULT_PROFILE_PICTURE));
         pageRepository.save(page);
     }
@@ -320,7 +323,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public List<Page> getCurrentUserPage(){
-        return pageRepository.findAllByOwner(currentUser);
+        return pageRepository.findAllByOwner(currentUser.getUser());
     }
 
     public List<Page> getAllPages(){

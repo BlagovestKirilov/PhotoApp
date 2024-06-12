@@ -10,6 +10,7 @@ import com.example.photoapp.enums.FriendRequestStatusEnum;
 import com.example.photoapp.enums.ReportReasonEnum;
 import com.example.photoapp.enums.RoleEnum;
 import com.example.photoapp.repository.*;
+import com.example.photoapp.util.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,8 @@ public class PhotoServiceImpl {
     PhotoReportRepository photoReportRepository;
     @Autowired
     PageRepository pageRepository;
+    @Autowired
+    CurrentUser currentUser;
 
     public void uploadToS3(File file) {
         String s3Key = file.getName();
@@ -57,10 +60,10 @@ public class PhotoServiceImpl {
     public void deleteFromS3(String photoFileName) {
         Photo photo = photoRepository.findByFileName(photoFileName);
         if (Objects.nonNull(photo)) {
-            if (Objects.equals(photo.getUser().getId(), userService.currentUser.getId()) || userService.currentUser.getRole().getName() == RoleEnum.ROLE_ADMIN) {
+            if (Objects.equals(photo.getUser().getId(), userService.currentUser.getUser().getId()) || userService.currentUser.getUser().getRole().getName() == RoleEnum.ROLE_ADMIN) {
                 //s3Client.deleteObject(BUCKET_NAME, photoFileName);
                 photoRepository.delete(photo);
-                if(userService.currentUser.getRole().getName() == RoleEnum.ROLE_ADMIN){
+                if(userService.currentUser.getUser().getRole().getName() == RoleEnum.ROLE_ADMIN){
                     userService.generateNotification(photo.getUser(), "Admin has deleted your photo!");
                 }
             }
@@ -72,13 +75,13 @@ public class PhotoServiceImpl {
         List<Photo> photosInDatabaseUser = new ArrayList<>(photoRepository.findByUserIsNotNull().stream()
                 .filter(photo -> {
                     String photoUploaderEmail = photo.getUser().getEmail();
-                    return userService.currentUser.getFriendList().stream()
+                    return userService.currentUser.getUser().getFriendList().stream()
                             .anyMatch(friend -> friend.getEmail().equals(photoUploaderEmail))
-                            || userService.currentUser.getEmail().equals(photoUploaderEmail);
+                            || userService.currentUser.getUser().getEmail().equals(photoUploaderEmail);
                 })
                 .toList());
         List<Photo> photosInDatabasePage = new ArrayList<>();
-        pageRepository.findAllByLikedPageUsersContains(userService.currentUser).forEach(page -> photosInDatabasePage.addAll(photoRepository.findAllByPage(page)));
+        pageRepository.findAllByLikedPageUsersContains(userService.currentUser.getUser()).forEach(page -> photosInDatabasePage.addAll(photoRepository.findAllByPage(page)));
         List<PhotoDto> photoDtos = getPhotoDtos(photosInDatabaseUser, false);
         photoDtos.addAll(getPhotoDtos(photosInDatabasePage, true));
         //photoDtos.sort(Comparator.comparing(Photo::getDateUploaded).reversed());
@@ -133,7 +136,7 @@ public class PhotoServiceImpl {
     public void save(File file, String status) {
         Photo photo = new Photo();
         photo.setFileName(file.getName());
-        photo.setUser(userService.currentUser);
+        photo.setUser(userService.currentUser.getUser());
         photo.setStatus(status);
         photoRepository.save(photo);
     }
@@ -141,23 +144,23 @@ public class PhotoServiceImpl {
     public void changeProfilePicture(File file) {
         Photo photo = new Photo();
         photo.setFileName(file.getName());
-        photo.setUser(userService.currentUser);
-        userService.currentUser.setProfilePhoto(photo);
+        photo.setUser(userService.currentUser.getUser());
+        userService.currentUser.getUser().setProfilePhoto(photo);
         photoRepository.save(photo);
-        userRepository.save(userService.currentUser);
+        userRepository.save(userService.currentUser.getUser());
     }
 
     public void likePhoto(String fileName){
         Photo photo = photoRepository.findByFileName(fileName);
-        photo.getLikedPhotoUsers().add(userService.currentUser);
-        userService.generateNotification(photo.getUser(), userService.currentUser.getName() +" liked your photo!");
+        photo.getLikedPhotoUsers().add(userService.currentUser.getUser());
+        userService.generateNotification(photo.getUser(), userService.currentUser.getUser().getName() +" liked your photo!");
         photoRepository.save(photo);
     }
     public void unLikePhoto(String fileName){
         Photo photo = photoRepository.findByFileName(fileName);
-        List<User> users = photo.getLikedPhotoUsers().stream().filter(user -> !user.getEmail().equals(userService.currentUser.getEmail())).toList();
+        List<User> users = photo.getLikedPhotoUsers().stream().filter(user -> !user.getEmail().equals(userService.currentUser.getUser().getEmail())).toList();
         photo.setLikedPhotoUsers(users);
-        userService.generateNotification(photo.getUser(), userService.currentUser.getName() +" unliked your photo!");
+        userService.generateNotification(photo.getUser(), userService.currentUser.getUser().getName() +" unliked your photo!");
         photoRepository.save(photo);
     }
 
@@ -166,7 +169,7 @@ public class PhotoServiceImpl {
         Photo photo = photoRepository.findByFileName(fileName);
         PhotoComment photoComment = new PhotoComment();
         photoComment.setText(text);
-        photoComment.setCommentMaker(userService.currentUser);
+        photoComment.setCommentMaker(userService.currentUser.getUser());
         photoComment.setPhoto(photo);
         photoCommentRepository.save(photoComment);
         //photo.getPhotoComments().add(photoComment);
@@ -174,12 +177,12 @@ public class PhotoServiceImpl {
     }
 
     public List<FriendDto> findNonFriendUsers() {
-        List<User> users = userRepository.findNonFriendUsersByUser(userService.currentUser.getEmail());
-        List<User> pending = friendRequestRepository.findAllBySenderAndStatus(userService.currentUser,FriendRequestStatusEnum.PENDING)
+        List<User> users = userRepository.findNonFriendUsersByUser(userService.currentUser.getUser().getEmail());
+        List<User> pending = friendRequestRepository.findAllBySenderAndStatus(userService.currentUser.getUser(),FriendRequestStatusEnum.PENDING)
                 .stream()
                 .map(FriendRequest::getReceiver)
                 .toList();
-        List<User> pendingFromCurrentUser = friendRequestRepository.findAllByReceiverAndStatus(userService.currentUser,FriendRequestStatusEnum.PENDING)
+        List<User> pendingFromCurrentUser = friendRequestRepository.findAllByReceiverAndStatus(userService.currentUser.getUser(),FriendRequestStatusEnum.PENDING)
                 .stream()
                 .map(FriendRequest::getSender)
                 .toList();
@@ -197,7 +200,7 @@ public class PhotoServiceImpl {
                 .collect(Collectors.toList());
     }
     public List<PageDto> getCurrentUserNowOwnedPages(){
-        return pageRepository.findAllByOwnerNot(userService.currentUser).stream().map(page -> {
+        return pageRepository.findAllByOwnerNot(userService.currentUser.getUser()).stream().map(page -> {
             PageDto pageDto = new PageDto();
             pageDto.setName(page.getPageName());
             pageDto.setDescription(page.getDescription());
@@ -214,7 +217,20 @@ public class PhotoServiceImpl {
                 .collect(Collectors.toList());
     }
     public List<FriendDto> getCurrentUserFriends(){
-        return userService.currentUser.getFriendList().stream()
+        return currentUser.getUser().getFriendList().stream()
+                .map(user -> {
+                    FriendDto friendDto = new FriendDto();
+                    friendDto.setName(user.getName());
+                    friendDto.setEmail(user.getEmail());
+                    ResponseEntity<byte[]> b = getImage(user.getProfilePhoto().getFileName());
+                    friendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+                    return friendDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<FriendDto> getCurrentUserNonFrinedsByCountry(){
+        return userRepository.findNonFriendUsersByUserAndCountry(currentUser.getUser().getEmail()).stream()
                 .map(user -> {
                     FriendDto friendDto = new FriendDto();
                     friendDto.setName(user.getName());
@@ -241,7 +257,7 @@ public class PhotoServiceImpl {
     }
 
     public List<FriendDto> getFriendRequests() {
-        List<FriendRequest> foundFriendRequest = friendRequestRepository.findAllByReceiverAndStatus(userService.currentUser, FriendRequestStatusEnum.PENDING);
+        List<FriendRequest> foundFriendRequest = friendRequestRepository.findAllByReceiverAndStatus(userService.currentUser.getUser(), FriendRequestStatusEnum.PENDING);
         return foundFriendRequest.stream()
                 .map(friendRequest -> {
                     User sender = friendRequest.getSender();
@@ -258,13 +274,13 @@ public class PhotoServiceImpl {
 
     public UserDto getCurrentUserDto(){
         UserDto userDto = new UserDto();
-        userDto.setName(userService.currentUser.getName());
-        userDto.setEmail(userService.currentUser.getEmail());
-        userDto.setRole(userService.currentUser.getRole().getName().toString());
-        userDto.setCountry(userService.currentUser.getCountry());
-        userDto.setBirtdate(userService.currentUser.getBirtdate());
-        userDto.setEducation(userService.currentUser.getEducation());
-        ResponseEntity<byte[]> picture = getImage(userService.currentUser.getProfilePhoto().getFileName());
+        userDto.setName(userService.currentUser.getUser().getName());
+        userDto.setEmail(userService.currentUser.getUser().getEmail());
+        userDto.setRole(userService.currentUser.getUser().getRole().getName().toString());
+        userDto.setCountry(userService.currentUser.getUser().getCountry());
+        userDto.setBirtdate(userService.currentUser.getUser().getBirtdate());
+        userDto.setEducation(userService.currentUser.getUser().getEducation());
+        ResponseEntity<byte[]> picture = getImage(userService.currentUser.getUser().getProfilePhoto().getFileName());
         userDto.setProfilePictureData(Base64.getEncoder().encodeToString(picture.getBody()));
         return userDto;
     }
@@ -300,7 +316,7 @@ public class PhotoServiceImpl {
     }
 
     public List<PhotoDto> getCurrentUserPhotos(){
-        List<Photo> currentUserPhotos = photoRepository.findByUserOrderByDateUploadedDesc(userService.currentUser);
+        List<Photo> currentUserPhotos = photoRepository.findByUserOrderByDateUploadedDesc(userService.currentUser.getUser());
         return getPhotoDtos(currentUserPhotos, false);
     }
 
@@ -352,7 +368,7 @@ public class PhotoServiceImpl {
 
     public void reportPhoto(String photoName, String reason){
         PhotoReport photoReport = new PhotoReport();
-        photoReport.setReporterUser(userService.currentUser);
+        photoReport.setReporterUser(userService.currentUser.getUser());
         photoReport.setReportedPhoto(photoRepository.findByFileName(photoName));
         photoReport.setReportReason(ReportReasonEnum.valueOf(reason));
         photoReportRepository.save(photoReport);

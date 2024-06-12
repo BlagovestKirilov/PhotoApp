@@ -7,7 +7,7 @@
         body{
             background-image: linear-gradient(90deg, rgba(116,216,252, 0.45),rgba(156,153,254, 0.49));
         }
-        .container body {
+        .containerImg body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
@@ -18,35 +18,34 @@
             height: 100vh;
         }
 
-        .container {
+        .containerImg {
             background-color: #fff;
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 400px;
+            width: 600px;
             margin: auto;
         }
 
-        .container .user {
+        .containerImg .user {
             display: flex;
             align-items: center;
             margin-bottom: 15px;
         }
 
-        .container .user img {
+        .containerImg .user img {
             width: 80px;
             height: 80px;
-            border-radius: 50%;
             margin-right: 20px;
         }
 
-        .container .user p {
+        .containerImg .user p {
             margin: 0;
             font-size: 18px;
             color: #333;
         }
 
-        .container .friend-status {
+        .containerImg .friend-status {
             font-size: 16px;
             color: #888;
             background-color: #f0f0f0;
@@ -56,13 +55,13 @@
             margin-left: auto; /* Pushes the status to the right */
         }
 
-        .container .add-friend-form {
+        .containerImg .add-friend-form {
             margin-left: auto; /* Pushes the form to the right */
             display: flex;
             align-items: center;
         }
 
-        .container .add-friend-button {
+        .containerImg .add-friend-button {
             background-color: red;
             border: none;
             color: white;
@@ -75,14 +74,15 @@
             cursor: pointer;
         }
 
-        .container .add-friend-button:hover {
+        .containerImg .add-friend-button:hover {
             background-color: #45a049;
         }
+
     </style>
 </head>
 <body>
 <div th:replace="~{nav.html}"></div>
-<div class="container">
+<div class="containerImg">
     <h1 style="text-align: center;">My photos</h1>
     <div class="user" th:each="photo : ${photos}">
         <img th:src="'data:image/png;base64,' + ${photo.getData()}" alt="Profile Photo">

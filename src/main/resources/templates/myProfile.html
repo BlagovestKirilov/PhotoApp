@@ -41,9 +41,15 @@
         .card-text strong {
             color: #28a745;
         }
+
+        .navbar-custom .dropdown-menu {
+            z-index: 1051;
+        }
     </style>
 </head>
 <body>
+<div th:replace="~{nav.html}"></div>
+
 <div class="container mt-5">
     <div class="profile-header">
         <img src="https://via.placeholder.com/150" alt="Profile Image" class="profile-image">

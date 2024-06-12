@@ -35,6 +35,7 @@ public class UserController {
     public String showFriendRequests(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         List<FriendDto> users = photoServiceImpl.getFriendRequests();
         model.addAttribute("users", users);
         return "friendRequests";
@@ -50,6 +51,7 @@ public class UserController {
     public String addFriend(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         List<FriendDto> friendDtos = photoServiceImpl.findNonFriendUsers();
         model.addAttribute("users", friendDtos);
         model.addAttribute("pages", photoServiceImpl.getCurrentUserNowOwnedPages());
@@ -66,8 +68,9 @@ public class UserController {
     public String removeFriend(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         List<FriendDto> friendDtos = photoServiceImpl.getCurrentUserFriends();
-        model.addAttribute("users", friendDtos);
+        model.addAttribute("peopleYouMayKnow", friendDtos);
         return "showFriend";
     }
 
@@ -81,6 +84,7 @@ public class UserController {
     public String confirmFriend(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "redirect:/user/friend-requests";
     }
 
@@ -94,6 +98,7 @@ public class UserController {
     public String rejectFriend(Model model) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "redirect:/user/friend-requests";
     }
 
@@ -101,6 +106,7 @@ public class UserController {
     public String changePassword(Model model, @RequestParam String email, @RequestParam ChangePasswordEnum changePasswordEnum) {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         ChangePasswordDto changePasswordDto= new ChangePasswordDto();
         changePasswordDto.setEmail(email);
         changePasswordDto.setChangePasswordEnum(changePasswordEnum);
