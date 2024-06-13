@@ -40,6 +40,7 @@ public class UserPhotoController {
         model.addAttribute("notifications", userService.getCurrentUserNotification());
         List<FriendDto> friendDtos = photoServiceImpl.getCurrentUserNonFrinedsByCountry();
         model.addAttribute("peopleYouMayKnow", friendDtos);
+        model.addAttribute("pagesYouMayLike", photoServiceImpl.getPagesYouMayLike());
         return "uploadForm";
     }
 
@@ -141,8 +142,7 @@ public class UserPhotoController {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         model.addAttribute("notifications", userService.getCurrentUserNotification());
-        List<Page> pages = userService.getCurrentUserPage();
-        model.addAttribute("pages", pages);
+        model.addAttribute("pagesDtos", photoServiceImpl.getCurrentUserPages());
         return "showPages";
     }
 

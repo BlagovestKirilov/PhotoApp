@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -27,4 +28,6 @@ public class PhotoDto {
     private String status;
 
     private List<String> likeUsersEmails;
+
+    private Date dateUploaded;
 }

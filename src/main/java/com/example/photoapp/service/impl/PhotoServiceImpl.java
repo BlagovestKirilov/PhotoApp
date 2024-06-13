@@ -82,9 +82,19 @@ public class PhotoServiceImpl {
                 .toList());
         List<Photo> photosInDatabasePage = new ArrayList<>();
         pageRepository.findAllByLikedPageUsersContains(userService.currentUser.getUser()).forEach(page -> photosInDatabasePage.addAll(photoRepository.findAllByPage(page)));
+        List<Page> pages = pageRepository.findAllByLikedPageUsersContains(userService.currentUser.getUser());
+        List<Photo> p1 = pages.stream()
+                .flatMap(page -> photoRepository.findAllByPage(page).stream())
+                .toList();
+        photosInDatabasePage.addAll(p1);
+        List<Page> pages1 = pageRepository.findAllByLikedPageUsersNotContainsAndIsPagePublic(userService.currentUser.getUser(), Boolean.TRUE);
+        List<Photo> p12 = pages.stream()
+                .flatMap(page -> photoRepository.findAllByPage(page).stream())
+                .toList();
+        photosInDatabasePage.addAll(p12);
         List<PhotoDto> photoDtos = getPhotoDtos(photosInDatabaseUser, false);
         photoDtos.addAll(getPhotoDtos(photosInDatabasePage, true));
-        //photoDtos.sort(Comparator.comparing(Photo::getDateUploaded).reversed());
+        photoDtos.sort(Comparator.comparing(PhotoDto::getDateUploaded).reversed());
         return photoDtos;
     }
 
@@ -206,6 +216,7 @@ public class PhotoServiceImpl {
             pageDto.setDescription(page.getDescription());
             pageDto.setWebsite(page.getWebsite());
             pageDto.setOwnerEmail(page.getOwner().getEmail());
+            pageDto.setIsPagePublic(page.getIsPagePublic() ? "Public" : "Private");
             ResponseEntity<byte[]> b = getImage(page.getProfilePhoto().getFileName());
             pageDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
             pageDto.setLikeUsersEmails(page.getLikedPageUsers()
@@ -239,6 +250,7 @@ public class PhotoServiceImpl {
                     friendDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
                     return friendDto;
                 })
+                .limit(5)
                 .collect(Collectors.toList());
     }
 
@@ -292,6 +304,7 @@ public class PhotoServiceImpl {
         pageDto.setDescription(page.getDescription());
         pageDto.setWebsite(page.getWebsite());
         pageDto.setOwnerEmail(page.getOwner().getEmail());
+        pageDto.setIsPagePublic(page.getIsPagePublic() ? "Public" : "Private");
         ResponseEntity<byte[]> b = getImage(page.getProfilePhoto().getFileName());
         pageDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
         pageDto.setLikeUsersEmails(page.getLikedPageUsers()
@@ -299,6 +312,45 @@ public class PhotoServiceImpl {
                 .map(User::getEmail)
                 .collect(Collectors.toList()));
         return pageDto;
+    }
+
+    public List<PageDto> getPagesYouMayLike(){
+        return pageRepository.findAllByLikedPageUsersNotContainsAndIsPagePublic(userService.currentUser.getUser(), Boolean.TRUE).stream().map(page -> {
+                    PageDto pageDto = new PageDto();
+                    pageDto.setName(page.getPageName());
+                    pageDto.setDescription(page.getDescription());
+                    pageDto.setWebsite(page.getWebsite());
+                    pageDto.setOwnerEmail(page.getOwner().getEmail());
+                    pageDto.setIsPagePublic(page.getIsPagePublic() ? "Public" : "Private");
+                    ResponseEntity<byte[]> b = getImage(page.getProfilePhoto().getFileName());
+                    pageDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+                    pageDto.setLikeUsersEmails(page.getLikedPageUsers()
+                            .stream()
+                            .map(User::getEmail)
+                            .collect(Collectors.toList()));
+                    return pageDto;
+                })
+                .limit(5)
+                .collect(Collectors.toList());
+    }
+
+    public List<PageDto> getCurrentUserPages(){
+        return pageRepository.findAllByOwner(currentUser.getUser()).stream().map(page -> {
+                    PageDto pageDto = new PageDto();
+                    pageDto.setName(page.getPageName());
+                    pageDto.setDescription(page.getDescription());
+                    pageDto.setWebsite(page.getWebsite());
+                    pageDto.setOwnerEmail(page.getOwner().getEmail());
+                    pageDto.setIsPagePublic(page.getIsPagePublic() ? "Public" : "Private");
+                    ResponseEntity<byte[]> b = getImage(page.getProfilePhoto().getFileName());
+                    pageDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+                    pageDto.setLikeUsersEmails(page.getLikedPageUsers()
+                            .stream()
+                            .map(User::getEmail)
+                            .collect(Collectors.toList()));
+                    return pageDto;
+                })
+                .collect(Collectors.toList());
     }
 
     public UserDto getUserDtoByEmail(String email){
@@ -350,6 +402,7 @@ public class PhotoServiceImpl {
             photo.getLikedPhotoUsers().forEach(user -> likedPhotoUsersEmails.add(user.getEmail()));
             photoDto.setLikeUsersEmails(likedPhotoUsersEmails);
             photoDto.setNumberLikes(photo.getLikedPhotoUsers().size());
+            photoDto.setDateUploaded(photo.getDateUploaded());
             photoDto.setPhotoComments(getPhotoCommentsDtos(photo));
             photoDto.setUserProfilePhotoData(Base64.getEncoder().encodeToString(profilePicture.getBody()));
             photoDto.setStatus(photo.getStatus());

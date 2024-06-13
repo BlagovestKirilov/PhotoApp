@@ -117,13 +117,14 @@
             <p><strong>Name:</strong> <span th:text="${page.getName()}">John Doe</span></p>
             <p><strong  th:if="${page.getDescription() != null && !page.getDescription().isEmpty()}">Description: </strong><span th:text="${page.getDescription()}"></span></p>
             <p><strong th:if="${page.getWebsite() != null && !page.getWebsite().isEmpty()}">Website:  </strong><span th:text="${page.getWebsite()}"></span></p>
+            <p><strong th:if="${page.getIsPagePublic() != null && !page.getIsPagePublic().isEmpty()}">Publicity:  </strong><span th:text="${page.getIsPagePublic()}"></span></p>
         </div>
     </div>
 
     <h1 class="text-center">Photos</h1>
 
     <div class="row">
-        <div th:each="photo : ${photos}" class="col-md-4 col-sm-6 mb-4">
+        <div th:if="${page.getIsPagePublic().equals('Public') || page.getOwnerEmail() == currentUser.getEmail()}" th:each="photo : ${photos}" class="col-md-4 col-sm-6 mb-4">
             <div class="card post-card">
                 <img th:src="'data:image/png;base64,' + ${photo.data}" alt="Photo">
                 <div class="card-body post-content">
@@ -186,6 +187,13 @@
                     <div class="form-group">
                         <label for="editWebsite">Website</label>
                         <input type="url" class="form-control" id="editWebsite" name="website" th:value="${page.getWebsite()}">
+                    </div>
+                    <div class="form-group">
+                        <label for="editWebsite">Publicity</label>
+                        <select class="form-control" id="editPublicity" name="isPagePublic" th:value="${page.getIsPagePublic()}">
+                            <option value="Public" th:selected="${page.getIsPagePublic()} == 'Public'">Public</option>
+                            <option value="Private" th:selected="${page.getIsPagePublic()} == 'Private'">Private</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">

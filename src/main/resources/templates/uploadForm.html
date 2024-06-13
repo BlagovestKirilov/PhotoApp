@@ -14,15 +14,40 @@
             background-image: linear-gradient(90deg, rgba(116,216,252, 0.45),rgba(156,153,254, 0.49));
         }
 
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff; /* White container background */
+        .main-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            padding: 0 20px; /* Add padding to give space on the sides */
+        }
+
+        .container-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%; /* Adjust width to make it slightly smaller than the container */
+        }
+
+        .container,
+        .people-you-may-know,
+        .pages-you-may-like {
             border-radius: 8px; /* Rounded corners */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            display: inline-block; /* Display as inline-block to align with next element */
-            vertical-align: top; /* Aligns with top of line */
+            padding: 20px; /* Padding */
+            background-image: linear-gradient(90deg, rgba(116,216,252, 0.45),rgba(156,153,254, 0.49));
+        }
+
+        .container {
+            max-width: 800px;
+            flex-grow: 1;
+            margin: 0 20px; /* Space between the main container and sidebars */
+            background-image: linear-gradient(90deg, rgba(116,216,252, 0.45),rgba(156,153,254, 0.49));
+        }
+
+        .people-you-may-know,
+        .pages-you-may-like {
+            background-image: linear-gradient(90deg, rgba(116,216,252, 0.45),rgba(156,153,254, 0.49));
+            width: 30%;
         }
 
         .post {
@@ -37,8 +62,6 @@
             height: 50px;
             border-radius: 50%; /* Circular profile picture */
             margin-right: 10px;
-
-
         }
 
         .post-content {
@@ -137,6 +160,7 @@
         button[type="submit"]:hover {
             background-color: #146eb5; /* Darker blue on hover */
         }
+
         .dropbtn {
             background-color: #f44336; /* Red color */
             color: white;
@@ -164,36 +188,28 @@
 
         }
 
-        .number-likes{
+        .number-likes {
             margin-left: 51px;
             margin-top: 11px;
         }
 
-        .people-you-may-know {
-            width: 18%; /* Adjusted width for the people you may know section */
-            margin-top: 20px;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            display: inline-block; /* Display as inline-block to align with previous element */
-            vertical-align: top; /* Aligns with top of line */
-        }
-
-        .person {
+        .person,
+        .page {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
         }
 
-        .person img {
+        .person img,
+        .page img {
             width: 40px;
             height: 40px;
             border-radius: 50%;
             margin-right: 10px;
         }
 
-        .person .name {
+        .person .name,
+        .page .name {
             font-weight: bold;
         }
 
@@ -203,71 +219,78 @@
 <body>
 <div th:replace="~{nav.html}"></div>
 
-<div class="people-you-may-know">
-    <h3>People You May Know</h3>
-    <div th:each="user : ${peopleYouMayKnow}" class="person">
-        <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Picture">
-        <span class="name" th:text="${user.name}">User Name</span>
-    </div>
-</div>
-<div class="container">
+<div class="main-container">
+    <div class="container-wrapper">
+        <div class="people-you-may-know">
+            <h3>People You May Know</h3>
+            <div th:each="user : ${peopleYouMayKnow}" class="person">
+                <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Picture">
+                <span class="name" th:text="${user.name}">User Name</span>
+            </div>
+        </div>
 
-    <div th:each="photo : ${photos}" class="post">
-        <img th:src="'data:image/png;base64,' + ${photo.getUserProfilePhotoData()}" class="profile-pic" />
-        <div class="post-content">
-            <h3 th:text="${photo.userName}" />
-            <h1 th:text="${photo.getStatus()}" />
-            <img th:src="'data:image/png;base64,' + ${photo.data}" />
-            <div>
-                <span class="number-likes" th:text="${photo.numberLikes}"></span> Likes
-                <div class="button-group" th:if="${currentUser.getRole() == 'ROLE_USER'}">
-                    <form th:action="@{/like-photo}" method="post">
-                        <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
-<!--                        class="btn-primary"-->
-                        <button type="submit" class="like-btn" th:if="${!photo.getLikeUsersEmails().contains(currentUser.getEmail())}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-thumbs-up-fill" viewBox="0 0 16 16">
-                                <path d="M6.956 1.745C7.021.81 7.908.087 8.864.325l.261.066c.463.116.874.456 1.012.965.22.816.533 2.511.062 4.51a10 10 0 0 1 .443-.051c.713-.065 1.669-.072 2.516.21.518.173.994.681 1.2 1.273.184.532.16 1.162-.234 1.733q.086.18.138.363c.077.27.113.567.113.856s-.036.586-.113.856c-.039.135-.09.273-.16.404.169.387.107.819-.003 1.148a3.2 3.2 0 0 1-.488.901c.054.152.076.312.076.465 0 .305-.089.625-.253.912C13.1 15.522 12.437 16 11.5 16H8c-.605 0-1.07-.081-1.466-.218a4.8 4.8 0 0 1-.97-.484l-.048-.03c-.504-.307-.999-.609-2.068-.722C2.682 14.464 2 13.846 2 13V9c0-.85.685-1.432 1.357-1.615.849-.232 1.574-.787 2.132-1.41.56-.627.914-1.28 1.039-1.639.199-.575.356-1.539.428-2.59z"/>
-                            </svg>
-                        </button>
-                    </form>
-                    <form th:action="@{/unlike-photo}" method="post">
-                        <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
-                        <button type="submit" class="btn-primary" th:if="${photo.getLikeUsersEmails().contains(currentUser.getEmail())}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-thumbs-down-fill" viewBox="0 0 16 16">
-                                <path d="M6.956 14.534c.065.936.952 1.659 1.908 1.42l.261-.065a1.38 1.38 0 0 0 1.012-.965c.22-.816.533-2.512.062-4.51q.205.03.443.051c.713.065 1.669.071 2.516-.211.518-.173.994-.68 1.2-1.272a1.9 1.9 0 0 0-.234-1.734c.058-.118.103-.242.138-.362.077-.27.113-.568.113-.856 0-.29-.036-.586-.113-.857a2 2 0 0 0-.16-.403c.169-.387.107-.82-.003-1.149a3.2 3.2 0 0 0-.488-.9c.054-.153.076-.313.076-.465a1.86 1.86 0 0 0-.253-.912C13.1.757 12.437.28 11.5.28H8c-.605 0-1.07.08-1.466.217a4.8 4.8 0 0 0-.97.485l-.048.029c-.504.308-.999.61-2.068.723C2.682 1.815 2 2.434 2 3.279v4c0 .851.685 1.433 1.357 1.616.849.232 1.574.787 2.132 1.41.56.626.914 1.28 1.039 1.638.199.575.356 1.54.428 2.591"/>
-                            </svg>
-                        </button>
-                    </form>
-                    <button type="button" onclick="toggleCommentForm(this, '${photo.getFileName()}', '${photo.comments}')" class="btn-primary">Comment</button>
-                    <div class="dropdown">
-                        <button class="dropbtn" onclick="toggleDropdown(this)">Generate Report</button>
-                        <div class="dropdown-content">
-                            <a href="#" th:attr="onclick='submitReportForm(\'' + ${photo.getFileName()} + '\', \'' + 'INAPPROPRIATE_CONTENT' + '\')'">Inappropriate Content</a>
-                            <a href="#" th:attr="onclick='submitReportForm(\'' + ${photo.getFileName()} + '\', \'' + 'COPYRIGHT_VIOLATION' + '\')'">Copyright Violation</a>
-                            <a href="#" th:attr="onclick='submitReportForm(\'' + ${photo.getFileName()} + '\', \'' + 'SPAM' + '\')'">Spam</a>
+        <div class="container">
+            <div th:each="photo : ${photos}" class="post">
+                <img th:src="'data:image/png;base64,' + ${photo.getUserProfilePhotoData()}" class="profile-pic" />
+                <div class="post-content">
+                    <h3 th:text="${photo.userName}"></h3>
+                    <h1 th:text="${photo.getStatus()}"></h1>
+                    <img th:src="'data:image/png;base64,' + ${photo.data}" />
+                    <div>
+                        <span class="number-likes" th:text="${photo.numberLikes}"></span> Likes
+                        <div class="button-group" th:if="${currentUser.getRole() == 'ROLE_USER'}">
+                            <form th:action="@{/like-photo}" method="post">
+                                <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
+                                <button type="submit" class="like-btn" th:if="${!photo.getLikeUsersEmails().contains(currentUser.getEmail())}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-thumbs-up-fill" viewBox="0 0 16 16">
+                                        <path d="M6.956 1.745C7.021.81 7.908.087 8.864.325l.261.066c.463.116.874.456 1.012.965.22.816.533 2.511.062 4.51a10 10 0 0 1 .443-.051c.713-.065 1.669-.072 2.516.21.518.173.994.681 1.2 1.273.184.532.16 1.162-.234 1.733q.086.18.138.363c.077.27.113.567.113.856s-.036.586-.113.856c-.039.135-.09.273-.16.404.169.387.107.819-.003 1.148a3.2 3.2 0 0 1-.488.901c.054.152.076.312.076.465 0 .305-.089.625-.253.912C13.1 15.522 12.437 16 11.5 16H8c-.605 0-1.07-.08-1.466-.217a4.8 4.8 0 0 1-.97-.485l-.048-.03c-.504-.307-.999-.61-2.068-.722C2.682 14.464 2 13.846 2 13V9c0-.85.685-1.432 1.357-1.615.849-.232 1.574-.787 2.132-1.41.56-.627.914-1.28 1.039-1.639.199-.575.356-1.539.428-2.59z"/>
+                                    </svg>
+                                </button>
+                            </form>
+                            <form th:action="@{/unlike-photo}" method="post">
+                                <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
+                                <button type="submit" class="btn-primary" th:if="${photo.getLikeUsersEmails().contains(currentUser.getEmail())}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-thumbs-down-fill" viewBox="0 0 16 16">
+                                        <path d="M6.956 14.534c.065.936.952 1.659 1.908 1.42l.261-.065a1.38 1.38 0 0 0 1.012-.965c.22-.816.533-2.512.062-4.51q.205.03.443.051c.713.065 1.669.071 2.516-.211.518-.173.994-.68 1.2-1.272a1.9 1.9 0 0 0-.234-1.734c.058-.118.103-.242.138-.362.077-.27.113-.568.113-.856 0-.29-.036-.586-.113-.857a2 2 0 0 0-.16-.403c.169-.387.107-.82-.003-1.149a3.2 3.2 0 0 0-.488-.9c.054-.153.076-.313.076-.465a1.86 1.86 0 0 0-.253-.912C13.1.757 12.437.28 11.5.28H8c-.605 0-1.07.08-1.466.217a4.8 4.8 0 0 0-.97.485l-.048.029c-.504.308-.999.61-2.068.723C2.682 1.815 2 2.434 2 3.279v4c0 .851.685 1.433 1.357 1.616.849.232 1.574.787 2.132 1.41.56.626.914 1.28 1.039 1.638.199.575.356 1.54.428 2.591"/>
+                                    </svg>
+                                </button>
+                            </form>
+                            <button type="button" onclick="toggleCommentForm(this, '${photo.getFileName()}', '${photo.comments}')" class="btn-primary">Comment</button>
+                            <div class="dropdown">
+                                <button class="dropbtn" onclick="toggleDropdown(this)">Generate Report</button>
+                                <div class="dropdown-content">
+                                    <a href="#" th:attr="onclick='submitReportForm(\'' + ${photo.getFileName()} + '\', \'' + 'INAPPROPRIATE_CONTENT' + '\')'">Inappropriate Content</a>
+                                    <a href="#" th:attr="onclick='submitReportForm(\'' + ${photo.getFileName()} + '\', \'' + 'COPYRIGHT_VIOLATION' + '\')'">Copyright Violation</a>
+                                    <a href="#" th:attr="onclick='submitReportForm(\'' + ${photo.getFileName()} + '\', \'' + 'SPAM' + '\')'">Spam</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comment-form" style="display: none;">
+                            <div class="existing-comments" th:each="comment : ${photo.getPhotoComments()}">
+                                <span th:text="${comment.getCommentMaker() + ': ' + comment.getText()}"></span>
+                            </div>
+                            <form th:action="@{/add-comment}" method="post" th:id="'comment-form-' + ${photo.getFileName()}">
+                                <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
+                                <label for="comment">Comment:</label>
+                                <input type="text" id="comment" name="comment" required>
+                                <button type="submit">Add Comment</button>
+                            </form>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="comment-form" style="display: none;">
-                    <div class="existing-comments" th:each="comment : ${photo.getPhotoComments()}">
-                        <span th:text="${comment.getCommentMaker() + ': ' + comment.getText()}"></span>
-                    </div>
-                    <form th:action="@{/add-comment}" method="post" th:id="'comment-form-' + ${photo.getFileName()}">
-                        <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
-                        <label for="comment">Comment:</label>
-                        <input type="text" id="comment" name="comment" required>
-                        <button type="submit">Add Comment</button>
-                    </form>
-                </div>
+        <div class="pages-you-may-like">
+            <h3>Pages You May Like</h3>
+            <div th:each="page : ${pagesYouMayLike}" class="page">
+                <img th:src="'data:image/png;base64,' + ${page.getProfilePhotoData()}" th:href="@{/page(name=${page.getName()})}" alt="Page Picture">
+                <span class="name" th:text="${page.name}" th:href="@{/page(name=${page.getName()})}">Page Name</span>
             </div>
         </div>
     </div>
-
-
 </div>
-</div>
-
 
 <script>
     // JavaScript for showing dropdown menu when "Generate Report" button is clicked
@@ -318,7 +341,6 @@
 
         commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
     }
-
 </script>
 </body>
 

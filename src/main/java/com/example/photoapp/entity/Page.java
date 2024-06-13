@@ -25,6 +25,9 @@ public class Page {
     private String description;
 
     @Column()
+    private Boolean isPagePublic = Boolean.TRUE;
+
+    @Column()
     @URL
     private String website;
 

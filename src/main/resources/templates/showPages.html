@@ -174,11 +174,11 @@
 
     <a href="javascript:void(0);" class="create-page-button" onclick="openModal()" th:if="${currentUser.getRole() == 'ROLE_USER'}">Create New Page</a>
 
-    <div class="user" th:each="page : ${pages}">
-<!--        <a th:href="@{/profile(email=${page.getOwner().getEmail()})}">-->
-<!--            <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Photo">-->
-<!--        </a>-->
-        <a th:href="@{/page(name=${page.getPageName()})}" th:text="${page.getPageName()}"></a>
+    <div class="user" th:each="pageDto : ${pagesDtos}">
+        <a th:href="@{/page(name=${pageDto.getName()})}">
+            <img th:src="'data:image/png;base64,' + ${pageDto.getProfilePhotoData}" alt="Profile Photo">
+        </a>
+        <a th:href="@{/page(name=${pageDto.getName()})}" th:text="${pageDto.getName()}"></a>
     </div>
 </div>
 

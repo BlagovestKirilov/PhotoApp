@@ -293,6 +293,10 @@ public class UserServiceImpl implements UserService {
         if (page.getWebsite() == null || (pageDto.getWebsite() != null && !page.getWebsite().equals(pageDto.getWebsite()))) {
             page.setWebsite(pageDto.getWebsite());
         }
+
+        if (page.getIsPagePublic() == null || (pageDto.getIsPagePublic() != null && page.getIsPagePublic() != pageDto.getIsPagePublic().equals("Public"))) {
+            page.setIsPagePublic(pageDto.getIsPagePublic().equals("Public") ? Boolean.TRUE : Boolean.FALSE);
+        }
         pageRepository.save(page);
     }
     public Boolean isThereActiveBans(){

@@ -25,4 +25,6 @@ public class PageDto {
     private String website;
 
     private List<String> likeUsersEmails;
+
+    private String isPagePublic;
 }

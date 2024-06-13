@@ -70,7 +70,7 @@ public class UserController {
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         model.addAttribute("notifications", userService.getCurrentUserNotification());
         List<FriendDto> friendDtos = photoServiceImpl.getCurrentUserFriends();
-        model.addAttribute("peopleYouMayKnow", friendDtos);
+        model.addAttribute("users", friendDtos);
         return "showFriend";
     }
 
