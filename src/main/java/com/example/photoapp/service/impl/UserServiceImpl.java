@@ -181,7 +181,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean confirmUser(ConfirmationDto confirmationDto) {
         UserConfirmation userConfirmation = userConfirmationRepository
-                .findUserConfirmationByEmailAndCodeConfirmationAndCodeConfirmationStatus(confirmationDto.getEmail(), confirmationDto.getCodeConfirmationEnum(), CodeConfirmationStatusEnum.ACTIVE);
+                .findFirstUserConfirmationByEmailAndCodeConfirmationAndCodeConfirmationStatusOrderByDateDesc(confirmationDto.getEmail(), confirmationDto.getCodeConfirmationEnum(), CodeConfirmationStatusEnum.ACTIVE);
         if (userConfirmation != null) {
             if (passwordEncoder.matches(confirmationDto.getConfirmationCode(), userConfirmation.getConfirmationCode())) {
                 userConfirmation.setCodeConfirmationStatus(CodeConfirmationStatusEnum.EXPIRED);

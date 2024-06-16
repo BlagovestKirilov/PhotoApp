@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -87,7 +86,7 @@ public class PhotoServiceImpl {
                 .flatMap(page -> photoRepository.findAllByPage(page).stream())
                 .toList();
         photosInDatabasePage.addAll(p1);
-        List<Page> pages1 = pageRepository.findAllByLikedPageUsersNotContainsAndIsPagePublic(userService.currentUser.getUser(), Boolean.TRUE);
+        List<Page> pages1 = pageRepository.findAllByLikedPageUsersNotContainsAndIsPagePublicAndOwnerIsNot(userService.currentUser.getUser(), Boolean.TRUE, userService.currentUser.getUser());
         List<Photo> p12 = pages.stream()
                 .flatMap(page -> photoRepository.findAllByPage(page).stream())
                 .toList();
@@ -315,7 +314,7 @@ public class PhotoServiceImpl {
     }
 
     public List<PageDto> getPagesYouMayLike(){
-        return pageRepository.findAllByLikedPageUsersNotContainsAndIsPagePublic(userService.currentUser.getUser(), Boolean.TRUE).stream().map(page -> {
+        return pageRepository.findAllByLikedPageUsersNotContainsAndIsPagePublicAndOwnerIsNot(userService.currentUser.getUser(), Boolean.TRUE,userService.currentUser.getUser()).stream().map(page -> {
                     PageDto pageDto = new PageDto();
                     pageDto.setName(page.getPageName());
                     pageDto.setDescription(page.getDescription());

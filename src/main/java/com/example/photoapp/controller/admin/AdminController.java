@@ -26,6 +26,7 @@ public class AdminController {
     public String showReportedPhoto(Model model) {
         model.addAttribute("reportedPhotos", photoServiceImpl.getReportedPhotos());
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "reportedPhoto";
     }
 
@@ -34,6 +35,7 @@ public class AdminController {
         model.addAttribute("photos", photoServiceImpl.getAllPhoto());
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "uploadForm";
     }
 
@@ -42,6 +44,7 @@ public class AdminController {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         List<FriendDto> friendDtos = photoServiceImpl.getAllUsers();
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         model.addAttribute("users", friendDtos);
         return "showFriend";
     }
@@ -52,6 +55,7 @@ public class AdminController {
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         List<Page> pages = userService.getAllPages();
         model.addAttribute("pages", pages);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "showPages";
     }
 
@@ -62,6 +66,7 @@ public class AdminController {
         UserBanDto userBanDto = new UserBanDto();
         userBanDto.setPhotoFileName(photoFileName);
         model.addAttribute("userBanDto", userBanDto);
+        model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "banUser";
     }
 

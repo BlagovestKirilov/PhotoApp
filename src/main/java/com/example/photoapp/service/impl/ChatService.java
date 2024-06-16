@@ -8,6 +8,7 @@ import com.example.photoapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,7 @@ public class ChatService {
                     dto.setTimestamp(chatMessage.getTimestamp());
                     return dto;
                 })
+                .sorted(Comparator.comparing(ChatMessageDTO::getTimestamp))
                 .collect(Collectors.toList());
     }
 

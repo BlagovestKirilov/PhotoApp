@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface UserConfirmationRepository extends JpaRepository<UserConfirmation, Long> {
     UserConfirmation findByEmail(String email);
 
-    UserConfirmation findUserConfirmationByEmailAndCodeConfirmationAndCodeConfirmationStatus(String email, CodeConfirmationEnum codeConfirmation, CodeConfirmationStatusEnum codeConfirmationStatus);
+    UserConfirmation findFirstUserConfirmationByEmailAndCodeConfirmationAndCodeConfirmationStatusOrderByDateDesc(String email, CodeConfirmationEnum codeConfirmation, CodeConfirmationStatusEnum codeConfirmationStatus);
 }

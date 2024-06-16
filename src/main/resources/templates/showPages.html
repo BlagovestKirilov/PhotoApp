@@ -26,6 +26,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             width: 400px;
             margin: auto;
+            background-image: linear-gradient(90deg, rgba(116,216,252, 0.45),rgba(156,153,254, 0.49));
         }
 
         .container .user {
@@ -114,6 +115,15 @@
             background-color: rgba(0, 0, 0, 0.4);
         }
 
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
         .modal-content {
             background-color: #fff;
             margin: 15% auto;
@@ -123,6 +133,7 @@
             max-width: 500px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative; /* Ensure the close button is positioned correctly */
         }
 
         .close {
@@ -185,9 +196,9 @@
 <!-- The Modal -->
 <div id="createPageModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
         <form class="modal-form" th:action="@{/create-page}" method="post">
             <label for="pageName">Page Name:</label>
+            <span class="close" onclick="closeModal()">&times;</span>
             <input type="text" id="pageName" name="pageName" required>
             <button type="submit">Create Page</button>
         </form>

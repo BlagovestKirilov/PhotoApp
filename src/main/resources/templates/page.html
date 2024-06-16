@@ -87,7 +87,7 @@
 
 <div class="container mt-5">
     <div class="profile-header">
-<!--        <img th:src="'data:image/png;base64,' + ${user.getProfilePictureData()}" alt="Profile Image" class="profile-image mb-3">-->
+        <img th:src="'data:image/png;base64,' + ${page.getProfilePhotoData()}" alt="Profile Image" class="profile-image mb-3">
         <h2 th:text="${page.getName()}"></h2>
 <!--        <button th:if="${user.getEmail() == currentUser.getEmail()}"class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>-->
 <!--        <button th:if="${page.getOwner().getEmail() != currentUser.getEmail() && !page.getLikedPageUsers().contains(currentUser.getEmail())}" class="btn btn-primary"-->
@@ -131,13 +131,13 @@
                     <h1 th:text="${photo.getStatus()}">Photo Status</h1>
                     <div class="mt-3">
                         <span th:text="${photo.numberLikes}"></span> Likes
-                        <div class="button-group">
-                            <form th:action="@{/like-photo}" method="post" class="d-inline">
-                                <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">
-                                <button type="submit" class="btn btn-primary btn-sm">Like</button>
-                            </form>
-                            <button type="button" onclick="toggleCommentForm(this, '${photo.getFileName()}')" class="btn btn-primary btn-sm">Comment</button>
-                        </div>
+<!--                        <div class="button-group">-->
+<!--&lt;!&ndash;                            <form th:action="@{/like-photo}" method="post" class="d-inline">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <input type="hidden" name="photoFileName" th:value="${photo.getFileName()}">&ndash;&gt;-->
+<!--&lt;!&ndash;                                <button type="submit" class="btn btn-primary btn-sm">Like</button>&ndash;&gt;-->
+<!--&lt;!&ndash;                            </form>&ndash;&gt;-->
+<!--&lt;!&ndash;                            <button type="button" onclick="toggleCommentForm(this, '${photo.getFileName()}')" class="btn btn-primary btn-sm">Comment</button>&ndash;&gt;-->
+<!--                        </div>-->
 
                         <div class="comment-form" style="display: none;">
                             <div class="comment-section" th:each="comment : ${photo.getPhotoComments()}">
@@ -231,7 +231,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="submit" class="btn btn-primary">Upload photo</button>
                 </div>
             </form>
         </div>

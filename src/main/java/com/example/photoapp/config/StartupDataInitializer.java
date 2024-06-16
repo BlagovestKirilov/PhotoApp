@@ -45,7 +45,9 @@ public class StartupDataInitializer {
             multipartFile.transferTo(tempFile);
 
             photoServiceImpl.uploadToS3(tempFile);
-            photoServiceImpl.save(tempFile,"");
+            Photo photo = new Photo();
+            photo.setFileName(tempFile.getName());
+            photoRepository.save(photo);
         }
 
         if(roleRepository.count() == 0){

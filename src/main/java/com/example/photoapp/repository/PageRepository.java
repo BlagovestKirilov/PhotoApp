@@ -16,5 +16,5 @@ public interface PageRepository extends JpaRepository<Page, Long> {
 
     List<Page> findAllByLikedPageUsersContains(User user);
 
-    List<Page> findAllByLikedPageUsersNotContainsAndIsPagePublic(User user, Boolean isPagePublic);
+    List<Page> findAllByLikedPageUsersNotContainsAndIsPagePublicAndOwnerIsNot(User user, Boolean isPagePublic, User owner);
 }
