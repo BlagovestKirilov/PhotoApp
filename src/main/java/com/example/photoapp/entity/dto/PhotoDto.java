@@ -30,4 +30,8 @@ public class PhotoDto {
     private List<String> likeUsersEmails;
 
     private Date dateUploaded;
+
+    private Boolean isPagePhoto;
+
+    private String userEmail;
 }

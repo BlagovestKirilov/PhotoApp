@@ -74,7 +74,7 @@ public class UserPhotoController {
     @PostMapping("/remove-photo")
     public String removePhotoConfirm(@RequestParam String photoFileName) {
         photoServiceImpl.deleteFromS3(photoFileName);
-        return "redirect:/";
+        return "redirect:/remove-photo";
     }
 
     @GetMapping("/remove-photo")

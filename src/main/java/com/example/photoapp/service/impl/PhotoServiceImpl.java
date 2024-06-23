@@ -79,15 +79,14 @@ public class PhotoServiceImpl {
                             || userService.currentUser.getUser().getEmail().equals(photoUploaderEmail);
                 })
                 .toList());
-        List<Photo> photosInDatabasePage = new ArrayList<>();
-        pageRepository.findAllByLikedPageUsersContains(userService.currentUser.getUser()).forEach(page -> photosInDatabasePage.addAll(photoRepository.findAllByPage(page)));
+        //pageRepository.findAllByLikedPageUsersContains(userService.currentUser.getUser()).forEach(page -> photosInDatabasePage.addAll(photoRepository.findAllByPage(page)));
         List<Page> pages = pageRepository.findAllByLikedPageUsersContains(userService.currentUser.getUser());
         List<Photo> p1 = pages.stream()
                 .flatMap(page -> photoRepository.findAllByPage(page).stream())
                 .toList();
-        photosInDatabasePage.addAll(p1);
+        List<Photo> photosInDatabasePage = new ArrayList<>(p1);
         List<Page> pages1 = pageRepository.findAllByLikedPageUsersNotContainsAndIsPagePublicAndOwnerIsNot(userService.currentUser.getUser(), Boolean.TRUE, userService.currentUser.getUser());
-        List<Photo> p12 = pages.stream()
+        List<Photo> p12 = pages1.stream()
                 .flatMap(page -> photoRepository.findAllByPage(page).stream())
                 .toList();
         photosInDatabasePage.addAll(p12);
@@ -392,9 +391,12 @@ public class PhotoServiceImpl {
             if (isPage) {
                 photoDto.setUserName(photo.getPage().getPageName());
                 profilePicture = getImage(photo.getPage().getProfilePhoto().getFileName());
+                photoDto.setIsPagePhoto(Boolean.TRUE);
             } else {
                 photoDto.setUserName(photo.getUser().getName());
                 profilePicture = getImage(photo.getUser().getProfilePhoto().getFileName());
+                photoDto.setIsPagePhoto(Boolean.FALSE);
+                photoDto.setUserEmail(photo.getUser().getEmail());
             }
             photoDto.setFileName(photo.getFileName());
             List<String> likedPhotoUsersEmails = new ArrayList<>();

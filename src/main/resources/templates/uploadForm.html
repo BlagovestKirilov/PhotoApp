@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Photo Uploader</title>
+    <title>LopusNet</title>
     <style>
         /* General Styles */
         body {
@@ -231,7 +231,13 @@
 
         <div class="container">
             <div th:each="photo : ${photos}" class="post">
-                <img th:src="'data:image/png;base64,' + ${photo.getUserProfilePhotoData()}" class="profile-pic" />
+
+                <a th:if="${photo.isPagePhoto}" th:href="@{/page(name=${photo.userName})}">
+                    <img th:src="'data:image/png;base64,' + ${photo.getUserProfilePhotoData()}" class="profile-pic" />
+                </a>
+                <a th:if="${!photo.isPagePhoto}" th:href="@{/profile(email=${photo.userEmail})}">
+                    <img th:src="'data:image/png;base64,' + ${photo.getUserProfilePhotoData()}" class="profile-pic" />
+                </a>
                 <div class="post-content">
                     <h3 th:text="${photo.userName}"></h3>
                     <h1 th:text="${photo.getStatus()}"></h1>
