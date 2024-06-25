@@ -2,6 +2,7 @@ package com.example.photoapp.controller.user;
 
 import com.example.photoapp.entity.Page;
 import com.example.photoapp.entity.dto.FriendDto;
+import com.example.photoapp.entity.dto.UserDto;
 import com.example.photoapp.enums.ChangePasswordEnum;
 import com.example.photoapp.service.UserService;
 import com.example.photoapp.service.impl.PhotoServiceImpl;
@@ -79,7 +80,8 @@ public class UserPhotoController {
 
     @GetMapping("/remove-photo")
     public String removePhoto(Model model) {
-        model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
+        UserDto currentUserDto = photoServiceImpl.getCurrentUserDto();
+        model.addAttribute("currentUser", currentUserDto);
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         model.addAttribute("notifications", userService.getCurrentUserNotification());
         model.addAttribute("photos",photoServiceImpl.getCurrentUserPhotos());

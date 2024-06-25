@@ -179,7 +179,7 @@
                 <div class="button-group">
                     <button type="button" onclick="toggleCommentForm(this)" class="btn-primary">View Comments</button>
                     <button type="button" onclick="toggleReportForm(this)" class="btn-primary">View Reports</button>
-                    <form class="remove-photo-form" th:action="@{/remove-photo}" method="post">
+                    <form class="remove-photo-form" th:action="@{/admin/remove-photo}" method="post">
                         <input type="hidden" name="photoFileName" th:value="${reportedPhoto.getPhotoDto().getFileName()}">
                         <button class="delete-photo-button" type="submit">Remove Photo</button>
                     </form>

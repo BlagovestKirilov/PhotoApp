@@ -47,7 +47,9 @@ public class LoginController {
             return "/login";
         }
 
-        //userService.saveUser(userDto);
+        if(existingUser.getRole().getName().toString().equals("ROLE_ADMIN")){
+            return "redirect:/admin/all-user";
+        }
         return "redirect:/uploadForm";
 
     }

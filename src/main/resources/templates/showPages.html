@@ -181,7 +181,7 @@
 <div th:replace="~{nav.html}"></div>
 <div class="container">
     <h1 th:if="${currentUser.getRole() == 'ROLE_USER'}" style="text-align: center;">Your pages</h1>
-    <!--    <h1 th:if="${currentUser.getRole() == 'ROLE_ADMIN'}" style="text-align: center;">All users</h1>-->
+        <h1 th:if="${currentUser.getRole() == 'ROLE_ADMIN'}" style="text-align: center;">All pages</h1>
 
     <a href="javascript:void(0);" class="create-page-button" onclick="openModal()" th:if="${currentUser.getRole() == 'ROLE_USER'}">Create New Page</a>
 

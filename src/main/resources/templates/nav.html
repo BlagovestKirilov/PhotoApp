@@ -177,7 +177,8 @@
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-custom">
-    <a class="navbar-brand" th:href="@{/uploadForm}">LopusNet</a>
+    <a class="navbar-brand" th:if="${currentUser.getRole() == 'ROLE_USER'}" th:href="@{/uploadForm}">LopusNet</a>
+    <a class="navbar-brand" th:if="${currentUser.getRole() == 'ROLE_ADMIN'}" th:href="@{/admin/all-user}">LopusNet</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -191,7 +192,7 @@
                     Profile
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownUser">
-                    <a class="dropdown-item" th:href="@{/uploadForm}">Home</a>
+                    <a class="dropdown-item" th:if="${currentUser.getRole() == 'ROLE_USER'}" th:href="@{/uploadForm}">Home</a>
                     <a class="dropdown-item" th:href="@{/profile(email=${currentUser.getEmail()})}">My Profile</a>
                     <a class="dropdown-item" th:href="@{/show-pages}" th:if="${currentUser.getRole() == 'ROLE_USER'}">My Pages</a>
                     <a class="dropdown-item" th:href="@{/logout}">Logout</a>
@@ -201,7 +202,7 @@
             <li class="nav-item dropdown" th:if="${currentUser.getRole() == 'ROLE_ADMIN'}">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPhotoAdmin" role="button"
                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Photos
+                    Admin
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownPhotoAdmin">
                     <a class="dropdown-item" th:href="@{/admin/all-user}">All users</a>
@@ -233,7 +234,7 @@
                 </div>
             </li>
 
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown" th:if="${currentUser.getRole() == 'ROLE_USER'}">
                 <a class="nav-link dropdown-toggle" id="navbarDropdownNotifications" role="button"
                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Notifications <span class="badge badge-danger" th:text="${notifications.size()}">3</span>

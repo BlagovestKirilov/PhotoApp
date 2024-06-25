@@ -221,10 +221,12 @@
 
 <div class="main-container">
     <div class="container-wrapper">
-        <div class="people-you-may-know">
+        <div  th:if="${currentUser.getRole() == 'ROLE_USER'}" class="people-you-may-know">
             <h3>People You May Know</h3>
             <div th:each="user : ${peopleYouMayKnow}" class="person">
-                <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Picture">
+                <a th:href="@{/profile(email=${user.getEmail()})}">
+                    <img th:src="'data:image/png;base64,' + ${user.getProfilePhotoData()}" alt="Profile Picture">
+                </a>
                 <span class="name" th:text="${user.name}">User Name</span>
             </div>
         </div>
@@ -288,10 +290,12 @@
             </div>
         </div>
 
-        <div class="pages-you-may-like">
+        <div th:if="${currentUser.getRole() == 'ROLE_USER'}" class="pages-you-may-like">
             <h3>Pages You May Like</h3>
             <div th:each="page : ${pagesYouMayLike}" class="page">
-                <img th:src="'data:image/png;base64,' + ${page.getProfilePhotoData()}" th:href="@{/page(name=${page.getName()})}" alt="Page Picture">
+                <a  th:href="@{/page(name=${page.getName()})}">
+                    <img th:src="'data:image/png;base64,' + ${page.getProfilePhotoData()}" alt="Page Picture">
+                </a>
                 <span class="name" th:text="${page.name}" th:href="@{/page(name=${page.getName()})}">Page Name</span>
             </div>
         </div>

@@ -84,7 +84,6 @@
 </head>
 <body>
 <div th:replace="~{nav.html}"></div>
-
 <div class="container mt-5">
     <div class="profile-header">
         <img th:src="'data:image/png;base64,' + ${page.getProfilePhotoData()}" alt="Profile Image" class="profile-image mb-3">
@@ -96,7 +95,7 @@
 <!--        </button>-->
         <button th:if="${page.getOwnerEmail() == currentUser.getEmail()}" class="btn btn-primary" data-toggle="modal" data-target="#uploadPhotoModal">Upload Photo</button>
         <button th:if="${page.getOwnerEmail() == currentUser.getEmail()}" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Page</button>
-        <form class="add-friend-form" th:if="${page.getOwnerEmail() != currentUser.getEmail() && !page.getLikeUsersEmails().contains(currentUser.getEmail())}"
+        <form class="add-friend-form" th:if="${page.getOwnerEmail() != currentUser.getEmail() && !page.getLikeUsersEmails().contains(currentUser.getEmail()) && currentUser.getRole() != 'ROLE_ADMIN'}"
               th:action="@{/user/like-page}" method="post">
             <input type="hidden" name="pageName" th:value="${page.getName()}">
             <input type="hidden" name="userEmail" th:value="${currentUser.getEmail()}">

@@ -59,11 +59,33 @@ public class PhotoServiceImpl {
     public void deleteFromS3(String photoFileName) {
         Photo photo = photoRepository.findByFileName(photoFileName);
         if (Objects.nonNull(photo)) {
-            if (Objects.equals(photo.getUser().getId(), userService.currentUser.getUser().getId()) || userService.currentUser.getUser().getRole().getName() == RoleEnum.ROLE_ADMIN) {
-                //s3Client.deleteObject(BUCKET_NAME, photoFileName);
-                photoRepository.delete(photo);
-                if(userService.currentUser.getUser().getRole().getName() == RoleEnum.ROLE_ADMIN){
-                    userService.generateNotification(photo.getUser(), "Admin has deleted your photo!");
+            if(photo.getUser() != null) {
+                if (Objects.equals(photo.getUser().getId(), userService.currentUser.getUser().getId()) || userService.currentUser.getUser().getRole().getName() == RoleEnum.ROLE_ADMIN) {
+                    if (photo.getUser().getProfilePhoto().getId().equals(photo.getId())) {
+                        Photo defaultProfilePhoto = photoRepository.findFirstByFileNameContains("default_profile_picture");
+                        photo.getUser().setProfilePhoto(defaultProfilePhoto);
+                        userRepository.save(photo.getUser());
+                    }
+                    List<PhotoReport> photoReports = photoReportRepository.findAllByReportedPhoto(photo);
+                    photoReportRepository.deleteAll(photoReports);
+                    //s3Client.deleteObject(BUCKET_NAME, photoFileName);
+                    photoRepository.delete(photo);
+                    if (userService.currentUser.getUser().getRole().getName() == RoleEnum.ROLE_ADMIN) {
+                        userService.generateNotification(photo.getUser(), "Admin has deleted your photo!");
+                    }
+                }
+            } else if (photo.getPage() != null) {
+                if ( userService.currentUser.getUser().getRole().getName() == RoleEnum.ROLE_ADMIN) {
+                    if (photo.getPage().getProfilePhoto().getId().equals(photo.getId())) {
+                        photo.getPage().setProfilePhoto(photoRepository.findFirstByFileNameContains("default_profile_picture"));
+                        pageRepository.save(photo.getPage());
+                    }
+                    photoReportRepository.deleteAll(photoReportRepository.findAllByReportedPhoto(photo));
+                    //s3Client.deleteObject(BUCKET_NAME, photoFileName);
+                    photoRepository.delete(photo);
+                    if (userService.currentUser.getUser().getRole().getName() == RoleEnum.ROLE_ADMIN) {
+                        userService.generateNotification(photo.getUser(), "Admin has deleted your photo!");
+                    }
                 }
             }
         }
@@ -152,6 +174,7 @@ public class PhotoServiceImpl {
     public void changeProfilePicture(File file) {
         Photo photo = new Photo();
         photo.setFileName(file.getName());
+        photo.setStatus("New profile picture");
         photo.setUser(userService.currentUser.getUser());
         userService.currentUser.getUser().setProfilePhoto(photo);
         photoRepository.save(photo);
@@ -334,6 +357,25 @@ public class PhotoServiceImpl {
 
     public List<PageDto> getCurrentUserPages(){
         return pageRepository.findAllByOwner(currentUser.getUser()).stream().map(page -> {
+                    PageDto pageDto = new PageDto();
+                    pageDto.setName(page.getPageName());
+                    pageDto.setDescription(page.getDescription());
+                    pageDto.setWebsite(page.getWebsite());
+                    pageDto.setOwnerEmail(page.getOwner().getEmail());
+                    pageDto.setIsPagePublic(page.getIsPagePublic() ? "Public" : "Private");
+                    ResponseEntity<byte[]> b = getImage(page.getProfilePhoto().getFileName());
+                    pageDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));
+                    pageDto.setLikeUsersEmails(page.getLikedPageUsers()
+                            .stream()
+                            .map(User::getEmail)
+                            .collect(Collectors.toList()));
+                    return pageDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<PageDto> getAllPagesPages(){
+        return pageRepository.findAll().stream().map(page -> {
                     PageDto pageDto = new PageDto();
                     pageDto.setName(page.getPageName());
                     pageDto.setDescription(page.getDescription());

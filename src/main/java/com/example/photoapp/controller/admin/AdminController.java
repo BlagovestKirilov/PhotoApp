@@ -54,7 +54,7 @@ public class AdminController {
         model.addAttribute("currentUser", photoServiceImpl.getCurrentUserDto());
         model.addAttribute("currentUserChangePasswordEnum", ChangePasswordEnum.CHANGE_PASSWORD);
         List<Page> pages = userService.getAllPages();
-        model.addAttribute("pages", pages);
+        model.addAttribute("pagesDtos", photoServiceImpl.getAllPagesPages());
         model.addAttribute("notifications", userService.getCurrentUserNotification());
         return "showPages";
     }
@@ -73,6 +73,12 @@ public class AdminController {
     @PostMapping("/ban-user")
     public String postBanUser(@ModelAttribute("userBanDto") UserBanDto userBanDto) {
         userService.banUser(userBanDto);
+        return "redirect:/admin/reported-photo";
+    }
+
+    @PostMapping("/remove-photo")
+    public String removePhotoConfirm(@RequestParam String photoFileName) {
+        photoServiceImpl.deleteFromS3(photoFileName);
         return "redirect:/admin/reported-photo";
     }
 }
