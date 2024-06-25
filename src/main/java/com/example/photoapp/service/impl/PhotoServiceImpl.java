@@ -159,6 +159,7 @@ public class PhotoServiceImpl {
             return ResponseEntity.ok().body(bytes);
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println(key);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -181,17 +182,32 @@ public class PhotoServiceImpl {
         userRepository.save(userService.currentUser.getUser());
     }
 
+    public void changeProfilePicturePage(File file,String status, String pageName) {
+        Photo photo = new Photo();
+        Page page = pageRepository.findAllByPageName(pageName);
+        photo.setFileName(file.getName());
+        photo.setPage(page);
+        photo.setStatus(status);
+        page.setProfilePhoto(photo);
+        photoRepository.save(photo);
+        pageRepository.save(page);
+    }
+
     public void likePhoto(String fileName){
         Photo photo = photoRepository.findByFileName(fileName);
         photo.getLikedPhotoUsers().add(userService.currentUser.getUser());
-        userService.generateNotification(photo.getUser(), userService.currentUser.getUser().getName() +" liked your photo!");
+        if(!photo.getUser().getEmail().equals(userService.currentUser.getUser().getEmail())) {
+            userService.generateNotification(photo.getUser(), userService.currentUser.getUser().getName() + " liked your photo!");
+        }
         photoRepository.save(photo);
     }
     public void unLikePhoto(String fileName){
         Photo photo = photoRepository.findByFileName(fileName);
         List<User> users = photo.getLikedPhotoUsers().stream().filter(user -> !user.getEmail().equals(userService.currentUser.getUser().getEmail())).toList();
         photo.setLikedPhotoUsers(users);
-        userService.generateNotification(photo.getUser(), userService.currentUser.getUser().getName() +" unliked your photo!");
+        if(!photo.getUser().getEmail().equals(userService.currentUser.getUser().getEmail())) {
+            userService.generateNotification(photo.getUser(), userService.currentUser.getUser().getName() +" unliked your photo!");
+        }
         photoRepository.save(photo);
     }
 
@@ -325,6 +341,7 @@ public class PhotoServiceImpl {
         pageDto.setDescription(page.getDescription());
         pageDto.setWebsite(page.getWebsite());
         pageDto.setOwnerEmail(page.getOwner().getEmail());
+        pageDto.setNumberLikes(page.getLikedPageUsers().size());
         pageDto.setIsPagePublic(page.getIsPagePublic() ? "Public" : "Private");
         ResponseEntity<byte[]> b = getImage(page.getProfilePhoto().getFileName());
         pageDto.setProfilePhotoData(Base64.getEncoder().encodeToString(b.getBody()));

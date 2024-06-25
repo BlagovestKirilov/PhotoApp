@@ -91,6 +91,10 @@
         <h2 th:text="${user.getName()}">John Doe</h2>
         <button th:if="${user.getEmail() == currentUser.getEmail()}" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
         <button th:if="${user.getEmail() == currentUser.getEmail()}" class="btn btn-primary"
+                th:onclick="|window.location.href='@{/upload-photo}'|">
+            Upload picture
+        </button>
+        <button th:if="${user.getEmail() == currentUser.getEmail()}" class="btn btn-primary"
                 th:onclick="|window.location.href='@{/change-profile-picture}'|">
             Change profile picture
         </button>

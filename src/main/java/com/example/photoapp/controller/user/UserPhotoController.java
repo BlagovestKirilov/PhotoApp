@@ -69,9 +69,18 @@ public class UserPhotoController {
     @PostMapping("/upload-photo-page")
     public String uploadPhotoPage(@RequestParam("file") MultipartFile file, @RequestParam("status") String status, @RequestParam("pageName") String pageName) throws IOException {
         photoServiceImpl.uploadPhotoByPage(file,status,pageName);
-        return "redirect:/uploadForm";
+        return "redirect:/page?name=" + pageName;
     }
+    @PostMapping("/change-profile-picture-page")
+    public String changeProfilePicturePage(@RequestParam("filePage") MultipartFile file, @RequestParam("statusPage") String status, @RequestParam("pageNameProfilePicture") String pageName) throws IOException {
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        File tempFile = File.createTempFile("temp", fileName);
+        file.transferTo(tempFile);
 
+        photoServiceImpl.uploadToS3(tempFile);
+        photoServiceImpl.changeProfilePicturePage(tempFile, status, pageName);
+        return "redirect:/page?name=" + pageName;
+    }
     @PostMapping("/remove-photo")
     public String removePhotoConfirm(@RequestParam String photoFileName) {
         photoServiceImpl.deleteFromS3(photoFileName);

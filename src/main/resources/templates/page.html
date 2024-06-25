@@ -94,6 +94,7 @@
 <!--            Like-->
 <!--        </button>-->
         <button th:if="${page.getOwnerEmail() == currentUser.getEmail()}" class="btn btn-primary" data-toggle="modal" data-target="#uploadPhotoModal">Upload Photo</button>
+        <button th:if="${page.getOwnerEmail() == currentUser.getEmail()}" class="btn btn-primary" data-toggle="modal" data-target="#changeProfilePhotoModal">Change profile photo</button>
         <button th:if="${page.getOwnerEmail() == currentUser.getEmail()}" class="btn btn-primary" data-toggle="modal" data-target="#editProfileModal">Edit Page</button>
         <form class="add-friend-form" th:if="${page.getOwnerEmail() != currentUser.getEmail() && !page.getLikeUsersEmails().contains(currentUser.getEmail()) && currentUser.getRole() != 'ROLE_ADMIN'}"
               th:action="@{/user/like-page}" method="post">
@@ -110,13 +111,14 @@
     </div>
     <div class="card profile-card">
         <div class="card-header">
-            <h5 class="mb-0">Profile Information</h5>
+            <h5 class="mb-0">Page Information</h5>
         </div>
         <div class="card-body">
             <p><strong>Name:</strong> <span th:text="${page.getName()}">John Doe</span></p>
             <p><strong  th:if="${page.getDescription() != null && !page.getDescription().isEmpty()}">Description: </strong><span th:text="${page.getDescription()}"></span></p>
             <p><strong th:if="${page.getWebsite() != null && !page.getWebsite().isEmpty()}">Website:  </strong><span th:text="${page.getWebsite()}"></span></p>
             <p><strong th:if="${page.getIsPagePublic() != null && !page.getIsPagePublic().isEmpty()}">Publicity:  </strong><span th:text="${page.getIsPagePublic()}"></span></p>
+            <p><strong th:if="${page.getNumberLikes() != null}">Number likes:  </strong><span th:text="${page.getNumberLikes().toString()}"></span></p>
         </div>
     </div>
 
@@ -204,6 +206,38 @@
     </div>
 </div>
 
+<div class="modal fade" id="changeProfilePhotoModal" tabindex="-1" role="dialog" aria-labelledby="changeProfilePhotoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changeProfilePhotoModalLabel">Change</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/change-profile-picture-page" method="post" enctype="multipart/form-data">
+                <!-- Ensure correct form field names -->
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="file">Select File:</label>
+                        <input type="file" name="filePage" id="filePage" required> <!-- Make file input required if needed -->
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status:</label>
+                        <input type="text" name="statusPage" id="statusPage" required> <!-- Make status input required if needed -->
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" name="pageNameProfilePicture" id="pageNameProfilePicture" th:value="${page.name}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Upload photo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="uploadPhotoModal" tabindex="-1" role="dialog" aria-labelledby="uploadPhotoModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

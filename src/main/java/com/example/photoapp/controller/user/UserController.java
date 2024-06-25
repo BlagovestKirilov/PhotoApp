@@ -129,7 +129,7 @@ public class UserController {
     @PostMapping("/edit")
     public String editProfile(@ModelAttribute("user") UserDto user) {
         userService.editProfile(user);
-        return "redirect:/profile";
+        return "redirect:/profile?email=" + user.getEmail();
     }
 
     @PostMapping("/edit-page")

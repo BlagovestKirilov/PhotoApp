@@ -27,4 +27,6 @@ public class PageDto {
     private List<String> likeUsersEmails;
 
     private String isPagePublic;
+
+    private Integer numberLikes;
 }
