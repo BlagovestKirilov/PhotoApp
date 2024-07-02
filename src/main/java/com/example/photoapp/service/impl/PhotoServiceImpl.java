@@ -10,6 +10,7 @@ import com.example.photoapp.enums.FriendRequestStatusEnum;
 import com.example.photoapp.enums.ReportReasonEnum;
 import com.example.photoapp.enums.RoleEnum;
 import com.example.photoapp.repository.*;
+import com.example.photoapp.service.PhotoService;
 import com.example.photoapp.util.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class PhotoServiceImpl {
+public class PhotoServiceImpl implements PhotoService {
     @Value("${cloud.aws.bucketName}")
     private String BUCKET_NAME;
 
@@ -196,8 +197,9 @@ public class PhotoServiceImpl {
     public void likePhoto(String fileName){
         Photo photo = photoRepository.findByFileName(fileName);
         photo.getLikedPhotoUsers().add(userService.currentUser.getUser());
-        if(!photo.getUser().getEmail().equals(userService.currentUser.getUser().getEmail())) {
-            userService.generateNotification(photo.getUser(), userService.currentUser.getUser().getName() + " liked your photo!");
+        User photoOwner = photo.getUser() != null ? photo.getUser() : photo.getPage().getOwner();
+        if(!photoOwner.getEmail().equals(userService.currentUser.getUser().getEmail())) {
+            userService.generateNotification(photoOwner, userService.currentUser.getUser().getName() + " liked your photo!");
         }
         photoRepository.save(photo);
     }

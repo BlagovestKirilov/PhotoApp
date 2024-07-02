@@ -1,7 +1,5 @@
 package com.example.photoapp.service;
 
-
-import com.example.photoapp.entity.Notification;
 import com.example.photoapp.entity.Page;
 import com.example.photoapp.entity.dto.*;
 import com.example.photoapp.entity.User;

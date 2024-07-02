@@ -42,6 +42,10 @@ public class LoginController {
             result.rejectValue("password", null,
                     "Wrong email or password!");
         }
+        if(existingUser != null && existingUser.getRegistrationStatus() == RegistrationStatusEnum.PENDING){
+            result.rejectValue("email", null,
+                    "Not confirmed email!");
+        }
         if (result.hasErrors()) {
             model.addAttribute("user", userDto);
             return "/login";

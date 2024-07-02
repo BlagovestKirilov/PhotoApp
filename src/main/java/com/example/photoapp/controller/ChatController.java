@@ -3,7 +3,7 @@ package com.example.photoapp.controller;
 import com.example.photoapp.entity.ChatMessageRequest;
 import com.example.photoapp.entity.Response;
 import com.example.photoapp.entity.dto.ChatMessageDTO;
-import com.example.photoapp.service.impl.ChatService;
+import com.example.photoapp.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

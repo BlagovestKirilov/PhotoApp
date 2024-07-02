@@ -223,7 +223,7 @@ public class UserServiceImpl implements UserService {
         userConfirmation.setCodeConfirmationStatus(CodeConfirmationStatusEnum.ACTIVE);
         userConfirmationRepository.save(userConfirmation);
 
-        emailService.sendEmail(email,"Forgot Registration","Your confirmation code is " + randomNumber);
+        emailService.sendEmail(email,"Forgot password","Your confirmation code is " + randomNumber);
     }
 
     @Override

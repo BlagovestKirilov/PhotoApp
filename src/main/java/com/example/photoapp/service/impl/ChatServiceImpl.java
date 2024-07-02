@@ -5,6 +5,7 @@ import com.example.photoapp.entity.User;
 import com.example.photoapp.entity.dto.ChatMessageDTO;
 import com.example.photoapp.repository.ChatMessageRepository;
 import com.example.photoapp.repository.UserRepository;
+import com.example.photoapp.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ChatService {
+public class ChatServiceImpl implements ChatService {
 
     @Autowired
     private ChatMessageRepository chatMessageRepository;

@@ -118,7 +118,7 @@ public class UserController {
     public String changePassword(@ModelAttribute("changePasswordDto") ChangePasswordDto changePasswordDto,
                                  BindingResult bindingResult, Model model) {
         userService.changePassword(changePasswordDto);
-        return "redirect:/user/password-changed";
+        return "redirect:/login";
     }
     @GetMapping("/get-friends")
     public ResponseEntity<List<FriendDto>> getFriends( User currentUser) {
